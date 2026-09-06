@@ -28,19 +28,28 @@ TempStr FormatStoredBookmarkTemp(Str bookmark) {
     return fmt("%s%s", kBookmarkPrefix, bookmark);
 }
 
-// engine bookmark of the current location for a chaptered doc, else the
-// flat current page number
+// engine bookmark of the location for a chaptered doc, else the flat page number
+TempStr StoredPagePosForPageTemp(DocController* ctrl, int pageNo) {
+    if (!ctrl || pageNo < 1) {
+        return FormatStoredPagePosTemp(1);
+    }
+    if (ctrl->HasChapters()) {
+        Location loc = ctrl->LocationFromPageNo(pageNo);
+        if (loc.IsValid()) {
+            TempStr bm = ctrl->MakeBookmarkTemp(loc);
+            if (bm) {
+                return FormatStoredBookmarkTemp(bm);
+            }
+        }
+    }
+    return FormatStoredPagePosTemp(pageNo);
+}
+
 TempStr StoredPagePosFromCtrlTemp(DocController* ctrl) {
     if (!ctrl) {
         return FormatStoredPagePosTemp(1);
     }
-    if (ctrl->HasChapters()) {
-        TempStr bm = ctrl->MakeBookmarkTemp(ctrl->CurrentLocation());
-        if (bm) {
-            return FormatStoredBookmarkTemp(bm);
-        }
-    }
-    return FormatStoredPagePosTemp(ctrl->CurrentPageNo());
+    return StoredPagePosForPageTemp(ctrl, ctrl->CurrentPageNo());
 }
 
 // leading "chapter:page" from an engine bookmark ("chapter:page:pagesInChapter

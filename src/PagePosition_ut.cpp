@@ -3,6 +3,7 @@
 
 #include "base/Base.h"
 
+#include "ChapterTable.h"
 #include "PagePosition.h"
 
 #include "base/UtAssert.h"
@@ -43,5 +44,20 @@ void PagePosition_UnitTests() {
     {
         utassert(str::Eq(FormatStoredPagePosTemp(12), StrL("12")));
         utassert(str::Eq(FormatStoredBookmarkTemp(StrL("3:5:20")), StrL("bm:3:5:20")));
+    }
+
+    // BookmarkLocationHint
+    {
+        Location loc = BookmarkLocationHint(StrL("3:5:20"));
+        utassert(loc.chapter == 3 && loc.page == 5);
+
+        loc = BookmarkLocationHint(StrL("3:5:20:r10452"));
+        utassert(loc.chapter == 3 && loc.page == 5);
+
+        loc = BookmarkLocationHint(StrL("invalid"));
+        utassert(!loc.IsValid());
+
+        loc = BookmarkLocationHint(StrL(""));
+        utassert(!loc.IsValid());
     }
 }

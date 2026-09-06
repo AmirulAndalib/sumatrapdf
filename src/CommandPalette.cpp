@@ -1121,10 +1121,7 @@ bool CommandPaletteWnd::RemoveSelectedItem() {
             return true;
         }
     } else if (d->fav && d->favFs) {
-        // copy before DelFavorite frees the Favorite*
-        Str path = d->favFs->filePath;
-        int pageNo = d->fav->pageNo;
-        DelFavorite(path, pageNo);
+        DelFavorite(d->favFs, d->fav);
     } else if (d->filePath) {
         ForgetFileFromFrequentlyRead(win, d->filePath);
     } else {

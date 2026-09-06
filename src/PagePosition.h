@@ -19,6 +19,7 @@ TempStr FormatStoredPagePosTemp(int pageNo);
 TempStr FormatStoredBookmarkTemp(Str bookmark);
 
 TempStr StoredPagePosFromCtrlTemp(DocController* ctrl);
+TempStr StoredPagePosForPageTemp(DocController* ctrl, int pageNo);
 int PageNoFromStoredPagePos(DocController* ctrl, Str stored);
 
 Location BookmarkLocationHint(Str bookmark);

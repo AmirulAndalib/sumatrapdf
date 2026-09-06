@@ -1059,12 +1059,9 @@ FileStates [
         ; name of this favorite as shown in the menu
         Name =
 
-        ; number of the bookmarked page
-        PageNo = 0
-
-        ; engine bookmark for documents with chapters; PageNo is only a hint
-        ; (introduced in version 3.7)
-        Bookmark =
+        ; number of the bookmarked page, or `bm:<bookmark>` for documents with
+        ; chapters (see PagePosition.cpp)
+        PageNo = 1
 
         ; label for this page (only present if logical and physical page numbers
         ; are not the same)

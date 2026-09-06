@@ -39,6 +39,7 @@
 #include "SelectionHandlers.h"
 #include "FileHistory.h"
 #include "Favorites.h"
+#include "PagePosition.h"
 #include "SelectionTranslate.h"
 #include "ImageSaveCropResize.h"
 #include "base/GuessFileType.h"
@@ -145,22 +146,17 @@ static void AddFavoriteSilent(MainWindow* win, int pageNo) {
     if (!fs->favorites) {
         return;
     }
+    TempStr storedPos = StoredPagePosForPageTemp(win->ctrl, pageNo);
     for (Favorite* fav : *fs->favorites) {
-        if (fav->pageNo == pageNo) {
+        if (str::Eq(fav->pageNo, storedPos)) {
             return;
         }
     }
     TempStr pageLabel = win->ctrl->GetPageLabeTemp(pageNo);
     TempStr plainLabel = fmt("%d", pageNo);
-    bool needsLabel = pageLabel && !str::Eq(plainLabel, pageLabel);
+    bool needsLabel = pageLabel && !str::Eq(plainLabel, pageLabel) && !win->ctrl->HasChapters();
     Str pl = needsLabel ? pageLabel : Str{};
-    TempStr bookmark;
-    if (win->ctrl->HasChapters()) {
-        Location loc = win->ctrl->LocationFromPageNo(pageNo);
-        bookmark = win->ctrl->MakeBookmarkTemp(loc);
-        pl = fmt("%d/%d", loc.chapter, loc.page);
-    }
-    Favorite* fn = NewFavorite(pageNo, {}, pl, bookmark);
+    Favorite* fn = NewFavorite(storedPos, {}, pl);
     DisplayModel* dm = win->AsFixed();
     if (dm && dm->GetScrollState().page == pageNo) {
         ScrollState ss = dm->GetScrollState();
@@ -208,7 +204,7 @@ static TempStr FavoriteNavResultTemp(Str action, int pageNo, int* exitCodeOut) {
         Favorite* fav = nullptr;
         if (fs && fs->favorites) {
             for (Favorite* f : *fs->favorites) {
-                if (f->pageNo == pageNo) {
+                if (ParseStoredPagePos(f->pageNo).pageNo == pageNo) {
                     fav = f;
                     break;
                 }

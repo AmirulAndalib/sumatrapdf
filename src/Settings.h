@@ -197,10 +197,9 @@ struct TabGroup {
 struct Favorite {
     // name of this favorite as shown in the menu
     Str name;
-    // number of the bookmarked page
-    int pageNo;
-    // engine bookmark for documents with chapters; PageNo is only a hint
-    Str bookmark;
+    // number of the bookmarked page, or `bm:<bookmark>` for documents with
+    // chapters (see PagePosition.cpp)
+    Str pageNo;
     // label for this page (only present if logical and physical page
     // numbers are not the same)
     Str pageLabel;
@@ -1711,19 +1710,18 @@ static const StructInfo gPointFInfo = {sizeof(PointF),
 
 static const FieldInfo gFavoriteFields[] = {
     {offsetof(Favorite, name), SettingType::String, 0},
-    {offsetof(Favorite, pageNo), SettingType::Int, 0},
-    {offsetof(Favorite, bookmark), SettingType::String, 0},
+    {offsetof(Favorite, pageNo), SettingType::String, (intptr_t)"1"},
     {offsetof(Favorite, pageLabel), SettingType::String, 0},
     {offsetof(Favorite, scrollPos), SettingType::Compact, (intptr_t)&gPointFInfo},
     {offsetof(Favorite, isTemporary), SettingType::Bool, false, true},
 };
 static const StructInfo gFavoriteInfo = {
     sizeof(Favorite),
-    6,
+    5,
     gFavoriteFields,
-    "Name\0PageNo\0Bookmark\0PageLabel\0ScrollPos\0IsTemporary",
-    "name of this favorite as shown in the menu\0number of the bookmarked page\0engine bookmark for documents with "
-    "chapters; PageNo is only a hint\0label for this page (only present if logical and physical page numbers are not "
+    "Name\0PageNo\0PageLabel\0ScrollPos\0IsTemporary",
+    "name of this favorite as shown in the menu\0number of the bookmarked page, or `bm:<bookmark>` for documents with "
+    "chapters (see PagePosition.cpp)\0label for this page (only present if logical and physical page numbers are not "
     "the same)\0position on the page when the favorite was added (document units; -1 if not stored)\0session-only "
     "favorite; omitted when serializing array elements",
     true};

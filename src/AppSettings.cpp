@@ -44,6 +44,7 @@
 #include "ExplorerQuickLook.h"
 #include "Tabs.h"
 #include "GlobalHotkeys.h"
+#include "PagePosition.h"
 #include "AppSettings.h"
 
 // workaround for OnMenuExit
@@ -1333,13 +1334,16 @@ void DeleteFileStates(Vec<FileState*>* a) {
     delete a;
 }
 
-Favorite* NewFavorite(int pageNo, Str name, Str pageLabel, Str bookmark) {
+Favorite* NewFavorite(Str pageNo, Str name, Str pageLabel) {
     Favorite* fav = (Favorite*)DeserializeStruct(&gFavoriteInfo, {});
-    fav->pageNo = pageNo;
+    str::ReplaceWithCopy(&fav->pageNo, pageNo);
     str::ReplaceWithCopy(&fav->name, name);
     str::ReplaceWithCopy(&fav->pageLabel, pageLabel);
-    str::ReplaceWithCopy(&fav->bookmark, bookmark);
     return fav;
+}
+
+Favorite* NewFavorite(int pageNo, Str name, Str pageLabel) {
+    return NewFavorite(FormatStoredPagePosTemp(pageNo), name, pageLabel);
 }
 
 void DeleteFavorite(Favorite* fav) {

@@ -752,6 +752,10 @@ static MenuDef menuDefSelection[] = {
         CmdCopySelectionAsImage,
     },
     {
+        TrN("&Save As Image..."),
+        CmdSaveSelectionAsImage,
+    },
+    {
         TrN("Visual Search With Google &Lens"),
         CmdSearchGoogleLens,
     },
@@ -1683,8 +1687,8 @@ HMENU BuildMenuFromDef(MenuDef* menuDef, HMENU menu, BuildMenuCtx* ctx) {
             if (menuDef == menuDefSelection) {
                 removeMenu |= !ctx->hasSelection && cmdId == CmdCopySelection;
                 if (!isRectSel) {
-                    removeMenu |=
-                        cmdId == CmdCopySelectionAsImage || cmdId == CmdSearchGoogleLens || cmdId == CmdZoomToSelection;
+                    removeMenu |= cmdId == CmdCopySelectionAsImage || cmdId == CmdSaveSelectionAsImage ||
+                                  cmdId == CmdSearchGoogleLens || cmdId == CmdZoomToSelection;
                 }
             }
             if (menuDef == menuDefGoogleLens) {

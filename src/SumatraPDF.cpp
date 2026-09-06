@@ -12578,6 +12578,10 @@ static LRESULT FrameOnCommand(MainWindow* win, HWND hwnd, UINT msg, WPARAM wp, L
             }
             break;
 
+        case CmdSaveSelectionAsImage:
+            ShowSaveSelectionAsImageDialog(win);
+            break;
+
         case CmdNavigateThumbnail:
             RunCommandPalette(win, Str(kPalettePrefixThumbnails), 0);
             break;

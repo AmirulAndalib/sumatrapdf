@@ -179,6 +179,7 @@ static UINT_PTR removeIfNoCopyPerms[] = {
     CmdCopyComment,
     CmdCopyImage,
     CmdCopySelectionAsImage,
+    CmdSaveSelectionAsImage,
     CmdSearchGoogleLens,
     CmdSearchGoogleLensPage,
     CmdSearchGoogleLensImage,
@@ -200,6 +201,7 @@ static UINT_PTR removeIfNoDiskAccessPerm[] = {
     CmdClose,
     CmdShowInFolder,
     CmdSaveAs,
+    CmdSaveSelectionAsImage,
     CmdRenameFile,
     CmdDeleteFile,
     CmdDeleteFileAndOpenNext,
@@ -813,7 +815,7 @@ CommandVisibility GetCommandVisibility(int cmdId, const AppCommandCtx& ctx, Comm
     if (!ctx.cursorOnImage && cmdId == CmdCopyImage) {
         return CommandVisibility::Hide;
     }
-    if (cmdId == CmdCopySelectionAsImage) {
+    if (cmdId == CmdCopySelectionAsImage || cmdId == CmdSaveSelectionAsImage) {
         bool isRect = ctx.hasSelection && !ctx.hasTextSelection;
         return isRect ? CommandVisibility::Show : CommandVisibility::Hide;
     }

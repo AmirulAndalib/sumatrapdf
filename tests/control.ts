@@ -90,6 +90,7 @@ export enum ControlCommand {
   CrashMe = 93,
   TestDocumentProperties = 94,
   TestHiddenTabGoToPage = 95,
+  TestSaveSelectionAsImage = 96,
 }
 
 export type ControlArg = number | string | Uint8Array | ControlArg[];

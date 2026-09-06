@@ -313,6 +313,7 @@ export const commands = [
     "CmdCopySelectionAsImage", "Copy Selection As Image",
     "CmdSearchGoogleLensPage", "Search Page with Google Lens",
     "CmdSearchGoogleLensImage", "Search Image with Google Lens",
+    "CmdSaveSelectionAsImage", "Save As Image...",
     "CmdNone", "Do nothing",
 ];
 

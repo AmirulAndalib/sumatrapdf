@@ -4,6 +4,7 @@
 
 Available in [pre-release](https://www.sumatrapdfreader.org/prerelease) builds.
 
+- **Save Selection As Image** (`CmdSaveSelectionAsImage`): with a rectangular (Ctrl+drag) selection, export that area as PNG, JPEG or BMP at a chosen DPI, independent of the current zoom (fixes #6127)
 - The annotation **Contents** box, the free-text in-place editor, and Advanced Settings in-place value edits stay open when the Windows on-screen keyboard takes focus, so they can be used on a tablet
 - Document Properties (Ctrl+D) fills Title, Author, Subject, Keywords, dates, Application and PDF Producer from the Catalog XMP metadata stream when the Info dictionary omits them
 - **Global shortcuts:** prefixing `Key` with `Global ` in `Shortcuts` settings (e.g. `Key = Global PageDown`) registers a system-wide hotkey. Commands route to the most recently active open SumatraPDF window (fixes #6133)
@@ -256,7 +257,7 @@ Available in [pre-release](https://www.sumatrapdfreader.org/prerelease) builds.
 - **Stop Reading** is always in the Read Aloud menu (main menu, context menu, toolbar dropdown), even when the playback bar is not visible, so a session can still be stopped from the top menu (fixes #6053). It is disabled when nothing is being read; the command palette lists it only while a session is active
 - **Navigate Thumbnails** opens a page-thumbnail grid for the current fixed-page document; thumbnails appear as they are rendered in the background, and the grid supports arrow-key navigation, mouse selection, double-click or Enter to open a page, Escape to close, and a scrollbar for long documents. EPUB/MOBI thumbs show `chapter / page` on a rounded badge; each thumb is the chapter page it will open, not a shifted flat page number after another chapter laid out
 - Multi-chapter ebooks (EPUB, MOBI) open showing only the first chapter and lay out the rest as you read them, instead of paginating the whole book up front — a 1000-chapter MOBI now opens in about 0.1s instead of roughly 40s. For those documents the toolbar shows **Chapter: [n] / N** next to **Page: [n] / M** (the page within the current chapter), the Go to Page dialog asks for a chapter and a page, and Next Page / Previous Page cross chapter boundaries. The remembered reading position is a chapter bookmark, so it survives font-size changes that reflow the book; old plain page numbers in settings still open at that flat page
-- The document context menu groups copy / zoom / select under **Selection**, Google Lens under **Visual Search With Google Lens** (selection as image, this page, or the image under the cursor), and image actions under **Selected Image** (including Lens). **Copy As Image To Clipboard**, **Zoom To Selection**, and Lens from **Selection** appear only for a rectangular selection
+- The document context menu groups copy / zoom / select under **Selection**, Google Lens under **Visual Search With Google Lens** (selection as image, this page, or the image under the cursor), and image actions under **Selected Image** (including Lens). **Copy As Image To Clipboard**, **Save As Image**, **Zoom To Selection**, and Lens from **Selection** appear only for a rectangular selection
 
 **New commands:**
 
@@ -357,6 +358,7 @@ Available in [pre-release](https://www.sumatrapdfreader.org/prerelease) builds.
 - `CmdTogglePageGrid` : "Toggle Page Grid" — View menu; session-only graph paper on the page (fixes #4398)
 - `CmdConfigurePageGrid` : "Configure Page Grid..." — View menu; dialog for grid spacing, origin, color and style
 - `CmdCopySelectionAsImage` : "Copy Selection As Image" — clipboard image of a rectangular selection
+- `CmdSaveSelectionAsImage` : "Save As Image..." — rectangular selection → PNG/JPEG/BMP at a chosen DPI (fixes #6127)
 - `CmdSearchGoogleLensPage` : "Search Page with Google Lens"
 - `CmdSearchGoogleLensImage` : "Search Image with Google Lens"
 

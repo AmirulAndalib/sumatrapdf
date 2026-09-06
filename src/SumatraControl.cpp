@@ -872,6 +872,7 @@ enum class ControlCmd : u16 {
     CrashMe = 93,
     TestDocumentProperties = 94,
     TestHiddenTabGoToPage = 95,
+    TestSaveSelectionAsImage = 96,
 };
 
 enum class ControlArgType : u16 {
@@ -1802,6 +1803,25 @@ static void ExecuteControlRequest(ControlRequest* req) {
             }
             int exitCode = 0;
             Str res = ConvertPagesToImagesResultTemp(templatePath, pagesSpec, &exitCode);
+            AppendTestResult(req, exitCode, res);
+            break;
+        }
+
+        case ControlCmd::TestSaveSelectionAsImage: {
+            Str destPath = StringArg(req, 0);
+            i32 dpi = 0;
+            i32 pageNo = 0;
+            i32 x = 0;
+            i32 y = 0;
+            i32 dx = 0;
+            i32 dy = 0;
+            if (len(destPath) == 0 || !IntArg(req, 1, dpi) || !IntArg(req, 2, pageNo) || !IntArg(req, 3, x) ||
+                !IntArg(req, 4, y) || !IntArg(req, 5, dx) || !IntArg(req, 6, dy)) {
+                AppendError(req, StrL("TestSaveSelectionAsImage expects path, dpi, page, x, y, dx, dy"));
+                break;
+            }
+            int exitCode = 0;
+            Str res = SaveSelectionAsImageResultTemp(destPath, dpi, pageNo, x, y, dx, dy, &exitCode);
             AppendTestResult(req, exitCode, res);
             break;
         }

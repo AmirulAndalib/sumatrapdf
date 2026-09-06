@@ -313,7 +313,8 @@ enum {
     CmdCopySelectionAsImage = 502,
     CmdSearchGoogleLensPage = 503,
     CmdSearchGoogleLensImage = 504,
-    CmdNone = 505,
+    CmdSaveSelectionAsImage = 505,
+    CmdNone = 506,
 
     /* range for file history */
     CmdFileHistoryFirst,

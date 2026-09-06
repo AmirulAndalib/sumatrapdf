@@ -3,6 +3,7 @@
 
 struct DocController;
 struct Location;
+struct FileState;
 
 // marks a persisted FileState/TabState PageNo string as an engine bookmark
 // instead of a flat page number
@@ -23,3 +24,7 @@ TempStr StoredPagePosForPageTemp(DocController* ctrl, int pageNo);
 int PageNoFromStoredPagePos(DocController* ctrl, Str stored);
 
 Location BookmarkLocationHint(Str bookmark);
+
+Location LocationFromFlatPageNo(DocController* ctrl, int flatPageNo);
+bool MigrateStoredPagePos(DocController* ctrl, Str* pageNoStr);
+bool MigrateFileStatePagePos(DocController* ctrl, FileState* fs);

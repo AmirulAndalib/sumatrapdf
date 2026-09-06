@@ -395,6 +395,9 @@ void SetTabState(WindowTab* tab, TabState* state) {
     // validate page number from session state
     // TODO: figure out how this happens in the first place i.e.
     // why TabState->pageNo etc. gets saved as 0
+    if (ctrl->HasChapters()) {
+        MigrateStoredPagePos(ctrl, &state->pageNo);
+    }
     StoredPagePos storedPos = ParseStoredPagePos(state->pageNo);
     int pageNo = PageNoFromStoredPagePos(ctrl, state->pageNo);
     if (pageNo < 1) {

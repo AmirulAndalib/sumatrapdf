@@ -3,6 +3,7 @@
 
 #include "base/Base.h"
 #include "gui/UIModels.h"
+#include "Settings.h"
 #include "EngineBase.h"
 #include "DocController.h"
 #include "PagePosition.h"
@@ -78,4 +79,69 @@ int PageNoFromStoredPagePos(DocController* ctrl, Str stored) {
         return 1;
     }
     return ctrl->PageNoFromLocation(loc);
+}
+
+// renders/lays out chapters in sequence until enough pages are available to
+// map a legacy flat page number to a chapter-relative Location
+Location LocationFromFlatPageNo(DocController* ctrl, int flatPageNo) {
+    if (!ctrl || !ctrl->HasChapters()) {
+        return kInvalidLocation;
+    }
+    int nChapters = ctrl->ChapterCount();
+    if (nChapters <= 0) {
+        return kInvalidLocation;
+    }
+    int remaining = flatPageNo < 1 ? 1 : flatPageNo;
+    for (int ch = 1; ch <= nChapters; ch++) {
+        int count = ctrl->ChapterPageCount(ch);
+        if (remaining <= count) {
+            return {ch, remaining};
+        }
+        remaining -= count;
+    }
+    int lastCount = ctrl->ChapterPageCount(nChapters);
+    return {nChapters, lastCount};
+}
+
+// converts a legacy flat int page number into a "bm:..." bookmark for a
+// chaptered document. Returns true if migrated.
+bool MigrateStoredPagePos(DocController* ctrl, Str* pageNoStr) {
+    if (!ctrl || !ctrl->HasChapters() || !pageNoStr) {
+        return false;
+    }
+    StoredPagePos pos = ParseStoredPagePos(*pageNoStr);
+    if (pos.bookmark) {
+        return false;
+    }
+    Location loc = LocationFromFlatPageNo(ctrl, pos.pageNo);
+    if (!loc.IsValid()) {
+        return false;
+    }
+    TempStr bm = ctrl->MakeBookmarkTemp(loc);
+    if (len(bm) == 0) {
+        return false;
+    }
+    TempStr storedBm = FormatStoredBookmarkTemp(bm);
+    str::ReplaceWithCopy(pageNoStr, storedBm);
+    return true;
+}
+
+// migrates fs->pageNo and any fs->favorites from legacy flat page numbers to
+// "bm:..." bookmarks. Returns true if any value was updated.
+bool MigrateFileStatePagePos(DocController* ctrl, FileState* fs) {
+    if (!ctrl || !ctrl->HasChapters() || !fs) {
+        return false;
+    }
+    bool changed = false;
+    if (MigrateStoredPagePos(ctrl, &fs->pageNo)) {
+        changed = true;
+    }
+    if (fs->favorites) {
+        for (Favorite* fav : *fs->favorites) {
+            if (MigrateStoredPagePos(ctrl, &fav->pageNo)) {
+                changed = true;
+            }
+        }
+    }
+    return changed;
 }

@@ -217,6 +217,13 @@ static void ApplyFavoriteView(MainWindow* win, Str pageNoStr, PointF scrollPos, 
             return;
         }
     }
+    if (win->ctrl->HasChapters()) {
+        Location loc = LocationFromFlatPageNo(win->ctrl, pos.pageNo);
+        if (loc.IsValid()) {
+            win->ctrl->GoToLocation(loc, addNavPt);
+            return;
+        }
+    }
     int pageNo = pos.pageNo;
     if (!win->ctrl->ValidPageNo(pageNo)) {
         return;

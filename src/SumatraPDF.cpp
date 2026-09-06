@@ -2496,13 +2496,12 @@ static void ReplaceDocumentInCurrentTab(LoadArgs* args, DocController* ctrl, Fil
             if (fs) {
                 dm->SetUniformPageWidth(fs->uniformPageWidth);
             }
+            FileState* favFs = fs ? fs : FileHistoryFindByPath(win->ctrl->GetFilePath());
+            if (favFs && MigrateFileStatePagePos(win->ctrl, favFs)) {
+                SaveSettings();
+                UpdateFavoritesTreeForAllWindows();
+            }
             if (fs) {
-                // lays out ss.page's chapter for a chaptered doc (intended,
-                // single-chapter cost). ss.loc is set only for a real bookmark:
-                // a legacy flat int must open at that flat page even if some
-                // earlier chapter isn't laid out yet, so it can't go through
-                // Location (which would resolve against a still-placeholder
-                // chapter table and drift)
                 StoredPagePos pos = ParseStoredPagePos(fs->pageNo);
                 ss.page = PageNoFromStoredPagePos(win->ctrl, fs->pageNo);
                 if (pos.bookmark) {

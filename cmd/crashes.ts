@@ -114,8 +114,113 @@ function analyzePath(id: string): string {
   return join(dumpDir(id), "analyze.txt");
 }
 
+function logPath(id: string): string {
+  return join(dumpDir(id), "log.txt");
+}
+
 function relAnalyze(id: string): string {
   return relative(ROOT, analyzePath(id)).replaceAll("\\", "/");
+}
+
+function relLog(id: string): string {
+  return relative(ROOT, logPath(id)).replaceAll("\\", "/");
+}
+
+const kMinidumpSignature = 0x504d444d; // 'MDMP'
+const kCommentStreamA = 10;
+const kCommentStreamW = 11;
+const kMinidumpHeaderSize = 32;
+const kMinidumpDirEntrySize = 12;
+
+function u32le(buf: Uint8Array, off: number): number {
+  return (buf[off] | (buf[off + 1] << 8) | (buf[off + 2] << 16) | (buf[off + 3] << 24)) >>> 0;
+}
+
+function decodeCommentA(buf: Uint8Array): string {
+  let end = buf.length;
+  while (end > 0 && buf[end - 1] === 0) {
+    end--;
+  }
+  return new TextDecoder("utf-8").decode(buf.subarray(0, end));
+}
+
+function decodeCommentW(buf: Uint8Array): string {
+  let n = buf.length;
+  if (n % 2) {
+    n--;
+  }
+  while (n >= 2 && buf[n - 2] === 0 && buf[n - 1] === 0) {
+    n -= 2;
+  }
+  return new TextDecoder("utf-16le").decode(buf.subarray(0, n));
+}
+
+// MiniDumpWriteDump CommentStreamA/W (log + settings).
+function extractMinidumpComment(dmp: Uint8Array): string {
+  if (dmp.length < kMinidumpHeaderSize) {
+    return "";
+  }
+  if (u32le(dmp, 0) !== kMinidumpSignature) {
+    return "";
+  }
+  const nStreams = u32le(dmp, 8);
+  const dirRva = u32le(dmp, 12);
+  if (nStreams === 0 || nStreams > 256) {
+    return "";
+  }
+  const dirEnd = dirRva + nStreams * kMinidumpDirEntrySize;
+  if (dirRva < kMinidumpHeaderSize || dirEnd > dmp.length) {
+    return "";
+  }
+  let commentA = "";
+  let commentW = "";
+  for (let i = 0; i < nStreams; i++) {
+    const off = dirRva + i * kMinidumpDirEntrySize;
+    const type = u32le(dmp, off);
+    const dataSize = u32le(dmp, off + 4);
+    const rva = u32le(dmp, off + 8);
+    if (dataSize === 0 || rva + dataSize > dmp.length) {
+      continue;
+    }
+    const slice = dmp.subarray(rva, rva + dataSize);
+    if (type === kCommentStreamA) {
+      commentA = decodeCommentA(slice);
+    } else if (type === kCommentStreamW) {
+      commentW = decodeCommentW(slice);
+    }
+  }
+  return commentA || commentW;
+}
+
+function isLogExtracted(id: string): boolean {
+  const p = logPath(id);
+  if (!existsSync(p)) {
+    return false;
+  }
+  try {
+    return statSync(p).size > 0;
+  } catch {
+    return false;
+  }
+}
+
+function extractDumpLog(id: string, force = false): void {
+  if (!force && isLogExtracted(id)) {
+    return;
+  }
+  const p = dumpPath(id);
+  if (!existsSync(p)) {
+    return;
+  }
+  try {
+    const text = extractMinidumpComment(new Uint8Array(readFileSync(p)));
+    if (!text) {
+      return;
+    }
+    writeFileSync(logPath(id), text);
+  } catch (e) {
+    console.error(`${id}: comment extract: ${e instanceof Error ? e.message : e}`);
+  }
 }
 
 function isAnalyzed(id: string): boolean {
@@ -151,6 +256,9 @@ function printRows(rows: DumpRow[]): void {
     );
     if (isAnalyzed(r.id)) {
       console.log(relAnalyze(r.id));
+    }
+    if (isLogExtracted(r.id)) {
+      console.log(relLog(r.id));
     }
   }
   console.log(`${rows.length} minidump${rows.length === 1 ? "" : "s"}`);
@@ -523,6 +631,7 @@ async function analyze(server: string, row: DumpRow, reanalyze: boolean): Promis
     console.log(`dump: downloading ${url}`);
     writeFileSync(dmpPath, await fetchBytes(url));
   }
+  extractDumpLog(row.id, reanalyze);
   const outPath = analyzePath(row.id);
   if (reanalyze && existsSync(outPath)) {
     unlinkSync(outPath);
@@ -558,6 +667,7 @@ async function analyze(server: string, row: DumpRow, reanalyze: boolean): Promis
 
 async function ensureAnalyzed(server: string, row: DumpRow, reanalyze: boolean): Promise<void> {
   if (!reanalyze && isAnalyzed(row.id)) {
+    extractDumpLog(row.id);
     return;
   }
   await analyze(server, row, reanalyze);
@@ -572,6 +682,7 @@ type ApiCrash = {
   CrashLine: string;
   GitSha1: string;
   IsCrash: boolean;
+  HasLog: boolean;
 };
 
 function parseAnalyzeSummary(txt: string): { crashLine: string; cond: string; isCrash: boolean } {
@@ -614,11 +725,36 @@ function crashApiRow(row: DumpRow): ApiCrash {
     CrashLine: crashLine,
     GitSha1: "",
     IsCrash: isCrash,
+    HasLog: isLogExtracted(row.id),
   };
 }
 
 function escapeHtml(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function crashHtml(id: string, analyzeTxt: string): string {
+  const logTxt = isLogExtracted(id) ? readFileSync(logPath(id), "utf8") : "";
+  const logBlock = logTxt ? `<h2>minidump log</h2>\n<pre>${escapeHtml(logTxt)}</pre>` : "";
+  return `<!doctype html>
+<meta charset="utf-8">
+<title>${escapeHtml(id)}</title>
+<style>
+  body { font-family: monospace; font-size: 9pt; margin: 1em; }
+  h2 { margin: 1.2em 0 0.4em; font-size: 11pt; }
+  pre { white-space: pre-wrap; word-break: break-word; }
+  nav { margin-bottom: 1em; }
+  nav a { margin-right: 1em; }
+</style>
+<nav>
+  <a href="/">index</a>
+  <a href="/crash/${encodeURIComponent(id)}">analyze.txt</a>
+  ${logTxt ? `<a href="/crash/${encodeURIComponent(id)}.log">log.txt</a>` : ""}
+</nav>
+<h2>cdb !analyze</h2>
+<pre>${escapeHtml(analyzeTxt)}</pre>
+${logBlock}
+`;
 }
 
 function crashesIndexHtml(): string {
@@ -682,6 +818,7 @@ function crashesIndexHtml(): string {
     }
     function textURL(crash) { return "/crash/" + crash.FileNameTxt; }
     function htmlURL(crash) { return "/crash/" + crash.FileNameTxt + ".html"; }
+    function logURL(crash) { return "/crash/" + crash.FileNameTxt + ".log"; }
   </script>
   <script src="https://unpkg.com/alpinejs" defer></script>
   <style>
@@ -718,6 +855,11 @@ function crashesIndexHtml(): string {
           <tr>
             <td><a :href="textURL(crash)" target="_blank">text</a></td>
             <td><a :href="htmlURL(crash)" target="_blank">html</a></td>
+            <td>
+              <template x-if="crash.HasLog">
+                <a :href="logURL(crash)" target="_blank">log</a>
+              </template>
+            </td>
             <td>
               <template x-if="crash.IsCrash">
                 <div style="color: red; font-weight: bold;" x-text="shortVer(crash.ShortVer)"></div>
@@ -759,16 +901,27 @@ function handleCrashHttp(req: Request, rows: DumpRow[]): Response {
   if (p === "/api/crashes") {
     return Response.json(rows.map(crashApiRow));
   }
-  const m = /^\/crash\/([^/]+?)(\.html)?$/.exec(p);
+  const m = /^\/crash\/([^/]+?)(\.html|\.log)?$/.exec(p);
   if (m) {
     const id = decodeURIComponent(m[1]);
-    if (!rows.some((r) => r.id === id) || !isAnalyzed(id)) {
+    const ext = m[2] || "";
+    if (!rows.some((r) => r.id === id)) {
+      return new Response("not found", { status: 404 });
+    }
+    if (ext === ".log") {
+      if (!isLogExtracted(id)) {
+        return new Response("not found", { status: 404 });
+      }
+      return new Response(readFileSync(logPath(id), "utf8"), {
+        headers: { "content-type": "text/plain; charset=utf-8" },
+      });
+    }
+    if (!isAnalyzed(id)) {
       return new Response("not found", { status: 404 });
     }
     const body = readFileSync(analyzePath(id), "utf8");
-    if (m[2]) {
-      const html = `<!doctype html><meta charset="utf-8"><title>${escapeHtml(id)}</title><pre>${escapeHtml(body)}</pre>`;
-      return new Response(html, { headers: { "content-type": "text/html; charset=utf-8" } });
+    if (ext === ".html") {
+      return new Response(crashHtml(id, body), { headers: { "content-type": "text/html; charset=utf-8" } });
     }
     return new Response(body, { headers: { "content-type": "text/plain; charset=utf-8" } });
   }
@@ -816,6 +969,9 @@ async function main(): Promise<void> {
     }
     await ensureAnalyzed(server, row, reanalyze);
     console.log(relAnalyze(row.id));
+    if (isLogExtracted(row.id)) {
+      console.log(relLog(row.id));
+    }
   } else {
     for (const row of list) {
       try {

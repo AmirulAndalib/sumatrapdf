@@ -580,9 +580,22 @@ TempStr FavReadableNameTemp(Favorite* fn) {
     if (len(label) == 0) {
         label = fmt("%d", fn->pageNo);
     }
+
+    // chaptered doc: pageLabel is "chapter/page", bookmark is set
+    int chapter = 0, page = 0;
+    bool isChaptered = fn->bookmark && str::Parse(label, "%d/%d%$", &chapter, &page);
+
     if (fn->name) {
-        TempStr pageNo = fmt(_TRA("(page %s)").s, label);
-        return str::JoinTemp(fn->name, StrL(" "), pageNo);
+        TempStr loc;
+        if (isChaptered) {
+            loc = fmt(_TRA("(chapter %d page %d)").s, chapter, page);
+        } else {
+            loc = fmt(_TRA("(page %s)").s, label);
+        }
+        return str::JoinTemp(fn->name, StrL(" "), loc);
+    }
+    if (isChaptered) {
+        return fmt(_TRA("Chapter %d Page %d").s, chapter, page);
     }
     return fmt(_TRA("Page %s").s, label);
 }
@@ -733,19 +746,31 @@ void RebuildFavMenu(MainWindow* win, HMENU menu) {
         MenuSetEnabled(menu, CmdFavoriteDel, false);
         AppendFavMenus(menu, {});
     } else {
-        TempStr label = win->ctrl->GetPageLabeTemp(win->currPageNo);
-        bool isBookmarked = IsPageInFavorites(win->ctrl->GetFilePath(), win->currPageNo);
+        DocController* ctrl = win->ctrl;
+        int pageNo = win->currPageNo;
+        bool isBookmarked = IsPageInFavorites(ctrl->GetFilePath(), pageNo, ctrl);
+
+        TempStr addText;
+        TempStr delText;
+        if (ctrl->HasChapters()) {
+            Location loc = ctrl->LocationFromPageNo(pageNo);
+            addText = fmt(_TRA("Add chapter %d page %d to favorites").s, loc.chapter, loc.page);
+            delText = fmt(_TRA("Remove chapter %d page %d from favorites").s, loc.chapter, loc.page);
+        } else {
+            TempStr label = ctrl->GetPageLabeTemp(pageNo);
+            addText = fmt(_TRA("Add page %s to favorites").s, label);
+            delText = fmt(_TRA("Remove page %s from favorites").s, label);
+        }
+
         if (isBookmarked) {
             MenuSetEnabled(menu, CmdFavoriteAdd, false);
-            TempStr s = fmt(_TRA("Remove page %s from favorites").s, label);
-            MenuSetText(menu, CmdFavoriteDel, s);
+            MenuSetText(menu, CmdFavoriteDel, delText);
         } else {
             MenuSetEnabled(menu, CmdFavoriteDel, false);
-            TempStr s = fmt(_TRA("Add page %s to favorites").s, label);
-            s = AppendAccelKeyToMenuStringTemp(s, CmdFavoriteAdd);
+            TempStr s = AppendAccelKeyToMenuStringTemp(addText, CmdFavoriteAdd);
             MenuSetText(menu, CmdFavoriteAdd, s);
         }
-        AppendFavMenus(menu, win->ctrl->GetFilePath());
+        AppendFavMenus(menu, ctrl->GetFilePath());
     }
     MenuSetEnabled(menu, CmdFavoriteToggle, HasFavorites());
 }
@@ -1267,7 +1292,13 @@ void AddFavoriteForPage(MainWindow* win, int pageNo) {
             name = item->title;
         }
     }
-    TempStr pageLabel = ctrl->GetPageLabeTemp(pageNo);
+    TempStr pageLabel;
+    if (ctrl->HasChapters()) {
+        Location loc = ctrl->LocationFromPageNo(pageNo);
+        pageLabel = fmt("%d/%d", loc.chapter, loc.page);
+    } else {
+        pageLabel = ctrl->GetPageLabeTemp(pageNo);
+    }
     AddFavoriteWithLabelAndName(win, pageNo, pageLabel, name);
 }
 

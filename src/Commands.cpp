@@ -909,7 +909,7 @@ SeqStrings gCommandDescriptions =
     "Extend Selection One Word Right\0"
     "Toggle Laser Pointer\0"
     "Zoom: To Selection\0"
-    "Toggle Hover Preview\0"
+    "Toggle Citation Hover Preview\0"
     "Toggle Disable Links\0"
     "Sign Document...\0"
     "Insert Image...\0"

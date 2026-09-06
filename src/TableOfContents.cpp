@@ -1063,20 +1063,26 @@ static void TocContextMenu(ContextMenuEvent* ev) {
     }
 
     if (pageNo > 0) {
-        TempStr pageLabel = win->ctrl->GetPageLabeTemp(pageNo);
         bool isBookmarked = IsPageInFavorites(filePath, pageNo, win->ctrl);
+
+        TempStr addText;
+        TempStr delText;
+        if (win->ctrl->HasChapters()) {
+            Location loc = win->ctrl->LocationFromPageNo(pageNo);
+            addText = fmt(_TRA("Add chapter %d page %d to favorites").s, loc.chapter, loc.page);
+            delText = fmt(_TRA("Remove chapter %d page %d from favorites").s, loc.chapter, loc.page);
+        } else {
+            TempStr pageLabel = win->ctrl->GetPageLabeTemp(pageNo);
+            addText = fmt(_TRA("Add page %s to favorites").s, pageLabel);
+            delText = fmt(_TRA("Remove page %s from favorites").s, pageLabel);
+        }
+
         if (isBookmarked) {
             MenuRemove(popup, CmdFavoriteAdd);
-
-            // %s and not %d because re-using translation from RebuildFavMenu()
-            Str tr = _TRA("Remove page %s from favorites");
-            TempStr s = fmt(tr.s, pageLabel);
-            MenuSetText(popup, CmdFavoriteDel, s);
+            MenuSetText(popup, CmdFavoriteDel, delText);
         } else {
             MenuRemove(popup, CmdFavoriteDel);
-            // %s and not %d because re-using translation from RebuildFavMenu()
-            TempStr s = fmt(_TRA("Add page %s to favorites").s, pageLabel);
-            s = AppendAccelKeyToMenuStringTemp(s, CmdFavoriteAdd);
+            TempStr s = AppendAccelKeyToMenuStringTemp(addText, CmdFavoriteAdd);
             MenuSetText(popup, CmdFavoriteAdd, s);
         }
     } else {

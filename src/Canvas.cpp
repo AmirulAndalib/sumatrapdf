@@ -4254,6 +4254,31 @@ static bool FitContentWheelFlipsPage(DisplayModel* dm) {
     return true;
 }
 
+// Comics decode slowly. Queued wheel notches after a page turn skip unread
+// pages (#6144). Allow another turn only after the current page is on screen
+// and a short gap has passed.
+constexpr double kWheelPageTurnGapMs = 250;
+
+static bool WheelMayTurnPage(MainWindow* win) {
+    DisplayModel* dm = win->AsFixed();
+    if (!dm || !dm->GetEngine() || !dm->GetEngine()->IsImageCollection()) {
+        return true;
+    }
+    if (win->wheelPageTurnTime.QuadPart != 0 && TimeSinceInMs(win->wheelPageTurnTime) < kWheelPageTurnGapMs) {
+        return false;
+    }
+    if (gRenderCache && !gRenderCache->Exists(dm, dm->CurrentPageNo(), dm->GetRotation())) {
+        return false;
+    }
+    return true;
+}
+
+static void OnWheelPageTurn(MainWindow* win) {
+    StopSmoothScroll(win);
+    win->wheelAccumDelta = 0;
+    win->wheelPageTurnTime = TimeGet();
+}
+
 static LRESULT CanvasOnMouseWheel(MainWindow* win, UINT msg, WPARAM wp, LPARAM lp) {
     // Scroll the ToC sidebar, if it's visible and the cursor is in it
     if (win->uiState.tocVisible && HwndIsCursorOverWindow(win->tocTreeView->hwnd) && !gWheelMsgRedirect) {
@@ -4562,6 +4587,10 @@ static LRESULT CanvasOnMouseWheel(MainWindow* win, UINT msg, WPARAM wp, LPARAM l
         // we don't flip a page if we did scroll by line
         return 0;
     }
+    if (!WheelMayTurnPage(win)) {
+        win->wheelAccumDelta = 0;
+        return 0;
+    }
     // logf("  flip page: delta: %d, accumDelta: %d\n", (int)delta, (int)win->wheelAccumDelta);
     if (delta > 0) {
         win->ctrl->GoToPrevPage(true);
@@ -4573,6 +4602,7 @@ static LRESULT CanvasOnMouseWheel(MainWindow* win, UINT msg, WPARAM wp, LPARAM l
     } else {
         win->ctrl->GoToNextPage();
     }
+    OnWheelPageTurn(win);
     ReadAloudOnUserViewChanged(win);
 
     return 0;

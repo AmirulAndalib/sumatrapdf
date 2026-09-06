@@ -253,6 +253,7 @@ import { testit as issue6137 } from "./issue-6137.ts";
 import { testit as issue6140 } from "./issue-6140.ts";
 import { testit as issue6142 } from "./issue-6142.ts";
 import { testit as issue6143 } from "./issue-6143.ts";
+import { testit as issue6144 } from "./issue-6144.ts";
 import { testit as toolbarTabSwitchPos } from "./toolbar-tab-switch-pos.ts";
 
 async function annotationClipboardTests(): Promise<void> {
@@ -273,6 +274,7 @@ export const tests: NamedTest[] = [
   ["issue-6140", issue6140],
   ["issue-6142", issue6142],
   ["issue-6143", issue6143],
+  ["issue-6144", issue6144],
   ["issue-5993", issue5993],
   ["issue-2629", issue2629],
   ["issue-6135", issue6135],

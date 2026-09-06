@@ -332,6 +332,12 @@ void DisplayModel::SyncWithEngineLayout() {
 
     ScrollState ss = GetScrollState();
 
+    // EPUB restyle resets chapters; lay out the restore target before
+    // BuildPagesInfo so pageCount matches (SetScrollState cannot rebuild again).
+    if (ss.loc.IsValid() && engine->HasChapters()) {
+        engine->PageNoFromLocation(ss.loc);
+    }
+
     // capture old pageNo -> loc before the rebuild so PagesRenumbered can
     // remap page numbers it's holding (selection, ...) instead of dropping them
     VecResize(remapOldLocs, pageCount);

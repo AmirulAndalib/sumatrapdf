@@ -4994,6 +4994,8 @@ void MainWindowRerender(MainWindow* win, bool includeNonClientArea) {
     if (!dm) {
         return;
     }
+    // restyle/layout can shrink engine pageCount; paint uses dm page numbers
+    dm->SyncWithEngineLayout();
     // don't wait for in-flight renders: dm stays alive and a render that lands
     // after this is either still valid or dropped by the darkModeEpoch check
     gRenderCache->AbortRendering(dm);
@@ -5067,6 +5069,7 @@ void UpdateDocumentColors() {
             if (dm) {
                 gRenderCache->AbortRendering(dm);
                 EngineMupdfInvalidateDarkMode(dm->GetEngine());
+                dm->SyncWithEngineLayout();
                 continue;
             }
             MarkdownModel* mm = tab->AsMarkdown();

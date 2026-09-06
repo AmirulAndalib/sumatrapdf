@@ -16,7 +16,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { enumWindows, getWindowPid, getWindowText, hasInteractiveDesktop } from "./winapi.ts";
+import { ensureModifierKeysUp, enumWindows, getWindowPid, getWindowText, hasInteractiveDesktop } from "./winapi.ts";
 
 export const ROOT = join(import.meta.dir, "..");
 
@@ -410,6 +410,8 @@ export async function runTest(name: string, fn: () => void | Promise<void>, opts
   const t0 = performance.now();
   const unmute = silent ? muteConsole() : () => {};
   try {
+    // a Ctrl the machine thinks is held chords every posted key and click
+    await ensureModifierKeysUp();
     await fn();
     unmute();
     recordTestTime(name, performance.now() - t0, true);

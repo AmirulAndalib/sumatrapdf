@@ -717,6 +717,50 @@ export function injectKeyUp(vk: number): void {
   user32.symbols.keybd_event(vk, 0, KEYEVENTF_KEYUP, 0n);
 }
 
+// Wheel and key tests read the real modifier state: the app ORs GetKeyState
+// into its Ctrl/Shift/Alt/right-button checks, so a Ctrl the system thinks is
+// held (a key-up lost over RDP, a shortcut typed in another window) turns a
+// wheel notch into a zoom and the test fails as "did not scroll". Release
+// stuck keys with an injected key-up; fail naming the key if it stays down
+// (a physically held key, or the right mouse button, which this can't clear).
+const MODIFIER_KEYS: [string, number][] = [
+  ["Ctrl", VK_CONTROL],
+  ["Shift", VK_SHIFT],
+  ["Alt", VK_MENU],
+  ["right mouse button", VK_RBUTTON],
+];
+// left/right variants must be released too or the generic key stays down
+const KEY_VARIANTS: Record<number, number[]> = {
+  [VK_CONTROL]: [VK_CONTROL, VK_LCONTROL, VK_RCONTROL],
+  [VK_SHIFT]: [VK_SHIFT, VK_LSHIFT, VK_RSHIFT],
+  [VK_MENU]: [VK_MENU, VK_LMENU, VK_RMENU],
+};
+const MODIFIER_RELEASE_TRIES = 5;
+
+function heldModifierKeys(): [string, number][] {
+  return MODIFIER_KEYS.filter(([, vk]) => isKeyDownAsync(vk));
+}
+
+export async function ensureModifierKeysUp(): Promise<void> {
+  for (let attempt = 0; attempt < MODIFIER_RELEASE_TRIES; attempt++) {
+    const held = heldModifierKeys();
+    if (held.length === 0) {
+      return;
+    }
+    if (attempt === 0) {
+      console.log(`releasing stuck modifier keys: ${held.map(([name]) => name).join(", ")}`);
+    }
+    for (const [, vk] of held) {
+      for (const variant of KEY_VARIANTS[vk] ?? []) {
+        injectKeyUp(variant);
+      }
+    }
+    await sleep(100);
+  }
+  const names = heldModifierKeys().map(([name]) => name);
+  throw new Error(`modifier keys held down on this machine: ${names.join(", ")}`);
+}
+
 // a null-terminated UTF-16 (wide) string buffer, for LPCWSTR args
 export function wideZ(s: string): Uint16Array {
   const buf = new Uint16Array(s.length + 1);

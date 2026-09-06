@@ -1,5 +1,5 @@
 import { Socket, createConnection } from "node:net";
-import { killAndWait, testWindowPos } from "./winapi.ts";
+import { ensureModifierKeysUp, killAndWait, testWindowPos } from "./winapi.ts";
 import { SLOW_BUILD_FACTOR } from "./util.ts";
 
 export enum ControlCommand {
@@ -655,6 +655,8 @@ export async function withControlledSumatra<T>(
   // stderr is piped: on a debug report the app writes the report text there
   // before terminating, and we surface it in the failure below. Drain it
   // immediately so a verbose ASan dump cannot fill the pipe and stall exit.
+  // tests post keys and clicks directly; a held modifier would chord them
+  await ensureModifierKeysUp();
   const proc = Bun.spawn([exe, "-for-testing", ...posArgs, "-dbg-control", pipeName, ...extraArgs], {
     stdout: "ignore",
     stderr: "pipe",

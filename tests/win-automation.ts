@@ -151,6 +151,8 @@ export async function launchControlled(
   args: string[],
   opts?: { defaultWindowPos?: boolean; saveSettings?: boolean },
 ): Promise<{ proc: Bun.Subprocess; client: ControlClient; frame: number }> {
+  // many tests post keys and clicks directly; a held modifier would chord them
+  await ensureModifierKeysUp();
   if (sharedSession) {
     const path = args[args.length - 1];
     if (!path || path.startsWith("-")) {
@@ -346,7 +348,9 @@ export async function clickAt(hwnd: number, x: number, y: number, settleMs = 350
 // Press a key (WM_KEYDOWN). Posted (not sent) so it flows through the app's
 // PreTranslateMessage like real key input would (needed for canvas shortcuts /
 // arrow keys; also fine for the form editor's Enter/Tab/Esc handling).
+// a held Ctrl/Shift/Alt on the machine would turn this into a chord
 export async function pressKey(hwnd: number, vk: number, settleMs = 250): Promise<void> {
+  await ensureModifierKeysUp();
   postMessage(hwnd, WM_KEYDOWN, vk, 0);
   await sleep(settleMs);
 }

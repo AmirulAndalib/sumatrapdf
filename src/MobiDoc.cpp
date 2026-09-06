@@ -1064,36 +1064,82 @@ TempStr MobiDoc::GetPropertyTemp(DocProp prop) {
     return strconv::StrToUtf8Temp(v, textEncoding);
 }
 
-static const GumboNode* FindMobiTocReference(const GumboNode* root) {
-    // iterative pre-order traversal. Avoids recursion so a deeply nested
-    // document (e.g. a huge MOBI dictionary) can't overflow the stack
-    Vec<const GumboNode*> toVisit;
-    VecAppend(toVisit, root);
-    while (len(toVisit) > 0) {
-        const GumboNode* node = VecPop(toVisit);
-        if (!node) {
-            continue;
+// First <reference type="toc" filepos="N"/>; scan, don't gumbo-parse the book.
+static int FindMobiTocFilepos(Str html) {
+    Str kTag = StrL("<reference");
+    int pos = 0;
+    while (pos < len(html)) {
+        Str rest(html.s + pos, len(html) - pos);
+        int idx = str::IndexOfI(rest, kTag);
+        if (idx < 0) {
+            return -1;
         }
-        if (node->type == GUMBO_NODE_ELEMENT && GumboTagNameIs(node, StrL("reference"))) {
-            const GumboAttribute* type = gumbo_get_attribute(&node->v.element.attributes, "type");
-            if (type && str::EqI(Str(type->value), StrL("toc"))) {
-                return node;
+        int attrsStart = pos + idx + len(kTag);
+        Str after(html.s + attrsStart, len(html) - attrsStart);
+        int gt = str::IndexOfChar(after, '>');
+        if (gt < 0) {
+            return -1;
+        }
+        Str attrs(html.s + attrsStart, gt);
+        bool isToc = false;
+        int filepos = -1;
+        int i = 0;
+        while (i < len(attrs)) {
+            while (i < len(attrs) && str::IsWs(attrs.s[i])) {
+                i++;
+            }
+            if (i >= len(attrs) || attrs.s[i] == '/') {
+                break;
+            }
+            int nameStart = i;
+            while (i < len(attrs) && !str::IsWs(attrs.s[i]) && attrs.s[i] != '=') {
+                i++;
+            }
+            Str name(attrs.s + nameStart, i - nameStart);
+            while (i < len(attrs) && str::IsWs(attrs.s[i])) {
+                i++;
+            }
+            if (i >= len(attrs) || attrs.s[i] != '=') {
+                continue;
+            }
+            i++;
+            while (i < len(attrs) && str::IsWs(attrs.s[i])) {
+                i++;
+            }
+            char quote = 0;
+            if (i < len(attrs) && (attrs.s[i] == '"' || attrs.s[i] == '\'')) {
+                quote = attrs.s[i];
+                i++;
+            }
+            int valStart = i;
+            if (quote) {
+                while (i < len(attrs) && attrs.s[i] != quote) {
+                    i++;
+                }
+            } else {
+                while (i < len(attrs) && !str::IsWs(attrs.s[i]) && attrs.s[i] != '/') {
+                    i++;
+                }
+            }
+            Str val(attrs.s + valStart, i - valStart);
+            if (quote && i < len(attrs) && attrs.s[i] == quote) {
+                i++;
+            }
+            if (str::EqI(name, StrL("type")) && str::EqI(val, StrL("toc"))) {
+                isToc = true;
+            } else if (str::EqI(name, StrL("filepos"))) {
+                unsigned int n = 0;
+                if (!str::IsNull(str::Parse(val, "%u%$", &n))) {
+                    filepos = (int)n;
+                }
             }
         }
-        const GumboVector* children = nullptr;
-        if (node->type == GUMBO_NODE_ELEMENT) {
-            children = &node->v.element.children;
-        } else if (node->type == GUMBO_NODE_DOCUMENT) {
-            children = &node->v.document.children;
+        if (isToc && filepos >= 0) {
+            return filepos;
         }
-        if (children) {
-            // push in reverse so children are visited in document order
-            for (unsigned int i = children->length; i > 0; i--) {
-                VecAppend(toVisit, (const GumboNode*)children->data[i - 1]);
-            }
-        }
+        pos = attrsStart + gt + 1;
     }
-    return nullptr;
+    return -1;
 }
 
 bool MobiDoc::HasToc() {
@@ -1101,24 +1147,10 @@ bool MobiDoc::HasToc() {
         return docTocIndex < len(doc);
     }
     docTocIndex = len(doc); // no ToC
-
-    // search for <reference type="toc" filepos="N"/>
-    GumboOptions opts = GumboMakeOptions();
-    GumboOutput* output = gumbo_parse_with_options(&opts, ToStr(doc).s, len(doc));
-    if (!output) {
-        return false;
+    int filepos = FindMobiTocFilepos(ToStr(doc));
+    if (filepos >= 0 && filepos < len(doc)) {
+        docTocIndex = filepos;
     }
-    const GumboNode* ref = FindMobiTocReference(output->document);
-    if (ref) {
-        const GumboAttribute* filepos = gumbo_get_attribute(&ref->v.element.attributes, "filepos");
-        if (filepos) {
-            unsigned int pos;
-            if (!str::IsNull(str::Parse(Str(filepos->value), "%u%$", &pos))) {
-                docTocIndex = (int)pos;
-            }
-        }
-    }
-    gumbo_destroy_output_iter(&opts, output);
     return docTocIndex < len(doc);
 }
 
@@ -1217,7 +1249,14 @@ bool MobiDoc::ParseToc(EbookTocVisitor* visitor) {
     // determine the author's intentions by looking at commonly used tags
     GumboOptions opts = GumboMakeOptions();
     Str docStr = ToStr(doc);
-    Str tocSlice(docStr.s + docTocIndex, len(doc) - docTocIndex);
+    int tocLen = len(doc) - docTocIndex;
+    Str rest(docStr.s + docTocIndex, tocLen);
+    // walker stops at the first pagebreak; don't gumbo-parse the rest of the book
+    int pb = str::IndexOfI(rest, StrL("<mbp:pagebreak"));
+    if (pb >= 0) {
+        tocLen = pb;
+    }
+    Str tocSlice(docStr.s + docTocIndex, tocLen);
     GumboOutput* output = gumbo_parse_with_options(&opts, tocSlice.s, (size_t)tocSlice.len);
     if (!output) {
         return false;

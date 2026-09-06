@@ -873,6 +873,7 @@ class EngineEpub : public EngineEbook {
         return doc->GetPropertyTemp(prop);
     }
 
+    bool HasToc() override;
     TocTree* GetToc() override;
 
     static EngineBase* CreateFromFile(Str path);
@@ -881,6 +882,7 @@ class EngineEpub : public EngineEbook {
   protected:
     EpubDoc* doc = nullptr;
     TocTree* tocTree = nullptr;
+    bool tocBuilt = false;
 
     bool Load(Str fileName);
     bool LoadFromData(Str data);
@@ -969,13 +971,22 @@ bool EngineEpub::FinishLoading() {
         preferredLayout.r2l = true;
     }
 
+    GetToc();
     return pageCount > 0;
 }
 
+bool EngineEpub::HasToc() {
+    if (tocBuilt) {
+        return tocTree != nullptr;
+    }
+    return doc && doc->HasToc();
+}
+
 TocTree* EngineEpub::GetToc() {
-    if (tocTree) {
+    if (tocBuilt) {
         return tocTree;
     }
+    tocBuilt = true;
     EbookTocBuilder builder(this);
     doc->ParseToc(&builder);
     TocItem* root = builder.GetRoot();
@@ -1045,6 +1056,7 @@ class EngineFb2 : public EngineEbook {
         return doc->GetPropertyTemp(prop);
     }
 
+    bool HasToc() override;
     TocTree* GetToc() override;
 
     static EngineBase* CreateFromFile(Str path);
@@ -1053,6 +1065,7 @@ class EngineFb2 : public EngineEbook {
   protected:
     Fb2Doc* doc = nullptr;
     TocTree* tocTree = nullptr;
+    bool tocBuilt = false;
 
     bool Load(Str fileName);
     bool LoadFromData(Str data);
@@ -1095,13 +1108,22 @@ bool EngineFb2::FinishLoading() {
     if (!ExtractPageAnchors()) {
         return false;
     }
+    GetToc();
     return pageCount > 0;
 }
 
+bool EngineFb2::HasToc() {
+    if (tocBuilt) {
+        return tocTree != nullptr;
+    }
+    return doc && doc->HasToc();
+}
+
 TocTree* EngineFb2::GetToc() {
-    if (tocTree) {
+    if (tocBuilt) {
         return tocTree;
     }
+    tocBuilt = true;
     EbookTocBuilder builder(this);
     doc->ParseToc(&builder);
     TocItem* root = builder.GetRoot();
@@ -1171,6 +1193,7 @@ class EngineMobi : public EngineEbook {
 
     IPageDestination* GetNamedDest(Str name) override;
     IPageDestination* GetNamedDestLazy(Str url) override;
+    bool HasToc() override;
     TocTree* GetToc() override;
 
     int LayOutChapter(int chapter) override;
@@ -1184,6 +1207,7 @@ class EngineMobi : public EngineEbook {
   protected:
     MobiDoc* doc = nullptr;
     TocTree* tocTree = nullptr;
+    bool tocBuilt = false;
 
     // byte offsets into doc's html where each chapter starts (chapter 1 is
     // always 0); fewer than 2 entries means the book stays single-chapter
@@ -1274,6 +1298,7 @@ bool EngineMobi::FinishLoading() {
         VecResize(chapterPages, 1);
         chapterPages[0] = MobiFormatter(&args, doc).FormatAllPages();
         pageCount = len(*chapterPages[0]);
+        GetToc();
         return pageCount > 0;
     }
 
@@ -1286,6 +1311,9 @@ bool EngineMobi::FinishLoading() {
 
     int n1 = LayOutChapter(1);
     SetPageCountFromChapters();
+    // load already runs off the UI thread; build ToC now so HasToc()/GetToc()
+    // from the menu/toolbar/sidebar do not gumbo-parse the book on the UI thread
+    GetToc();
     logf("EngineMobi::FinishLoading: %d chapters, chapter 1 has %d pages\n", nCh, n1);
     return n1 > 0;
 }
@@ -1492,10 +1520,18 @@ Location EngineMobi::LookupBookmark(Str s) {
     return ClampLocation({ch, pg});
 }
 
+bool EngineMobi::HasToc() {
+    if (tocBuilt) {
+        return tocTree != nullptr;
+    }
+    return doc && doc->HasToc();
+}
+
 TocTree* EngineMobi::GetToc() {
-    if (tocTree) {
+    if (tocBuilt) {
         return tocTree;
     }
+    tocBuilt = true;
     EbookTocBuilder builder(this);
     doc->ParseToc(&builder);
     TocItem* root = builder.GetRoot();
@@ -1561,6 +1597,7 @@ class EnginePdb : public EngineEbook {
         return doc->GetPropertyTemp(prop);
     }
 
+    bool HasToc() override;
     TocTree* GetToc() override;
 
     static EngineBase* CreateFromFile(Str path);
@@ -1568,6 +1605,7 @@ class EnginePdb : public EngineEbook {
   protected:
     PalmDoc* doc = nullptr;
     TocTree* tocTree = nullptr;
+    bool tocBuilt = false;
 
     bool Load(Str fileName);
 };
@@ -1596,13 +1634,22 @@ bool EnginePdb::Load(Str fileName) {
         return false;
     }
 
+    GetToc();
     return pageCount > 0;
 }
 
+bool EnginePdb::HasToc() {
+    if (tocBuilt) {
+        return tocTree != nullptr;
+    }
+    return doc && doc->HasToc();
+}
+
 TocTree* EnginePdb::GetToc() {
-    if (tocTree) {
+    if (tocBuilt) {
         return tocTree;
     }
+    tocBuilt = true;
     EbookTocBuilder builder(this);
     doc->ParseToc(&builder);
     auto* root = builder.GetRoot();
@@ -1789,6 +1836,7 @@ class EngineChm : public EngineEbook {
     }
 
     IPageDestination* GetNamedDest(Str name) override;
+    bool HasToc() override;
     TocTree* GetToc() override;
 
     static EngineBase* CreateFromFile(Str path);
@@ -1797,6 +1845,7 @@ class EngineChm : public EngineEbook {
     ChmFile* doc = nullptr;
     ChmDataCache* dataCache = nullptr;
     TocTree* tocTree = nullptr;
+    bool tocBuilt = false;
 
     bool Load(Str fileName);
 
@@ -1970,6 +2019,7 @@ bool EngineChm::Load(Str fileName) {
         return false;
     }
 
+    GetToc();
     return pageCount > 0;
 }
 
@@ -1989,10 +2039,18 @@ IPageDestination* EngineChm::GetNamedDest(Str name) {
     return dest;
 }
 
+bool EngineChm::HasToc() {
+    if (tocBuilt) {
+        return tocTree != nullptr;
+    }
+    return doc && (doc->HasToc() || doc->HasIndex());
+}
+
 TocTree* EngineChm::GetToc() {
-    if (tocTree) {
+    if (tocBuilt) {
         return tocTree;
     }
+    tocBuilt = true;
     EbookTocBuilder builder(this);
     doc->ParseToc(&builder);
     if (doc->HasIndex()) {
@@ -2181,6 +2239,7 @@ class EngineTxt : public EngineEbook {
         return doc->GetPropertyTemp(prop);
     }
 
+    bool HasToc() override;
     TocTree* GetToc() override;
 
     static EngineBase* CreateFromFile(Str path);
@@ -2188,6 +2247,7 @@ class EngineTxt : public EngineEbook {
   protected:
     TxtDoc* doc = nullptr;
     TocTree* tocTree = nullptr;
+    bool tocBuilt = false;
 
     bool Load(Str fileName);
 };
@@ -2227,16 +2287,28 @@ bool EngineTxt::Load(Str fileName) {
         return false;
     }
 
+    GetToc();
     return pageCount > 0;
 }
 
+bool EngineTxt::HasToc() {
+    if (tocBuilt) {
+        return tocTree != nullptr;
+    }
+    return doc && doc->HasToc();
+}
+
 TocTree* EngineTxt::GetToc() {
-    if (tocTree) {
+    if (tocBuilt) {
         return tocTree;
     }
+    tocBuilt = true;
     EbookTocBuilder builder(this);
     doc->ParseToc(&builder);
     auto* root = builder.GetRoot();
+    if (!root) {
+        return nullptr;
+    }
 
     auto realRoot = AllocTocItem(arena, {}, 0);
     realRoot->child = root;

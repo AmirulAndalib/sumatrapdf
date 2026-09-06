@@ -5,10 +5,13 @@
 //   bun cmd/crashes.ts <id>         download dump + pdb, run !analyze
 import { existsSync, mkdirSync, writeFileSync, readFileSync, statSync, unlinkSync } from "node:fs";
 import { join, resolve, relative } from "node:path";
-import { spawnSync } from "node:child_process";
+import { homedir } from "node:os";
+import { spawn, spawnSync } from "node:child_process";
 
 const ROOT = resolve(join(import.meta.dir, ".."));
 const CACHE_DIR = join(ROOT, ".work", "crashes");
+const WIN_SYM_CACHE = join(homedir(), ".symbols");
+const MS_SYMBOL_SERVER = "https://msdl.microsoft.com/download/symbols";
 const PROD_SERVER = "https://www.sumatrapdfreader.org";
 const LOCAL_SERVER = "http://127.0.0.1:9321";
 
@@ -25,7 +28,8 @@ function usage(): void {
   bun cmd/crashes.ts [--local]                 list; download+analyze dumps we don't have yet
   bun cmd/crashes.ts [--local] <id>            download dump, pdb, run cdb (!analyze -v; ~*kb)
   bun cmd/crashes.ts -reanalyze [--local] [id] force cdb again (dump/pdb stay cached)
-  bun cmd/crashes.ts --server <url> ...        override server base URL`);
+  bun cmd/crashes.ts --server <url> ...        override server base URL
+After listing, serves a local page (like sumatrapdfreader.org/crashes/) and opens the browser.`);
 }
 
 function parseArgs(argv: string[]): { server: string; id: string; reanalyze: boolean } {
@@ -531,8 +535,9 @@ async function analyze(server: string, row: DumpRow, reanalyze: boolean): Promis
     console.log("cdb.exe not found; install Windows Debugging Tools to run !analyze");
     return;
   }
+  mkdirSync(WIN_SYM_CACHE, { recursive: true });
   const nt = process.env._NT_SYMBOL_PATH?.trim();
-  const symParts = [`cache*${join(CACHE_DIR, "sym")}`, symDir];
+  const symParts = [symDir, `srv*${WIN_SYM_CACHE}*${MS_SYMBOL_SERVER}`];
   if (nt) {
     symParts.push(nt);
   }
@@ -558,6 +563,249 @@ async function ensureAnalyzed(server: string, row: DumpRow, reanalyze: boolean):
   await analyze(server, row, reanalyze);
 }
 
+type ApiCrash = {
+  Day: string;
+  FileNameTxt: string;
+  IP: string;
+  Ver: string;
+  Cond: string;
+  CrashLine: string;
+  GitSha1: string;
+  IsCrash: boolean;
+};
+
+function parseAnalyzeSummary(txt: string): { crashLine: string; cond: string; isCrash: boolean } {
+  const isCrash = !/Type:\s*hang/i.test(txt);
+  let body = txt;
+  const crashed = txt.indexOf("=== crashed thread ===");
+  if (crashed >= 0) {
+    const rest = txt.slice(crashed);
+    const next = rest.search(/\n=== /);
+    body = next >= 0 ? rest.slice(0, next) : rest;
+  }
+  const siteRe = / : ([A-Za-z0-9_.]+![^\s\[]+)/;
+  const srcRe = /\[([^\]]+?) @ (\d+)\]/;
+  let crashLine = "";
+  let cond = "";
+  for (const line of body.split(/\r?\n/)) {
+    const sm = siteRe.exec(line);
+    if (!sm) {
+      continue;
+    }
+    crashLine = sm[1];
+    const src = srcRe.exec(line);
+    if (src) {
+      cond = `${crashLine} @ ${src[1]}:${src[2]}`;
+    }
+    break;
+  }
+  return { crashLine, cond, isCrash };
+}
+
+function crashApiRow(row: DumpRow): ApiCrash {
+  const txt = isAnalyzed(row.id) ? readFileSync(analyzePath(row.id), "utf8") : "";
+  const { crashLine, cond, isCrash } = parseAnalyzeSummary(txt);
+  return {
+    Day: row.date.slice(0, 10),
+    FileNameTxt: row.id,
+    IP: row.ip,
+    Ver: row.version,
+    Cond: cond,
+    CrashLine: crashLine,
+    GitSha1: "",
+    IsCrash: isCrash,
+  };
+}
+
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function crashesIndexHtml(): string {
+  return `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sumatra PDF crashes</title>
+  <script>
+    const log = console.log;
+    document.addEventListener("alpine:init", initAlpine);
+    function len(o) { return o ? o.length : 0; }
+    function shortVer(v) {
+      v = v.replace(" pre-release", "");
+      v = v.replace(" 64-bit", "");
+      v = v.replace(" 32-bit", "");
+      v = v.replace(" Wow64", " ");
+      v = v.replace("  ", " ");
+      return v.trim();
+    }
+    function cmpCrash(a, b) {
+      if (a.IsCrash !== b.IsCrash) return a.IsCrash ? -1 : 1;
+      if (a.ShortVer != b.ShortVer) return a.ShortVer < b.ShortVer ? 1 : -1;
+      return 0;
+    }
+    let crashesPerDay = {};
+    function setCurrentDay(currDay) {
+      Alpine.store("crashes").currDay = currDay;
+      let currDayCrashes = crashesPerDay[currDay] || [];
+      currDayCrashes.sort(cmpCrash);
+      Alpine.store("crashes").currDayCrashes = currDayCrashes;
+    }
+    async function initAlpine() {
+      Alpine.store("crashes", { perDay: {}, days: [], currDay: "", currDayCrashes: [] });
+      const crashes = await (await fetch("/api/crashes")).json();
+      let currDay = "";
+      let days = new Set();
+      for (const crash of crashes) {
+        crash.ShortVer = shortVer(crash.Ver);
+        let day = crash.Day;
+        if (currDay == "" || day > currDay) currDay = day;
+        if (!crashesPerDay[day]) crashesPerDay[day] = [];
+        crashesPerDay[day].push(crash);
+        days.add(day);
+      }
+      Alpine.store("crashes").perDay = crashesPerDay;
+      Alpine.store("crashes").days = Array.from(days).sort().reverse();
+      setCurrentDay(currDay);
+    }
+    function crashesPerDayTxt(day) {
+      let n = crashesPerDay[day] ? crashesPerDay[day].length : 0;
+      return "[" + n + "]";
+    }
+    function parseCond(crash) {
+      let cond = crash.Cond;
+      if (!cond) return null;
+      let atIdx = cond.lastIndexOf(" @ ");
+      if (atIdx < 0) return null;
+      return { prefix: cond.substring(0, atIdx + 3), shortPath: cond.substring(atIdx + 3), url: "" };
+    }
+    function textURL(crash) { return "/crash/" + crash.FileNameTxt; }
+    function htmlURL(crash) { return "/crash/" + crash.FileNameTxt + ".html"; }
+  </script>
+  <script src="https://unpkg.com/alpinejs" defer></script>
+  <style>
+    html, body { font-family: monospace; font-size: 9pt; margin: 0; padding: 0; }
+    body { display: flex; flex-direction: column; }
+    .self-center { align-self: center; }
+    .flex { display: flex; }
+    .w-full { width: 100%; }
+    .bold { font-weight: bold; }
+    .gap-4 { gap: 1rem; }
+    .mt-2 { margin-top: 0.5rem; }
+    td { padding-left: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="self-center mt-2">SumatraPDF Crashes</div>
+  <div x-data="{currDay: $store.crashes.currDay}" class="flex self-center gap-4 mt-2"
+    x-init="$watch('$store.crashes.currDay', value => { currDay = value; })">
+    <template x-for="day in $store.crashes.days">
+      <div class="flex">
+        <template x-if="day === currDay">
+          <div class="bold"><span x-text="day"></span>&nbsp;<span x-text="crashesPerDayTxt(day)"></span></div>
+        </template>
+        <template x-if="day !== currDay">
+          <a href="#" @click="setCurrentDay(day)"><span x-text="day"></span>&nbsp;<span x-text="crashesPerDayTxt(day)"></span></a>
+        </template>
+      </div>
+    </template>
+  </div>
+  <div x-data class="mt-2">
+    <table>
+      <tbody>
+        <template x-for="crash in $store.crashes.currDayCrashes">
+          <tr>
+            <td><a :href="textURL(crash)" target="_blank">text</a></td>
+            <td><a :href="htmlURL(crash)" target="_blank">html</a></td>
+            <td>
+              <template x-if="crash.IsCrash">
+                <div style="color: red; font-weight: bold;" x-text="shortVer(crash.ShortVer)"></div>
+              </template>
+              <template x-if="!crash.IsCrash">
+                <div x-text="shortVer(crash.ShortVer)"></div>
+              </template>
+            </td>
+            <td>
+              <template x-if="parseCond(crash)">
+                <div><span x-text="parseCond(crash).prefix"></span><span x-text="parseCond(crash).shortPath"></span></div>
+              </template>
+              <template x-if="!parseCond(crash)">
+                <div x-text="crash.Cond"></div>
+              </template>
+            </td>
+            <td><div x-text="crash.CrashLine"></div></td>
+            <td><div x-text="crash.IP"></div></td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+  </div>
+  <hr class="w-full" />
+</body>
+</html>
+`;
+}
+
+function handleCrashHttp(req: Request, rows: DumpRow[]): Response {
+  const u = new URL(req.url);
+  let p = u.pathname;
+  if (p.length > 1 && p.endsWith("/")) {
+    p = p.slice(0, -1);
+  }
+  if (p === "" || p === "/" || p === "/crashes") {
+    return new Response(crashesIndexHtml(), { headers: { "content-type": "text/html; charset=utf-8" } });
+  }
+  if (p === "/api/crashes") {
+    return Response.json(rows.map(crashApiRow));
+  }
+  const m = /^\/crash\/([^/]+?)(\.html)?$/.exec(p);
+  if (m) {
+    const id = decodeURIComponent(m[1]);
+    if (!rows.some((r) => r.id === id) || !isAnalyzed(id)) {
+      return new Response("not found", { status: 404 });
+    }
+    const body = readFileSync(analyzePath(id), "utf8");
+    if (m[2]) {
+      const html = `<!doctype html><meta charset="utf-8"><title>${escapeHtml(id)}</title><pre>${escapeHtml(body)}</pre>`;
+      return new Response(html, { headers: { "content-type": "text/html; charset=utf-8" } });
+    }
+    return new Response(body, { headers: { "content-type": "text/plain; charset=utf-8" } });
+  }
+  return new Response("not found", { status: 404 });
+}
+
+function openBrowser(url: string): void {
+  spawn("cmd.exe", ["/c", "start", "", url], { detached: true, stdio: "ignore", windowsHide: true }).unref();
+}
+
+const UI_PORT = 7345;
+
+async function serveCrashes(rows: DumpRow[]): Promise<void> {
+  const server = Bun.serve({
+    port: UI_PORT,
+    hostname: "127.0.0.1",
+    fetch(req) {
+      return handleCrashHttp(req, rows);
+    },
+  });
+  const url = `http://127.0.0.1:${server.port}/`;
+  console.log(`serving ${url}  (Ctrl+C to stop)`);
+  openBrowser(url);
+  await new Promise<void>((resolve) => {
+    const stop = () => {
+      try {
+        server.stop(true);
+      } catch {
+        // already stopped
+      }
+      resolve();
+    };
+    process.on("SIGINT", stop);
+    process.on("SIGTERM", stop);
+  });
+}
+
 async function main(): Promise<void> {
   const { server, id, reanalyze } = parseArgs(process.argv.slice(2));
   const list = parseList(await fetchText(`${server}/minidumps.txt`));
@@ -568,16 +816,17 @@ async function main(): Promise<void> {
     }
     await ensureAnalyzed(server, row, reanalyze);
     console.log(relAnalyze(row.id));
-    return;
-  }
-  for (const row of list) {
-    try {
-      await ensureAnalyzed(server, row, reanalyze);
-    } catch (e) {
-      console.error(`${row.id}: ${e instanceof Error ? e.message : e}`);
+  } else {
+    for (const row of list) {
+      try {
+        await ensureAnalyzed(server, row, reanalyze);
+      } catch (e) {
+        console.error(`${row.id}: ${e instanceof Error ? e.message : e}`);
+      }
     }
+    printRows(list);
   }
-  printRows(list);
+  await serveCrashes(list);
 }
 
 if (import.meta.main) {

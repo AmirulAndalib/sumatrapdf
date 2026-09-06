@@ -2155,8 +2155,7 @@ WStr ToWStr(const wstr::Builder&);
 
 TempStr ToStrTemp(const str::Builder&);
 
-wchar_t ToLowerW(wchar_t c);
-int WCharToLower(int c);
+wchar_t WCharToLower(wchar_t c);
 int WStrFindSubstr(WStr str, WStr substr);
 int WStrCmpNoCase(WStr a, WStr b);
 

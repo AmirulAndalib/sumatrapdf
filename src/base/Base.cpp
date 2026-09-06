@@ -1818,7 +1818,7 @@ Str StrArenaToStr(Arena* a, StrArena sa) {
 
 // Unicode lowercase for one BMP code unit. ASCII is a fast path; Windows uses
 // CharLowerW, other platforms a Latin/Cyrillic/Greek table then towlower.
-int WCharToLower(int c) {
+wchar_t WCharToLower(wchar_t c) {
 #if OS_WIN
     if (c < 0x80) {
         if (c >= 'A' && c <= 'Z') {
@@ -1826,7 +1826,7 @@ int WCharToLower(int c) {
         }
         return c;
     }
-    return (WCHAR)(uintptr_t)CharLowerW((LPWSTR)(uintptr_t)c);
+    return (wchar_t)(uintptr_t)CharLowerW((LPWSTR)(uintptr_t)c);
 #else
     if (c >= L'A' && c <= L'Z') {
         return c + 32;
@@ -1843,7 +1843,7 @@ int WCharToLower(int c) {
     if ((c >= 0x0391 && c <= 0x03A1) || (c >= 0x03A3 && c <= 0x03AB)) {
         return c + 32;
     }
-    return (int)towlower((wint_t)c);
+    return (wchar_t)towlower((wint_t)c);
 #endif
 }
 
@@ -1853,7 +1853,7 @@ static void FoldCaseWInPlace(WStr s) {
     CharLowerBuffW(s.s, (DWORD)s.len);
 #else
     for (int i = 0; i < s.len; i++) {
-        s.s[i] = (WCHAR)WCharToLower(s.s[i]);
+        s.s[i] = WCharToLower(s.s[i]);
     }
 #endif
     for (int i = 0; i < s.len; i++) {
@@ -4443,11 +4443,6 @@ WStr ToWStr(const wstr::Builder& b) {
 }
 
 // --- begin: merged from former src/common/str_util.cpp ---
-wchar_t ToLowerW(wchar_t c) {
-    if (c >= L'A' && c <= L'Z') return c + (L'a' - L'A');
-    return c;
-}
-
 int WStrFindSubstr(WStr str, WStr substr) {
     if (len(substr) == 0) return -1; // Empty search - no highlight
     if (substr.len > str.len) return -1;
@@ -4455,7 +4450,7 @@ int WStrFindSubstr(WStr str, WStr substr) {
     for (int i = 0; i <= str.len - substr.len; i++) {
         bool match = true;
         for (int j = 0; j < substr.len; j++) {
-            if (ToLowerW(str.s[i + j]) != ToLowerW(substr.s[j])) {
+            if (WCharToLower(str.s[i + j]) != WCharToLower(substr.s[j])) {
                 match = false;
                 break;
             }
@@ -4468,8 +4463,8 @@ int WStrFindSubstr(WStr str, WStr substr) {
 int WStrCmpNoCase(WStr a, WStr b) {
     int minLen = a.len < b.len ? a.len : b.len;
     for (int i = 0; i < minLen; i++) {
-        wchar_t ca = ToLowerW(a.s[i]);
-        wchar_t cb = ToLowerW(b.s[i]);
+        wchar_t ca = WCharToLower(a.s[i]);
+        wchar_t cb = WCharToLower(b.s[i]);
         if (ca != cb) return ca - cb;
     }
     return a.len - b.len;

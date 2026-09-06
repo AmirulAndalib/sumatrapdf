@@ -23,9 +23,8 @@ static bool IsAsciiAlnum(WCHAR c) {
 }
 
 // Locale-independent lowercasing. The process runs in the "C" locale where
-// towlower() only folds ASCII (as does ToLowerW() in src/common), so
-// accented dictionary words ("sección", "capítulo") would never match
-// all-caps headings ("SECCIÓN 2").
+// towlower() only folds ASCII, so accented dictionary words ("sección",
+// "capítulo") would never match all-caps headings ("SECCIÓN 2").
 static WCHAR FoldCaseW(WCHAR c) {
 #if OS_WIN
     return (WCHAR)(uintptr_t)CharLowerW((LPWSTR)(uintptr_t)c);

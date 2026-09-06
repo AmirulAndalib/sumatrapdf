@@ -289,7 +289,7 @@ static int FoldCaseForSearch(int c) {
         return L'i';
     }
     if (c > 0 && c <= 0xffff) {
-        return WCharToLower(c);
+        return WCharToLower((wchar_t)c);
     }
     return c;
 }

@@ -12,7 +12,7 @@
 // These are for *ad-hoc* tests (not checked in). Put reusable helpers here, not
 // in the individual ad-hoc scripts.
 
-import { cmdId, EXE } from "./util.ts";
+import { cmdId, EXE, setFailureContext } from "./util.ts";
 import {
   testWindowPos,
   waitForWindowIdle,
@@ -98,6 +98,24 @@ export async function takeStderr(proc: Bun.Subprocess): Promise<string> {
   return p ? (await p).trim() : "";
 }
 
+// the process the current test launched last; its stderr is attached to a
+// test failure. stderr only closes when the process exits, so a still-running
+// app yields nothing rather than hanging the report.
+let gLastProc: Bun.Subprocess | null = null;
+const STDERR_GRACE_MS = 1500;
+const STDERR_TAIL_CHARS = 4000;
+
+async function lastProcStderrTail(): Promise<string> {
+  if (!gLastProc) {
+    return "";
+  }
+  const timeout = new Promise<string>((resolve) => setTimeout(() => resolve(""), STDERR_GRACE_MS));
+  const s = await Promise.race([takeStderr(gLastProc), timeout]);
+  return s.length > STDERR_TAIL_CHARS ? "..." + s.slice(-STDERR_TAIL_CHARS) : s;
+}
+
+setFailureContext(lastProcStderrTail);
+
 export function beginSharedControlledSession(): void {
   if (sharedSession || sharedSessionRequested) {
     throw new Error("a shared controlled session is already active");
@@ -178,6 +196,7 @@ export async function launchControlled(
     stderr: "pipe",
   });
   drainStderr(proc);
+  gLastProc = proc;
   try {
     const client = await ControlClient.connect(pipe);
     const frame = await waitForFrame(proc.pid!);

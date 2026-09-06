@@ -372,6 +372,26 @@ export function startSuiteProgress(total: number): void {
 }
 
 // run one test and print pass/fail timing
+// win-automation registers this: it returns what the process a failed test
+// was driving wrote to stderr (an ASan report, a crash line), so "exited while
+// waiting for control response" comes with the reason instead of just EPIPE
+let gFailureContext: (() => Promise<string>) | null = null;
+
+export function setFailureContext(fn: () => Promise<string>): void {
+  gFailureContext = fn;
+}
+
+async function failureContext(): Promise<string> {
+  if (!gFailureContext) {
+    return "";
+  }
+  try {
+    return await gFailureContext();
+  } catch {
+    return "";
+  }
+}
+
 export async function runTest(name: string, fn: () => void | Promise<void>, opts?: RunTestOptions): Promise<void> {
   const silent = opts?.silent ?? false;
   const progress = progressTotal > 0 ? `${++progressDone}/${progressTotal} ${name}.ts` : "";
@@ -408,7 +428,13 @@ export async function runTest(name: string, fn: () => void | Promise<void>, opts
       console.log("");
     }
     recordTestTime(name, performance.now() - t0, false);
-    const msg = (e as Error)?.message ?? e;
+    let msg = String((e as Error)?.message ?? e);
+    const ctx = await failureContext();
+    if (ctx) {
+      msg += `
+SumatraPDF stderr:
+${ctx}`;
+    }
     throw new Error(`${name} failed after ${formatDuration(performance.now() - t0)}: ${msg}`);
   }
 }

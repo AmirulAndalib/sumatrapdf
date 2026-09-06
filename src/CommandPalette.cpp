@@ -353,6 +353,7 @@ struct ThumbnailRowsModel : ListBoxModel {
 struct ThumbnailRenderTask {
     ThumbnailPaletteCache* cache = nullptr;
     int pageNo = 0;
+    Location loc;
     Pixmap* bitmap = nullptr;
 };
 
@@ -360,6 +361,7 @@ struct ThumbnailRenderWorker {
     ThumbnailPaletteCache* cache = nullptr;
     EngineBase* sourceEngine = nullptr;
     Vec<int> pages;
+    Vec<Location> locs;
     int rotation = 0;
     int thumbDx = 0;
     int thumbDy = 0;
@@ -377,7 +379,6 @@ struct ThumbnailPaletteCtrl : VirtListBox {
     int thumbDy = 0;
     int gap = 0;
     int rowGap = 0;
-    int labelDy = 0;
     bool active = false;
 
     ThumbnailPaletteCtrl(MainWindow*, PlatformFont*, int dpi);
@@ -430,20 +431,25 @@ static void DeleteThumbnailCache(ThumbnailPaletteCache* cache) {
     delete cache;
 }
 
-static Pixmap* RenderPageThumbnail(EngineBase* engine, int pageNo, int rotation, int thumbDx, int thumbDy) {
-    RectF pageRect = engine->PageMediabox(pageNo);
+static Pixmap* RenderPageThumbnail(EngineBase* engine, int pageNo, Location loc, int rotation, int thumbDx,
+                                   int thumbDy) {
+    // reflow docs share one mediabox; don't use a flat pageNo that a clone's
+    // chapter layout may have already shifted
+    int boxPage = loc.IsValid() && engine->isReflowable ? 1 : pageNo;
+    RectF pageRect = engine->PageMediabox(boxPage);
     if (pageRect.IsEmpty()) {
         return nullptr;
     }
 
-    pageRect = engine->Transform(pageRect, pageNo, 1.0f, rotation);
+    pageRect = engine->Transform(pageRect, boxPage, 1.0f, rotation);
     if (pageRect.dx <= 0 || pageRect.dy <= 0) {
         return nullptr;
     }
     float zoom = (float)thumbDx / pageRect.dx;
     pageRect.dy = std::min(pageRect.dy, (float)thumbDy / zoom);
-    pageRect = engine->Transform(pageRect, pageNo, 1.0f, rotation, true);
+    pageRect = engine->Transform(pageRect, boxPage, 1.0f, rotation, true);
     RenderPageArgs args(pageNo, zoom, rotation, &pageRect, RenderTarget::View);
+    args.loc = loc;
     return engine->RenderPage(args);
 }
 
@@ -480,11 +486,12 @@ static void FinishThumbnailWorker(ThumbnailPaletteCache* cache) {
     cache->ctrl->StartRendering();
 }
 
-static void RenderAndPostThumbnail(ThumbnailRenderWorker* worker, EngineBase* engine, int pageNo) {
+static void RenderAndPostThumbnail(ThumbnailRenderWorker* worker, EngineBase* engine, int pageNo, Location loc) {
     auto* task = new ThumbnailRenderTask;
     task->cache = worker->cache;
     task->pageNo = pageNo;
-    task->bitmap = RenderPageThumbnail(engine, pageNo, worker->rotation, worker->thumbDx, worker->thumbDy);
+    task->loc = loc;
+    task->bitmap = RenderPageThumbnail(engine, pageNo, loc, worker->rotation, worker->thumbDx, worker->thumbDy);
     uitask::Post(MkFunc0<ThumbnailRenderTask>(FinishThumbnailRender, task));
 }
 
@@ -497,11 +504,13 @@ static void RenderThumbnailsInBackground(ThumbnailRenderWorker* worker) {
     }
     EngineBase* engine = cache->renderEngine;
     if (engine) {
-        for (int pageNo : worker->pages) {
+        int n = len(worker->pages);
+        for (int i = 0; i < n; i++) {
             if (AtomicIntGet(&cache->cancelRendering) != 0) {
                 break;
             }
-            RenderAndPostThumbnail(worker, engine, pageNo);
+            Location loc = i < len(worker->locs) ? worker->locs[i] : kInvalidLocation;
+            RenderAndPostThumbnail(worker, engine, worker->pages[i], loc);
         }
     }
     uitask::Post(MkFunc0<ThumbnailPaletteCache>(FinishThumbnailWorker, cache));
@@ -521,7 +530,6 @@ ThumbnailPaletteCtrl::ThumbnailPaletteCtrl(MainWindow* win, PlatformFont* font, 
     thumbDy = DpiScaleByDpi(dpi, kPaletteThumbnailDy);
     gap = DpiScaleByDpi(dpi, kPaletteThumbnailGap);
     rowGap = gap;
-    labelDy = PlatformFontMeasureText(font, StrL("0")).dy + DpiScaleByDpi(dpi, 4);
     itemDy = thumbDy + gap;
     padding = DpiScaledInsets(kPaletteThumbnailPadding, kPaletteThumbnailPadding);
 
@@ -596,7 +604,9 @@ void ThumbnailPaletteCtrl::DrawRow(DrawItemEvent* ev) {
     int left = ev->itemRect.x + std::max(0, (ev->itemRect.dx - gridDx) / 2);
     int firstPage = ev->itemIndex * cols + 1;
     int lastPage = std::min(pageCount, firstPage + cols - 1);
-    Color textColor = ThemeWindowTextColor();
+    DisplayModel* dm = tab ? tab->AsFixed() : nullptr;
+    EngineBase* engine = dm ? dm->GetEngine() : nullptr;
+    bool chapters = engine && engine->HasChapters();
     for (int pageNo = firstPage; pageNo <= lastPage; pageNo++) {
         int col = pageNo - firstPage;
         int x = left + col * (thumbDx + gap);
@@ -614,8 +624,29 @@ void ThumbnailPaletteCtrl::DrawRow(DrawItemEvent* ev) {
         if (pageNo == selectedPage) {
             ev->gfx->DrawRect(pageRect, MkRgb(0, 120, 215), 3);
         }
-        Rect label{x, pageRect.Bottom() - labelDy, thumbDx, labelDy};
-        ev->gfx->DrawText(fmt("%d", pageNo), label, gfxTextCenter | gfxTextVCenter, font, textColor);
+
+        TempStr label = fmt("%d", pageNo);
+        if (chapters) {
+            Location loc = engine->LocationFromPageNo(pageNo);
+            if (loc.IsValid()) {
+                label = fmt("%d / %d", loc.chapter, loc.page);
+            }
+        }
+        Size ts = ev->gfx->MeasureText(label, font);
+        int padX = DpiScaleByDpi(dpi, 6);
+        int padY = DpiScaleByDpi(dpi, 2);
+        int rad = DpiScaleByDpi(dpi, 4);
+        int inset = DpiScaleByDpi(dpi, 4);
+        int boxDx = std::min(ts.dx + padX * 2, pageRect.dx - inset * 2);
+        int boxDy = ts.dy + padY * 2;
+        int boxX = pageRect.x + (pageRect.dx - boxDx) / 2;
+        int boxY = pageRect.y + pageRect.dy - boxDy - inset;
+        if (boxY < pageRect.y + inset) {
+            boxY = pageRect.y + inset;
+        }
+        Rect box{boxX, boxY, boxDx, boxDy};
+        ev->gfx->FillRoundedRect(box, rad, MkRgb(0x22, 0x22, 0x22));
+        ev->gfx->DrawText(label, box, gfxTextCenter | gfxTextVCenter, font, kColWhite);
     }
 }
 
@@ -828,20 +859,21 @@ void ThumbnailPaletteCtrl::StartRendering() {
     }
 
     auto* worker = new ThumbnailRenderWorker;
-    for (int pageNo = firstVisible; pageNo <= lastVisible; pageNo++) {
-        if (!cache->thumbnails[pageNo - 1]) {
-            VecAppend(worker->pages, pageNo);
+    auto queuePage = [&](int pageNo) {
+        if (cache->thumbnails[pageNo - 1]) {
+            return;
         }
+        VecAppend(worker->pages, pageNo);
+        VecAppend(worker->locs, engine->LocationFromPageNo(pageNo));
+    };
+    for (int pageNo = firstVisible; pageNo <= lastVisible; pageNo++) {
+        queuePage(pageNo);
     }
     for (int pageNo = firstPage; pageNo < firstVisible; pageNo++) {
-        if (!cache->thumbnails[pageNo - 1]) {
-            VecAppend(worker->pages, pageNo);
-        }
+        queuePage(pageNo);
     }
     for (int pageNo = lastVisible + 1; pageNo <= lastPage; pageNo++) {
-        if (!cache->thumbnails[pageNo - 1]) {
-            VecAppend(worker->pages, pageNo);
-        }
+        queuePage(pageNo);
     }
     if (len(worker->pages) == 0) {
         delete worker;

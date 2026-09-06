@@ -1,10 +1,10 @@
-// List minidumps from the crash server, or download one and run cdb !analyze.
+// List minidumps from the crash server, download missing dumps, run cdb.
 //
-//   bun cmd/crashes.ts              list (oldest first, newest last)
+//   bun cmd/crashes.ts              list (oldest first); analyze missing
 //   bun cmd/crashes.ts --local      same, against http://127.0.0.1:9321
 //   bun cmd/crashes.ts <id>         download dump + pdb, run !analyze
-import { existsSync, mkdirSync, copyFileSync, writeFileSync, readFileSync } from "node:fs";
-import { join, dirname, resolve } from "node:path";
+import { existsSync, mkdirSync, writeFileSync, readFileSync, statSync, unlinkSync } from "node:fs";
+import { join, resolve, relative } from "node:path";
 import { spawnSync } from "node:child_process";
 
 const ROOT = resolve(join(import.meta.dir, ".."));
@@ -22,14 +22,16 @@ type DumpRow = {
 
 function usage(): void {
   console.log(`Usage:
-  bun cmd/crashes.ts [--local]           list minidumps (newest last)
-  bun cmd/crashes.ts [--local] <id>      download dump, pdb, run cdb !analyze
-  bun cmd/crashes.ts --server <url> ...  override server base URL`);
+  bun cmd/crashes.ts [--local]                 list; download+analyze dumps we don't have yet
+  bun cmd/crashes.ts [--local] <id>            download dump, pdb, run cdb (!analyze -v; ~*kb)
+  bun cmd/crashes.ts -reanalyze [--local] [id] force cdb again (dump/pdb stay cached)
+  bun cmd/crashes.ts --server <url> ...        override server base URL`);
 }
 
-function parseArgs(argv: string[]): { server: string; id: string } {
+function parseArgs(argv: string[]): { server: string; id: string; reanalyze: boolean } {
   let server = PROD_SERVER;
   let id = "";
+  let reanalyze = false;
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--help" || a === "-h") {
@@ -38,6 +40,10 @@ function parseArgs(argv: string[]): { server: string; id: string } {
     }
     if (a === "--local") {
       server = LOCAL_SERVER;
+      continue;
+    }
+    if (a === "-reanalyze" || a === "-re-analyze" || a === "--reanalyze" || a === "--re-analyze") {
+      reanalyze = true;
       continue;
     }
     if (a === "--server") {
@@ -56,7 +62,7 @@ function parseArgs(argv: string[]): { server: string; id: string } {
     }
     id = a;
   }
-  return { server, id };
+  return { server, id, reanalyze };
 }
 
 function parseList(text: string): DumpRow[] {
@@ -92,6 +98,34 @@ function fmtSize(n: number): string {
   return `${(n / (1024 * 1024)).toFixed(2)} MB`;
 }
 
+function dumpDir(id: string): string {
+  return join(CACHE_DIR, id);
+}
+
+function dumpPath(id: string): string {
+  return join(dumpDir(id), `${id}.dmp`);
+}
+
+function analyzePath(id: string): string {
+  return join(dumpDir(id), "analyze.txt");
+}
+
+function relAnalyze(id: string): string {
+  return relative(ROOT, analyzePath(id)).replaceAll("\\", "/");
+}
+
+function isAnalyzed(id: string): boolean {
+  const p = analyzePath(id);
+  if (!existsSync(p)) {
+    return false;
+  }
+  try {
+    return statSync(p).size > 0;
+  } catch {
+    return false;
+  }
+}
+
 function printRows(rows: DumpRow[]): void {
   if (rows.length === 0) {
     console.log("no minidumps");
@@ -111,6 +145,9 @@ function printRows(rows: DumpRow[]): void {
     console.log(
       `${r.id.padEnd(cols.id)}  ${r.version.padEnd(cols.version)}  ${r.date.padEnd(cols.date)}  ${fmtSize(r.size).padStart(cols.size)}  ${r.ip.padEnd(cols.ip)}`,
     );
+    if (isAnalyzed(r.id)) {
+      console.log(relAnalyze(r.id));
+    }
   }
   console.log(`${rows.length} minidump${rows.length === 1 ? "" : "s"}`);
 }
@@ -164,36 +201,42 @@ function findCdb(): string {
   return "";
 }
 
-function localPdbCandidates(version: string): string[] {
-  const out = join(ROOT, "out");
-  const names = ["SumatraPDF.pdb", "SumatraPDF-static.pdb"];
-  const dirs: string[] = [];
-  if (/\(dbg\)/i.test(version)) {
-    dirs.push(join(out, "dbg64"), join(out, "dbg64_asan"));
+function archSuffix(version: string): string {
+  if (/arm64/i.test(version)) {
+    return "arm64";
   }
-  dirs.push(join(out, "rel64"), join(out, "rel64_static"), join(out, "dbg64"));
-  const paths: string[] = [];
-  for (const d of dirs) {
-    for (const n of names) {
-      paths.push(join(d, n));
-    }
+  if (/\b32-bit\b/i.test(version)) {
+    return "32";
   }
-  return paths;
+  return "64";
+}
+
+function prerelVer(version: string): string {
+  const v = version.trim();
+  if (/^\d+$/.test(v)) {
+    return v;
+  }
+  const m = /^(\d+\.\d+)\.(\d+)/.exec(v);
+  return m ? m[2] : "";
+}
+
+function symbolCacheKey(version: string): string {
+  const ver = prerelVer(version);
+  const arch = archSuffix(version);
+  if (ver) {
+    return arch === "64" ? ver : `${ver}-${arch}`;
+  }
+  return version.trim().replace(/[^\w.-]+/g, "_") || "unknown";
 }
 
 function pdbUrlForVersion(version: string): string {
   const v = version.trim();
-  const arm = /arm64/i.test(v);
-  const x64 = !arm && !/\b32-bit\b/i.test(v);
-  const suff = arm ? "-arm64.pdb.lzsa" : x64 ? "-64.pdb.lzsa" : "-32.pdb.lzsa";
-  const relSuff = arm ? "-arm64.pdb.lzsa" : x64 ? "-64.pdb.lzsa" : ".pdb.lzsa";
-  // update-check `v` for pre-release is just PRE_RELEASE_VER (e.g. 16105)
-  if (/^\d+$/.test(v)) {
-    return `${PROD_SERVER}/dl/prerel/${v}/SumatraPDF-prerel${suff}`;
-  }
-  const prerel = /^(\d+\.\d+)\.(\d+)/.exec(v);
+  const arch = archSuffix(v);
+  const suff = arch === "64" ? "-64.pdb.lzsa" : arch === "arm64" ? "-arm64.pdb.lzsa" : "-32.pdb.lzsa";
+  const relSuff = arch === "32" ? ".pdb.lzsa" : suff;
+  const prerel = prerelVer(v);
   if (prerel) {
-    return `${PROD_SERVER}/dl/prerel/${prerel[2]}/SumatraPDF-prerel${suff}`;
+    return `${PROD_SERVER}/dl/prerel/${prerel}/SumatraPDF-prerel${suff}`;
   }
   const rel = /^(\d+\.\d+)/.exec(v);
   if (rel) {
@@ -299,8 +342,12 @@ function lzmaDecompress(propsAndPayload: Uint8Array, unpackedSize: number): Uint
 import lzma, sys
 n = int(sys.argv[1])
 d = sys.stdin.buffer.read()
-header = d[:5] + n.to_bytes(8, "little")
-sys.stdout.buffer.write(lzma.decompress(header + d[5:], format=lzma.FORMAT_ALONE))
+# LzSA stores no unpacked size in the LZMA header; -1 is FORMAT_ALONE "unknown"
+header = d[:5] + (0xFFFFFFFFFFFFFFFF).to_bytes(8, "little")
+out = lzma.decompress(header + d[5:], format=lzma.FORMAT_ALONE)
+if len(out) != n:
+    raise SystemExit(f"lzma size {len(out)} want {n}")
+sys.stdout.buffer.write(out)
 `;
   const r = spawnSync(py[0], [...py.slice(1), "-c", script, String(unpackedSize)], {
     input: Buffer.from(propsAndPayload),
@@ -313,7 +360,7 @@ sys.stdout.buffer.write(lzma.decompress(header + d[5:], format=lzma.FORMAT_ALONE
   return new Uint8Array(r.stdout);
 }
 
-function extractLzsaPdb(archive: Uint8Array, destDir: string): string {
+function extractLzsaPdb(archive: Uint8Array, destDir: string): void {
   if (archive.length < 8) {
     throw new Error("lzsa too small");
   }
@@ -339,7 +386,6 @@ function extractLzsaPdb(archive: Uint8Array, destDir: string): string {
     off += f.compressedSize;
   }
   mkdirSync(destDir, { recursive: true });
-  let pdbPath = "";
   for (const f of files) {
     const chunk = archive.subarray(f.dataOff, f.dataOff + f.compressedSize);
     if (chunk.length < 1) {
@@ -355,93 +401,183 @@ function extractLzsaPdb(archive: Uint8Array, destDir: string): string {
         x86BcjDecode(raw);
       }
     }
-    const outPath = join(destDir, f.name);
-    writeFileSync(outPath, raw);
-    if (f.name.toLowerCase().endsWith(".pdb") && (f.name.toLowerCase() === "sumatrapdf.pdb" || !pdbPath)) {
-      pdbPath = outPath;
-    }
+    writeFileSync(join(destDir, f.name), raw);
   }
-  if (!pdbPath) {
-    throw new Error("lzsa had no .pdb");
-  }
-  return pdbPath;
 }
 
-async function ensurePdb(row: DumpRow, destDir: string): Promise<string> {
-  const cached = join(destDir, "SumatraPDF.pdb");
-  if (existsSync(cached)) {
-    return cached;
+function hasSumatraPdbs(dir: string): boolean {
+  return existsSync(join(dir, "SumatraPDF.pdb")) && existsSync(join(dir, "libsumatrapdf.pdb"));
+}
+
+function localDbgSymDir(version: string): string {
+  if (!/\(dbg\)/i.test(version)) {
+    return "";
   }
-  for (const p of localPdbCandidates(row.version)) {
-    if (existsSync(p)) {
-      copyFileSync(p, cached);
-      console.log(`pdb: copied ${p}`);
-      return cached;
+  for (const d of [join(ROOT, "out", "dbg64"), join(ROOT, "out", "dbg64_asan")]) {
+    if (hasSumatraPdbs(d)) {
+      return d;
     }
+  }
+  return "";
+}
+
+async function ensureSymbols(row: DumpRow): Promise<string> {
+  const local = localDbgSymDir(row.version);
+  if (local) {
+    return local;
+  }
+  const dir = join(CACHE_DIR, "symbols", symbolCacheKey(row.version));
+  if (hasSumatraPdbs(dir)) {
+    return dir;
   }
   const url = pdbUrlForVersion(row.version);
   if (!url) {
     throw new Error(`no pdb source for version '${row.version}'`);
   }
-  console.log(`pdb: downloading ${url}`);
-  const lzsaPath = join(destDir, "pdb.lzsa");
-  writeFileSync(lzsaPath, await fetchBytes(url));
-  const extracted = extractLzsaPdb(readFileSync(lzsaPath), destDir);
-  if (extracted !== cached && existsSync(extracted)) {
-    copyFileSync(extracted, cached);
+  mkdirSync(dir, { recursive: true });
+  const lzsaPath = join(dir, "pdb.lzsa");
+  if (!existsSync(lzsaPath) || statSync(lzsaPath).size === 0) {
+    console.log(`pdb: downloading ${url}`);
+    writeFileSync(lzsaPath, await fetchBytes(url));
   }
-  return cached;
+  extractLzsaPdb(readFileSync(lzsaPath), dir);
+  if (!hasSumatraPdbs(dir)) {
+    throw new Error(`pdb lzsa missing SumatraPDF.pdb or libsumatrapdf.pdb (${url})`);
+  }
+  return dir;
 }
 
-async function analyze(server: string, row: DumpRow): Promise<void> {
-  const dir = join(CACHE_DIR, row.id);
+const MARK_CRASHED = "---CRASHED-STACK---";
+const MARK_ANALYZE = "---ANALYZE---";
+const MARK_THREADS = "---THREADS---";
+
+function markerIndex(text: string, marker: string): number {
+  const re = new RegExp(`^${marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*$`, "m");
+  const m = re.exec(text);
+  return m ? m.index : -1;
+}
+
+function sectionBetween(text: string, start: string, end: string | null): string {
+  const i = markerIndex(text, start);
+  if (i < 0) {
+    return "";
+  }
+  const from = i + start.length;
+  const j = end ? markerIndex(text.slice(from), end) : -1;
+  const to = j < 0 ? text.length : from + j;
+  return text.slice(from, to).replace(/^\r?\n/, "");
+}
+
+function extractStackText(raw: string): string {
+  const lines = raw.split(/\r?\n/);
+  const start = lines.findIndex((l) => l.startsWith("STACK_TEXT:"));
+  if (start < 0) {
+    return "";
+  }
+  let end = start + 1;
+  while (end < lines.length) {
+    const l = lines[end];
+    if (/^[A-Z][A-Z0-9_ ]+:/.test(l) && !l.startsWith("STACK_TEXT:")) {
+      break;
+    }
+    end++;
+  }
+  return lines.slice(start, end).join("\n").trim();
+}
+
+function trimQuit(s: string): string {
+  const i = s.search(/^quit:\s*$/m);
+  return i < 0 ? s.trim() : s.slice(0, i).trim();
+}
+
+function rewriteAnalyzeLog(raw: string): string {
+  const crashed = trimQuit(sectionBetween(raw, MARK_CRASHED, MARK_ANALYZE)) || extractStackText(raw);
+  const analyze = trimQuit(sectionBetween(raw, MARK_ANALYZE, MARK_THREADS)) || raw.trim();
+  const threads = trimQuit(sectionBetween(raw, MARK_THREADS, null));
+  const parts: string[] = [];
+  if (crashed) {
+    parts.push("=== crashed thread ===", crashed, "");
+  }
+  if (threads) {
+    parts.push("=== all threads (~*kb) ===", threads, "");
+  }
+  parts.push("=== !analyze -v ===", analyze, "");
+  return parts.join("\n");
+}
+
+const CDB_CMD = `.echo ${MARK_CRASHED}; .ecxr; kb; .echo ${MARK_ANALYZE}; !analyze -v; .echo ${MARK_THREADS}; ~*kb; qq`;
+
+async function analyze(server: string, row: DumpRow, reanalyze: boolean): Promise<void> {
+  if (!reanalyze && isAnalyzed(row.id)) {
+    return;
+  }
+  const dir = dumpDir(row.id);
   mkdirSync(dir, { recursive: true });
-  const dmpPath = join(dir, `${row.id}.dmp`);
+  const dmpPath = dumpPath(row.id);
   if (!existsSync(dmpPath)) {
     const url = `${server}/minidump/${row.id}`;
     console.log(`dump: downloading ${url}`);
     writeFileSync(dmpPath, await fetchBytes(url));
   }
-  const pdb = await ensurePdb(row, dir);
+  const outPath = analyzePath(row.id);
+  if (reanalyze && existsSync(outPath)) {
+    unlinkSync(outPath);
+  }
+  const symDir = await ensureSymbols(row);
   const cdb = findCdb();
-  const analyzePath = join(dir, "analyze.txt");
   if (!cdb) {
     console.log(`dump: ${dmpPath}`);
-    console.log(`pdb:  ${pdb}`);
+    console.log(`pdb:  ${symDir}`);
     console.log("cdb.exe not found; install Windows Debugging Tools to run !analyze");
     return;
   }
   const nt = process.env._NT_SYMBOL_PATH?.trim();
-  const symParts = [`cache*${join(CACHE_DIR, "sym")}`, dirname(pdb)];
+  const symParts = [`cache*${join(CACHE_DIR, "sym")}`, symDir];
   if (nt) {
     symParts.push(nt);
   }
   const symPath = symParts.join(";");
   console.log(`cdb: ${cdb}`);
-  const r = spawnSync(cdb, ["-z", dmpPath, "-y", symPath, "-lines", "-logo", analyzePath, "-c", "!analyze -v; qq"], {
+  console.log(`pdb: ${relative(ROOT, symDir).replaceAll("\\", "/")}`);
+  const r = spawnSync(cdb, ["-z", dmpPath, "-y", symPath, "-lines", "-logo", outPath, "-c", CDB_CMD], {
     encoding: "utf8",
-    timeout: 180_000,
+    timeout: 300_000,
   });
-  if (r.status !== 0 && !existsSync(analyzePath)) {
-    writeFileSync(analyzePath, `${r.stdout || ""}\n${r.stderr || ""}`);
+  if (!existsSync(outPath) || statSync(outPath).size === 0) {
+    writeFileSync(outPath, `${r.stdout || ""}\n${r.stderr || ""}`);
   }
-  console.log(`dump:    ${dmpPath}`);
-  console.log(`pdb:     ${pdb}`);
-  console.log(`analyze: ${analyzePath}`);
+  if (existsSync(outPath)) {
+    writeFileSync(outPath, rewriteAnalyzeLog(readFileSync(outPath, "utf8")));
+  }
+}
+
+async function ensureAnalyzed(server: string, row: DumpRow, reanalyze: boolean): Promise<void> {
+  if (!reanalyze && isAnalyzed(row.id)) {
+    return;
+  }
+  await analyze(server, row, reanalyze);
 }
 
 async function main(): Promise<void> {
-  const { server, id } = parseArgs(process.argv.slice(2));
+  const { server, id, reanalyze } = parseArgs(process.argv.slice(2));
   const list = parseList(await fetchText(`${server}/minidumps.txt`));
-  if (!id) {
-    printRows(list);
+  if (id) {
+    const row = list.find((r) => r.id === id);
+    if (!row) {
+      throw new Error(`minidump '${id}' not in ${server}/minidumps.txt`);
+    }
+    await ensureAnalyzed(server, row, reanalyze);
+    console.log(relAnalyze(row.id));
     return;
   }
-  const row = list.find((r) => r.id === id);
-  if (!row) {
-    throw new Error(`minidump '${id}' not in ${server}/minidumps.txt`);
+  for (const row of list) {
+    try {
+      await ensureAnalyzed(server, row, reanalyze);
+    } catch (e) {
+      console.error(`${row.id}: ${e instanceof Error ? e.message : e}`);
+    }
   }
-  await analyze(server, row);
+  printRows(list);
 }
 
 if (import.meta.main) {

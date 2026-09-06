@@ -64,6 +64,10 @@ CmdShowAnnotationText,,Show Comment,"opens a read-only card with the annotation'
 CmdCopyImage,,Copy Image,
 CmdCopyLinkTarget,,Copy Link Target,
 CmdCopySelection,"Ctrl + C, Ctrl + Insert",Copy Selection,"in Edit PDF mode with an annotation selected, copies that annotation instead of text"
+CmdCopySelectionAsImage,,Copy Selection As Image,"copy a rectangular selection as an image, ver 3.7+"
+CmdSearchGoogleLens,,Search with Google Lens,"opens the selection, image under the cursor, or current page in Google Lens, ver 3.7+"
+CmdSearchGoogleLensPage,,Search Page with Google Lens,"current page (or the page under the cursor from the context menu), ver 3.7+"
+CmdSearchGoogleLensImage,,Search Image with Google Lens,"image under the cursor, ver 3.7+"
 CmdCopyFilePath,,Copy File Path,ver 3.5+
 CmdDeleteFile,,Delete Currently Opened File, ver 3.6+
 CmdDeleteFileAndOpenNext,,Delete File And Open Next,"moves the current file to the Recycle Bin after the next file opens successfully, ver 3.7+"

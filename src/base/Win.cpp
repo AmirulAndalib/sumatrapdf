@@ -2395,6 +2395,20 @@ void MenuEmpty(HMENU m) {
     }
 }
 
+static bool MenuSetTextRec(HMENU m, int id, MENUITEMINFOW* mii) {
+    if (SetMenuItemInfoW(m, id, FALSE, mii)) {
+        return true;
+    }
+    int n = GetMenuItemCount(m);
+    for (int i = 0; i < n; i++) {
+        HMENU sub = GetSubMenu(m, i);
+        if (sub && MenuSetTextRec(sub, id, mii)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void MenuSetText(HMENU m, int id, WStr s) {
     ReportIf(id < 0);
     MENUITEMINFOW mii{};
@@ -2403,14 +2417,14 @@ void MenuSetText(HMENU m, int id, WStr s) {
     mii.fType = MFT_STRING;
     mii.dwTypeData = s.s;
     mii.cch = (uint)s.len;
-    BOOL ok = SetMenuItemInfoW(m, id, FALSE, &mii);
-    if (!ok) {
-        // setting text on a menu item that isn't present is benign (e.g. the
-        // item was filtered out by command visibility): log it, don't assert
-        TempStr tmp = len(s) == 0 ? StrL("(null)") : ToUtf8Temp(s);
-        logf("MenuSetText(): id=%d, s='%s'\n", id, tmp);
-        LogLastError();
+    if (MenuSetTextRec(m, id, &mii)) {
+        return;
     }
+    // setting text on a menu item that isn't present is benign (e.g. the
+    // item was filtered out by command visibility): log it, don't assert
+    TempStr tmp = len(s) == 0 ? StrL("(null)") : ToUtf8Temp(s);
+    logf("MenuSetText(): id=%d, s='%s'\n", id, tmp);
+    LogLastError();
 }
 
 void MenuSetText(HMENU m, int id, Str s) {

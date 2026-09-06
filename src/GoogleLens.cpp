@@ -132,7 +132,14 @@ static bool EncodePng(RenderedBitmap* bitmap, Vec<u8>& out) {
     return ok;
 }
 
-void SearchWithGoogleLens(WindowTab* tab, IPageElement* imageElement, int pageNo) {
+enum class GoogleLensSrc {
+    Auto,
+    Selection,
+    Page,
+    Image
+};
+
+static void SearchGoogleLensSrc(WindowTab* tab, GoogleLensSrc src, IPageElement* imageElement, int pageNo) {
     if (!tab || !tab->win || !HasPermission(Perm::InternetAccess) || !HasPermission(Perm::CopySelection)) {
         return;
     }
@@ -144,12 +151,25 @@ void SearchWithGoogleLens(WindowTab* tab, IPageElement* imageElement, int pageNo
 
     RenderedBitmap* bitmap = nullptr;
     bool isImage = imageElement && imageElement->Is(kindPageElementImage);
-    if (isImage) {
-        bitmap = dm->GetEngine()->GetImageForPageElement(imageElement);
-    } else if (dm->GetEngine()->kind != kindEngineImage && tab->selectionOnPage && len(*tab->selectionOnPage) > 0) {
+    if (src == GoogleLensSrc::Image || (src == GoogleLensSrc::Auto && isImage)) {
+        if (isImage) {
+            bitmap = dm->GetEngine()->GetImageForPageElement(imageElement);
+        } else if (src == GoogleLensSrc::Image && dm->GetEngine()->kind != kindEngineImage) {
+            GoogleLensNotify(tab, _TRA("No image under the cursor."));
+            return;
+        }
+    }
+
+    bool wantSel = src == GoogleLensSrc::Selection ||
+                   (src == GoogleLensSrc::Auto && !bitmap && dm->GetEngine()->kind != kindEngineImage &&
+                    tab->selectionOnPage && len(*tab->selectionOnPage) > 0);
+    if (!bitmap && wantSel && tab->selectionOnPage && len(*tab->selectionOnPage) > 0) {
         bitmap = RenderSelectionsAsRenderedBitmap(dm, *tab->selectionOnPage);
     }
-    if (!bitmap && !isImage) {
+
+    bool wantPage =
+        src == GoogleLensSrc::Page || src == GoogleLensSrc::Auto || (src == GoogleLensSrc::Image && !bitmap);
+    if (!bitmap && wantPage) {
         if (pageNo <= 0) {
             pageNo = dm->CurrentPageNo();
         }
@@ -173,4 +193,20 @@ void SearchWithGoogleLens(WindowTab* tab, IPageElement* imageElement, int pageNo
         return;
     }
     WriteGoogleLensPage(tab, png.els, len(png));
+}
+
+void SearchWithGoogleLens(WindowTab* tab, IPageElement* imageElement, int pageNo) {
+    SearchGoogleLensSrc(tab, GoogleLensSrc::Auto, imageElement, pageNo);
+}
+
+void SearchGoogleLensSelection(WindowTab* tab) {
+    SearchGoogleLensSrc(tab, GoogleLensSrc::Selection, nullptr, 0);
+}
+
+void SearchGoogleLensPage(WindowTab* tab, int pageNo) {
+    SearchGoogleLensSrc(tab, GoogleLensSrc::Page, nullptr, pageNo);
+}
+
+void SearchGoogleLensImage(WindowTab* tab, IPageElement* imageElement) {
+    SearchGoogleLensSrc(tab, GoogleLensSrc::Image, imageElement, 0);
 }

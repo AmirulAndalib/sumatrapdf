@@ -716,8 +716,53 @@ static MenuDef menuDefDebug[] = {
 };
 //] ACCESSKEY_GROUP Debug Menu
 
+//[ ACCESSKEY_GROUP Context Menu (Google Lens)
+static MenuDef menuDefGoogleLens[] = {
+    {
+        _TRN("Selection As &Image"),
+        CmdSearchGoogleLens,
+    },
+    {
+        _TRN("&Page"),
+        CmdSearchGoogleLensPage,
+    },
+    {
+        _TRN("Selected &Image"),
+        CmdSearchGoogleLensImage,
+    },
+    {
+        {},
+        0,
+    },
+};
+//] ACCESSKEY_GROUP Context Menu (Google Lens)
+
 //[ ACCESSKEY_GROUP Context Menu (Selection)
 static MenuDef menuDefSelection[] = {
+    {
+        _TRN("Select &All"),
+        CmdSelectAll,
+    },
+    {
+        _TRN("&Copy To Clipboard"),
+        CmdCopySelection,
+    },
+    {
+        _TRN("Copy As &Image To Clipboard"),
+        CmdCopySelectionAsImage,
+    },
+    {
+        _TRN("Visual Search With Google &Lens"),
+        CmdSearchGoogleLens,
+    },
+    {
+        _TRN("&Zoom To Selection"),
+        CmdZoomToSelection,
+    },
+    {
+        StrL(kMenuSeparator),
+        kMenuSeparatorID,
+    },
     {
         _TRN("&Translate With Google"),
         CmdTranslateSelectionWithGoogle,
@@ -757,10 +802,6 @@ static MenuDef menuDefSelection[] = {
     {
         _TRN("Search with &Google Scholar"),
         CmdSearchSelectionWithGoogleScholar,
-    },
-    {
-        _TRN("Select &All"),
-        CmdSelectAll,
     },
     {
         {},
@@ -1070,6 +1111,10 @@ static MenuDef menuDefContextImage[] = {
         CmdCopyImage,
     },
     {
+        _TRN("Visual Search With Google &Lens"),
+        CmdSearchGoogleLensImage,
+    },
+    {
         _TRN("&Save"),
         CmdSaveImage,
     },
@@ -1197,24 +1242,12 @@ static MenuDef menuDefDocumentOperations[] = {
 //[ ACCESSKEY_GROUP Context Menu (Main)
 static MenuDef menuDefContext[] = {
     {
-        _TRN("&Copy Selection"),
-        CmdCopySelection,
-    },
-    {
-        _TRN("Search with Google &Lens"),
-        CmdSearchGoogleLens,
-    },
-    {
-        _TRN("&Zoom To Selection"),
-        CmdZoomToSelection,
-    },
-    //{
-    //    _TRN("Create Annotation From Selection"),
-    //    (UINT_PTR)menuDefCreateAnnotFromSelection,
-    //},
-    {
         _TRN("S&election"),
         (UINT_PTR)menuDefSelection,
+    },
+    {
+        _TRN("Visual Search With Google &Lens"),
+        (UINT_PTR)menuDefGoogleLens,
     },
     {
         _TRN("Copy &Link Address"),
@@ -1233,7 +1266,7 @@ static MenuDef menuDefContext[] = {
         CmdSaveAttachment,
     },
     {
-        _TRN("&Image"),
+        _TRN("Selected &Image"),
         (UINT_PTR)menuDefContextImage,
     },
     // note: strings cannot be "" or else items are not there
@@ -1646,6 +1679,20 @@ HMENU BuildMenuFromDef(MenuDef* menuDef, HMENU menu, BuildMenuCtx* ctx) {
             // selection (the menubar variant is live-updated via
             // SetMenuStateForSelection instead)
             removeMenu |= (menuDef == menuDefSelection) && !ctx->hasTextSelection && cmdIdInList(selectionTextCmds);
+            bool isRectSel = ctx->hasSelection && !ctx->hasTextSelection;
+            if (menuDef == menuDefSelection) {
+                removeMenu |= !ctx->hasSelection && cmdId == CmdCopySelection;
+                if (!isRectSel) {
+                    removeMenu |=
+                        cmdId == CmdCopySelectionAsImage || cmdId == CmdSearchGoogleLens || cmdId == CmdZoomToSelection;
+                }
+            }
+            if (menuDef == menuDefGoogleLens) {
+                removeMenu |= cmdId == CmdSearchGoogleLens && !ctx->hasSelection;
+                removeMenu |= cmdId == CmdSearchGoogleLensPage && !ctx->isCursorOnPage;
+                bool onImage = ctx->cursorOnImage || ctx->engineKind == kindEngineImage;
+                removeMenu |= cmdId == CmdSearchGoogleLensImage && !onImage;
+            }
         }
         removeMenu |= ((subMenuDef == menuDefDebug) && !ShowDebugMenu());
         if (removeMenu) {
@@ -2198,12 +2245,16 @@ void OnWindowContextMenu(MainWindow* win, int x, int y) {
 
     bool onImage = pageEl && pageEl->Is(kindPageElementImage);
     onImage = onImage || (engine && engine->kind == kindEngineImage);
-    if (onImage) {
-        MenuSetText(popup, CmdSearchGoogleLens, _TRA("Search Image with Google Lens"));
-    } else if (ctx->hasSelection) {
-        MenuSetText(popup, CmdSearchGoogleLens, _TRA("Search Selection with Google Lens"));
-    } else if (pageNoUnderCursor > 0) {
-        MenuSetText(popup, CmdSearchGoogleLens, fmt(_TRA("Search Page %d with Google Lens").s, pageNoUnderCursor));
+    if (pageNoUnderCursor > 0) {
+        TempStr pageItem;
+        if (win->ctrl->HasChapters()) {
+            Location loc = win->ctrl->LocationFromPageNo(pageNoUnderCursor);
+            pageItem = fmt(_TRA("Chapter %d Page %d").s, loc.chapter, loc.page);
+        } else {
+            TempStr pageLabel = win->ctrl->GetPageLabeTemp(pageNoUnderCursor);
+            pageItem = fmt(_TRA("Page %s").s, pageLabel);
+        }
+        MenuSetText(popup, CmdSearchGoogleLensPage, pageItem);
     }
 
     win->contextMenuPt = cursorPos;
@@ -2359,7 +2410,13 @@ void OnWindowContextMenu(MainWindow* win, int x, int y) {
 
     switch (cmdId) {
         case CmdSearchGoogleLens:
-            SearchWithGoogleLens(tab, pageEl, pageNoUnderCursor);
+            SearchGoogleLensSelection(tab);
+            return;
+        case CmdSearchGoogleLensPage:
+            SearchGoogleLensPage(tab, pageNoUnderCursor);
+            return;
+        case CmdSearchGoogleLensImage:
+            SearchGoogleLensImage(tab, pageEl);
             return;
         case CmdSaveImage:
         case CmdCropImage:

@@ -42,6 +42,7 @@ void PaintTransparentRectangles(Gfx* gfx, Rect screenRc, Vec<Rect>& rects, Color
 void PaintSelection(MainWindow* win, Gfx* gfx);
 void UpdateTextSelection(MainWindow* win, bool select = true);
 void CopySelectionToClipboard(MainWindow* win);
+void CopySelectionAsImageToClipboard(MainWindow* win);
 void OnSelectAll(MainWindow* win, bool textOnly = false);
 bool NeedsSelectionEdgeAutoscroll(MainWindow* win, int x, int y);
 void OnSelectionEdgeAutoscroll(MainWindow* win, int x, int y);

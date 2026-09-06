@@ -310,7 +310,10 @@ enum {
     CmdAnnotationHighlightBrush = 499,
     CmdFindAnnotation = 500,
     CmdOpenFileNoHistory = 501,
-    CmdNone = 502,
+    CmdCopySelectionAsImage = 502,
+    CmdSearchGoogleLensPage = 503,
+    CmdSearchGoogleLensImage = 504,
+    CmdNone = 505,
 
     /* range for file history */
     CmdFileHistoryFirst,

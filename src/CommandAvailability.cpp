@@ -131,6 +131,8 @@ static UINT_PTR removeIfNoInternetPerms[] = {
     CmdTranslateSelectionWithDeepL,
     CmdSearchSelectionWithGoogle,
     CmdSearchGoogleLens,
+    CmdSearchGoogleLensPage,
+    CmdSearchGoogleLensImage,
     CmdSearchSelectionWithBing,
     CmdSearchSelectionWithWikipedia,
     CmdSearchSelectionWithGoogleScholar,
@@ -176,7 +178,10 @@ static UINT_PTR removeIfNoCopyPerms[] = {
     CmdCopyLinkTarget,
     CmdCopyComment,
     CmdCopyImage,
+    CmdCopySelectionAsImage,
     CmdSearchGoogleLens,
+    CmdSearchGoogleLensPage,
+    CmdSearchGoogleLensImage,
     CmdCutAnnotation,
     CmdCopyAnnotation,
     CmdPasteAnnotation,
@@ -807,6 +812,20 @@ CommandVisibility GetCommandVisibility(int cmdId, const AppCommandCtx& ctx, Comm
     }
     if (!ctx.cursorOnImage && cmdId == CmdCopyImage) {
         return CommandVisibility::Hide;
+    }
+    if (cmdId == CmdCopySelectionAsImage) {
+        bool isRect = ctx.hasSelection && !ctx.hasTextSelection;
+        return isRect ? CommandVisibility::Show : CommandVisibility::Hide;
+    }
+    if (cmdId == CmdSearchGoogleLensPage) {
+        if (surface == CommandSurface::Palette) {
+            return ctx.isFixedPage ? CommandVisibility::Show : CommandVisibility::Hide;
+        }
+        return ctx.isCursorOnPage ? CommandVisibility::Show : CommandVisibility::Hide;
+    }
+    if (cmdId == CmdSearchGoogleLensImage) {
+        bool onImage = ctx.cursorOnImage || ctx.engineKind == kindEngineImage;
+        return onImage ? CommandVisibility::Show : CommandVisibility::Hide;
     }
     if ((cmdId == CmdToggleBookmarks) || (cmdId == CmdToggleTableOfContents)) {
         return ctx.hasToc ? CommandVisibility::Show : CommandVisibility::Hide;

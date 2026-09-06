@@ -12563,6 +12563,20 @@ static LRESULT FrameOnCommand(MainWindow* win, HWND hwnd, UINT msg, WPARAM wp, L
             SearchWithGoogleLens(tab);
             break;
 
+        case CmdSearchGoogleLensPage:
+            SearchGoogleLensPage(tab, tab && tab->ctrl ? tab->ctrl->CurrentPageNo() : 0);
+            break;
+
+        case CmdSearchGoogleLensImage:
+            SearchGoogleLensImage(tab, nullptr);
+            break;
+
+        case CmdCopySelectionAsImage:
+            if (tab && tab->win) {
+                CopySelectionAsImageToClipboard(tab->win);
+            }
+            break;
+
         case CmdNavigateThumbnail:
             RunCommandPalette(win, Str(kPalettePrefixThumbnails), 0);
             break;

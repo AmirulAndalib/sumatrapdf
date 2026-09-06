@@ -310,6 +310,9 @@ export const commands = [
     "CmdAnnotationHighlightBrush", "Highlight with Brush",
     "CmdFindAnnotation", "Find Annotation",
     "CmdOpenFileNoHistory", "Open File Without History...",
+    "CmdCopySelectionAsImage", "Copy Selection As Image",
+    "CmdSearchGoogleLensPage", "Search Page with Google Lens",
+    "CmdSearchGoogleLensImage", "Search Image with Google Lens",
     "CmdNone", "Do nothing",
 ];
 

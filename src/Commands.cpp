@@ -317,6 +317,9 @@ static SeqStrings gCommandNames =
     "CmdAnnotationHighlightBrush\0"
     "CmdFindAnnotation\0"
     "CmdOpenFileNoHistory\0"
+    "CmdCopySelectionAsImage\0"
+    "CmdSearchGoogleLensPage\0"
+    "CmdSearchGoogleLensImage\0"
     "CmdNone\0"
     "\0";
 
@@ -622,6 +625,9 @@ static i32 gCommandIds[] = {
     CmdAnnotationHighlightBrush,
     CmdFindAnnotation,
     CmdOpenFileNoHistory,
+    CmdCopySelectionAsImage,
+    CmdSearchGoogleLensPage,
+    CmdSearchGoogleLensImage,
     CmdNone,
 };
 
@@ -927,6 +933,9 @@ SeqStrings gCommandDescriptions =
     "Highlight with Brush\0"
     "Find Annotation\0"
     "Open File Without History...\0"
+    "Copy Selection As Image\0"
+    "Search Page with Google Lens\0"
+    "Search Image with Google Lens\0"
     "Do nothing\0"
     "\0";
 // clang-format on

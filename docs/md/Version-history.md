@@ -256,6 +256,7 @@ Available in [pre-release](https://www.sumatrapdfreader.org/prerelease) builds.
 - **Stop Reading** is always in the Read Aloud menu (main menu, context menu, toolbar dropdown), even when the playback bar is not visible, so a session can still be stopped from the top menu (fixes #6053). It is disabled when nothing is being read; the command palette lists it only while a session is active
 - **Navigate Thumbnails** opens a page-thumbnail grid for the current fixed-page document; thumbnails appear as they are rendered in the background, and the grid supports arrow-key navigation, mouse selection, double-click or Enter to open a page, Escape to close, and a scrollbar for long documents
 - Multi-chapter ebooks (EPUB, MOBI) open showing only the first chapter and lay out the rest as you read them, instead of paginating the whole book up front — a 1000-chapter MOBI now opens in about 0.1s instead of roughly 40s. For those documents the toolbar shows **Chapter: [n] / N** next to **Page: [n] / M** (the page within the current chapter), the Go to Page dialog asks for a chapter and a page, and Next Page / Previous Page cross chapter boundaries. The remembered reading position is a chapter bookmark, so it survives font-size changes that reflow the book; old plain page numbers in settings still open at that flat page
+- The document context menu groups copy / zoom / select under **Selection**, Google Lens under **Visual Search With Google Lens** (selection as image, this page, or the image under the cursor), and image actions under **Selected Image** (including Lens). **Copy As Image To Clipboard**, **Zoom To Selection**, and Lens from **Selection** appear only for a rectangular selection
 
 **New commands:**
 
@@ -355,6 +356,9 @@ Available in [pre-release](https://www.sumatrapdfreader.org/prerelease) builds.
 - `CmdToggleTransparencyGrid` : "Toggle Transparency Grid" — View menu; session-only checkerboard under the page (fixes #1809)
 - `CmdTogglePageGrid` : "Toggle Page Grid" — View menu; session-only graph paper on the page (fixes #4398)
 - `CmdConfigurePageGrid` : "Configure Page Grid..." — View menu; dialog for grid spacing, origin, color and style
+- `CmdCopySelectionAsImage` : "Copy Selection As Image" — clipboard image of a rectangular selection
+- `CmdSearchGoogleLensPage` : "Search Page with Google Lens"
+- `CmdSearchGoogleLensImage` : "Search Image with Google Lens"
 
 **New command-line arguments:**
 

@@ -168,6 +168,7 @@ import { testit as annotCopyPaste } from "./annot-copy-paste.ts";
 import { testit as annotFilterCloseTab } from "./annot-filter-close-tab.ts";
 import { testit as annotFilterCloseWindow } from "./annot-filter-close-window.ts";
 import { testit as issue6136 } from "./issue-6136.ts";
+import { testit as issueTrimMargins } from "./issue-trim-margins.ts";
 import { testit as issue1930 } from "./issue-1930.ts";
 import { testit as annotFilterSyntax } from "./annot-filter-syntax.ts";
 import { testit as annotCutPaste } from "./annot-cut-paste.ts";
@@ -508,6 +509,7 @@ export const tests: NamedTest[] = [
   ["issue-6132", issue6132],
   ["issue-6133", issue6133],
   ["toolbar-tab-switch-pos", toolbarTabSwitchPos],
+  ["issue-trim-margins", issueTrimMargins],
 ];
 
 export async function testit(opts?: SuiteOptions): Promise<void> {

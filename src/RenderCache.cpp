@@ -317,23 +317,32 @@ static RectF GetTileRect(RectF pagerect, TilePosition tile) {
 }
 
 // get the coordinates of a specific tile
-static Rect GetTileRectDevice(EngineBase* engine, int pageNo, int rotation, float zoom, TilePosition tile) {
-    RectF mediabox = engine->PageMediabox(pageNo);
-    if (tile.res > 0 && tile.res != kInvalidTileRes) {
-        mediabox = GetTileRect(mediabox, tile);
+static Rect GetTileRectDevice(DisplayModel* dm, int pageNo, int rotation, float zoom, TilePosition tile) {
+    EngineBase* engine = dm->GetEngine();
+    RectF pageBox = dm->PageMediaBoxForLayout(pageNo);
+    if (tile.res == 0 || tile.res == kInvalidTileRes) {
+        RectF pixelbox = engine->Transform(pageBox, pageNo, zoom, rotation);
+        return Rect(0, 0, pixelbox.Round().dx, pixelbox.Round().dy);
     }
-    RectF pixelbox = engine->Transform(mediabox, pageNo, zoom, rotation);
-    return pixelbox.Round();
+    RectF tileBox = GetTileRect(pageBox, tile);
+    RectF pagePixelBox = engine->Transform(pageBox, pageNo, zoom, rotation);
+    RectF tilePixelBox = engine->Transform(tileBox, pageNo, zoom, rotation);
+    tilePixelBox.x -= pagePixelBox.x;
+    tilePixelBox.y -= pagePixelBox.y;
+    return tilePixelBox.Round();
 }
 
-static RectF GetTileRectUser(EngineBase* engine, int pageNo, int rotation, float zoom, TilePosition tile) {
-    Rect pixelbox = GetTileRectDevice(engine, pageNo, rotation, zoom, tile);
-    return engine->Transform(ToRectF(pixelbox), pageNo, zoom, rotation, true);
+static RectF GetTileRectUser(DisplayModel* dm, int pageNo, int rotation, float zoom, TilePosition tile) {
+    RectF pageBox = dm->PageMediaBoxForLayout(pageNo);
+    if (tile.res > 0 && tile.res != kInvalidTileRes) {
+        return GetTileRect(pageBox, tile);
+    }
+    return pageBox;
 }
 
-static Rect GetTileOnScreen(EngineBase* engine, int pageNo, int rotation, float zoom, TilePosition tile,
+static Rect GetTileOnScreen(DisplayModel* dm, int pageNo, int rotation, float zoom, TilePosition tile,
                             Rect pageOnScreen) {
-    Rect bbox = GetTileRectDevice(engine, pageNo, rotation, zoom, tile);
+    Rect bbox = GetTileRectDevice(dm, pageNo, rotation, zoom, tile);
     bbox.Offset(pageOnScreen.x, pageOnScreen.y);
     return bbox;
 }
@@ -350,7 +359,7 @@ static bool IsTileVisible(DisplayModel* dm, int pageNo, TilePosition tile, float
     int rotation = dm->GetRotation();
     float zoom = dm->GetZoomReal(pageNo);
     Rect r = pageInfo->pageOnScreen;
-    Rect tileOnScreen = GetTileOnScreen(engine, pageNo, rotation, zoom, tile, r);
+    Rect tileOnScreen = GetTileOnScreen(dm, pageNo, rotation, zoom, tile, r);
     // consider nearby tiles visible depending on the fuzz factor
     tileOnScreen.x -= (int)((float)tileOnScreen.dx * fuzz * 0.5);
     tileOnScreen.dx = (int)((float)tileOnScreen.dx * (fuzz + 1));
@@ -526,7 +535,7 @@ void RenderCache::Invalidate(DisplayModel* dm, int pageNo, RectF rect) {
 // determine the count of tiles required for a page at a given zoom level
 USHORT RenderCache::GetTileRes(DisplayModel* dm, int pageNo) const {
     auto* engine = dm->GetEngine();
-    RectF mediabox = engine->PageMediabox(pageNo);
+    RectF mediabox = dm->PageMediaBoxForLayout(pageNo);
     float zoom = dm->GetZoomReal(pageNo);
     float zoomVirt = dm->GetZoomVirtual();
     Rect viewPort = dm->GetViewPort();
@@ -804,7 +813,7 @@ bool RenderCache::Render(DisplayModel* dm, int pageNo, int rotation, float zoom,
     PageInfo* pi = dm->GetPageInfo(pageNo);
     newRequest->loc = pi ? pi->loc : kInvalidLocation;
     if (tile) {
-        newRequest->pageRect = GetTileRectUser(dm->GetEngine(), pageNo, rotation, zoom, *tile);
+        newRequest->pageRect = GetTileRectUser(dm, pageNo, rotation, zoom, *tile);
         newRequest->tile = *tile;
     } else if (pageRect) {
         newRequest->pageRect = *pageRect;
@@ -1038,7 +1047,7 @@ bool RenderCache::VisibleTargetTilesReady(DisplayModel* dm, Str* whyNot) {
         bool sawTarget = false;
         while (len(queue) > 0) {
             TilePosition tile = VecPopAt(queue, 0);
-            Rect tileOnScreen = GetTileOnScreen(dm->GetEngine(), pageNo, rotation, zoom, tile, pi->pageOnScreen);
+            Rect tileOnScreen = GetTileOnScreen(dm, pageNo, rotation, zoom, tile, pi->pageOnScreen);
             if (tileOnScreen.IsEmpty()) {
                 continue;
             }
@@ -1360,6 +1369,9 @@ int RenderCache::Paint(HDC hdc, Rect bounds, DisplayModel* dm, int pageNo, PageI
 
         RectF area = ToRectF(bounds);
         area.Offset((float)-pi->pageOnScreen.x, (float)-pi->pageOnScreen.y);
+        RectF pageBox = dm->PageMediaBoxForLayout(pageNo);
+        PointF origin = dm->GetEngine()->Transform(pageBox, pageNo, zoom, rotation).TL();
+        area.Offset(origin.x, origin.y);
         area = dm->GetEngine()->Transform(area, pageNo, zoom, rotation, true);
 
         RenderPageArgs args(pageNo, zoom, rotation, &area);
@@ -1388,7 +1400,7 @@ int RenderCache::Paint(HDC hdc, Rect bounds, DisplayModel* dm, int pageNo, PageI
 
     while (len(queue) > 0) {
         TilePosition tile = VecPopAt(queue, 0);
-        Rect tileOnScreen = GetTileOnScreen(dm->GetEngine(), pageNo, rotation, zoom, tile, pi->pageOnScreen);
+        Rect tileOnScreen = GetTileOnScreen(dm, pageNo, rotation, zoom, tile, pi->pageOnScreen);
         if (tileOnScreen.IsEmpty()) {
             // display an error message when only empty tiles should be drawn (i.e. on page loading errors)
             renderDelayMin = std::min(kRenderDelayFailed, renderDelayMin);

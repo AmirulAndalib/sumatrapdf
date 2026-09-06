@@ -298,6 +298,30 @@ bool DisplayModel::GetUniformPageWidth() const {
     return uniformPageWidth;
 }
 
+void DisplayModel::SetTrimEmptyMargins(bool enable) {
+    if (trimEmptyMargins == enable) {
+        return;
+    }
+    trimEmptyMargins = enable;
+    if (cb) {
+        cb->CleanUp(this);
+    }
+    Relayout(zoomVirtual, rotation);
+    RecalcVisibleParts();
+    if (trimEmptyMargins) {
+        EnsureTrimEmptyMarginsForVisiblePages();
+    }
+    RenderVisibleParts();
+    if (cb) {
+        cb->UpdateScrollbars(this, canvasSize);
+    }
+    RepaintDisplay();
+}
+
+bool DisplayModel::GetTrimEmptyMargins() const {
+    return trimEmptyMargins;
+}
+
 // toRight: user moved/keyed toward the right (VK_RIGHT, swipe right).
 // LTR: right = next page; manga R2L: left = next page (issue #3964).
 bool DisplayModel::GoToPageHorizontal(bool toRight) {
@@ -478,6 +502,7 @@ void DisplayModel::GetDisplayState(FileState* fs) {
     fs->rotation = rotation;
     fs->displayR2L = displayR2L;
     fs->uniformPageWidth = uniformPageWidth;
+    fs->trimEmptyMargins = trimEmptyMargins;
 
     str::Free(fs->decryptionKey);
     fs->decryptionKey = engine->decryptionKey ? str::Dup(engine->decryptionKey) : Str();
@@ -828,6 +853,9 @@ RectF DisplayModel::PageMediaBoxForLayout(int pageNo) const {
     PageInfo* pi = GetPageInfo(pageNo);
     if (!pi) {
         return {};
+    }
+    if (trimEmptyMargins && !pi->contentBox.IsEmpty()) {
+        return pi->contentBox;
     }
     if (IsMediaBoxKnown(pi->mediaBox)) {
         // includes PageInfoState::Error, where mediaBox is the default box
@@ -1672,6 +1700,7 @@ void DisplayModel::RelayoutKeepingView() {
         int newY = GetPageInfo(anchorPageNo)->pos.y + dyInPage;
         viewPort.y = limitValue(newY, 0, std::max(0, canvasSize.dy - viewPort.dy));
     }
+    viewPort.x = limitValue(viewPort.x, 0, std::max(0, canvasSize.dx - viewPort.dx));
     RecalcVisibleParts();
     RenderVisibleParts();
     cb->UpdateScrollbars(this, canvasSize);
@@ -1759,6 +1788,46 @@ bool DisplayModel::EnsureMediaBoxesForVisiblePages() {
     }
     NotifyMediaBoxRelayout(this, msg);
     return true;
+}
+
+bool DisplayModel::EnsureTrimEmptyMarginsForVisiblePages() {
+    if (!trimEmptyMargins || !pagesInfo || inTrimMarginsUpdate) {
+        return false;
+    }
+    inTrimMarginsUpdate = true;
+    defer {
+        inTrimMarginsUpdate = false;
+    };
+
+    bool anyTrimmed = false;
+    constexpr int kMaxRelayouts = 4;
+    for (int i = 0; i < kMaxRelayouts; i++) {
+        int nInPass = 0;
+        for (int pageNo = 1; pageNo <= PageCount(); pageNo++) {
+            PageInfo* pi = GetPageInfo(pageNo);
+            if (!pi || pi->visibleRatio <= 0 || pi->contentBoxCalculated) {
+                continue;
+            }
+            pi->contentBoxCalculated = true;
+            RectF cbox = engine->PageContentBox(pageNo);
+            if (cbox.IsEmpty() || cbox.dx < 10 || cbox.dy < 10) {
+                cbox = PageMediaBox(pageNo);
+            }
+            pi->contentBox = cbox;
+            if (cbox != PageMediaBox(pageNo)) {
+                nInPass++;
+                anyTrimmed = true;
+            }
+        }
+        if (nInPass == 0) {
+            break;
+        }
+        if (cb) {
+            cb->CleanUp(this);
+        }
+        RelayoutKeepingView();
+    }
+    return anyTrimmed;
 }
 
 void DisplayModel::ChangeStartPage(int newStartPage) {
@@ -1890,6 +1959,10 @@ Point DisplayModel::CvtToScreen(int pageNo, PointF pt) {
     float zoom = getZoomSafe(this, pageNo, pageInfo);
 
     PointF p = engine->Transform(pt, pageNo, zoom, rotation);
+    RectF pageBox = PageMediaBoxForLayout(pageNo);
+    PointF origin = engine->Transform(pageBox, pageNo, zoom, rotation).TL();
+    p.x -= origin.x;
+    p.y -= origin.y;
     // don't add the full 0.5 for rounding to account for precision errors
     Rect r = pageInfo->pageOnScreen;
     p.x += 0.499f + (float)r.x;
@@ -1915,11 +1988,15 @@ PointF DisplayModel::CvtFromScreen(Point pt, int pageNo) {
         return {};
     }
 
+    float zoom = getZoomSafe(this, pageNo, pageInfo);
     // don't add the full 0.5 for rounding to account for precision errors
     Rect r = pageInfo->pageOnScreen;
     PointF p = PointF((float)pt.x - 0.499f - (float)r.x, (float)pt.y - 0.499f - (float)r.y);
+    RectF pageBox = PageMediaBoxForLayout(pageNo);
+    PointF origin = engine->Transform(pageBox, pageNo, zoom, rotation).TL();
+    p.x += origin.x;
+    p.y += origin.y;
 
-    float zoom = getZoomSafe(this, pageNo, pageInfo);
     return engine->Transform(p, pageNo, zoom, rotation, true);
 }
 
@@ -2102,6 +2179,7 @@ void DisplayModel::SetViewPortSize(Size newViewPortSize) {
     } else {
         RecalcVisibleParts();
         EnsureMediaBoxesForVisiblePages();
+        EnsureTrimEmptyMarginsForVisiblePages();
         RenderVisibleParts();
         cb->UpdateScrollbars(this, canvasSize);
     }
@@ -2213,6 +2291,7 @@ void DisplayModel::GoToPage(int pageNo, int scrollY, bool addNavPt, int scrollX)
 
     RecalcVisibleParts();
     EnsureMediaBoxesForVisiblePages();
+    EnsureTrimEmptyMarginsForVisiblePages();
     RenderVisibleParts();
     cb->UpdateScrollbars(this, canvasSize);
     cb->PageNoChanged(this, pageNo);
@@ -2585,6 +2664,7 @@ void DisplayModel::ScrollXTo(int xOff) {
     viewPort.x = xOff;
     RecalcVisibleParts();
     EnsureMediaBoxesForVisiblePages();
+    EnsureTrimEmptyMarginsForVisiblePages();
     cb->UpdateScrollbars(this, canvasSize);
 
     if (CurrentPageNo() != currPageNo) {
@@ -2610,6 +2690,7 @@ void DisplayModel::ScrollYTo(int yOff) {
     viewPort.y = yOff;
     RecalcVisibleParts();
     EnsureMediaBoxesForVisiblePages();
+    EnsureTrimEmptyMarginsForVisiblePages();
     RenderVisibleParts();
     // Match ScrollXTo: keep scrollbar thumb (and smart overlay reveal) in sync.
     cb->UpdateScrollbars(this, canvasSize);
@@ -2674,6 +2755,7 @@ void DisplayModel::ScrollYBy(int dy, bool changePage) {
     viewPort.y = newYOff;
     RecalcVisibleParts();
     EnsureMediaBoxesForVisiblePages();
+    EnsureTrimEmptyMarginsForVisiblePages();
     RenderVisibleParts();
     cb->UpdateScrollbars(this, canvasSize);
     newPageNo = CurrentPageNo();

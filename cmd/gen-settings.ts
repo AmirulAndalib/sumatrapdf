@@ -1002,6 +1002,9 @@ const fileState: Field[] = [
     false,
     "if true, percentage zoom scales every page to the width page 1 has at that zoom level",
   ).ver("3.7"),
+  field("TrimEmptyMargins", Bool, false, "if true, empty margins around page content are trimmed from display").ver(
+    "3.7",
+  ),
   field("BgCol", Color, "", "if given, overrides the background color for this document").ver("3.7"),
   field("TabCol", Color, "", "if given, overrides the tab color for this document").ver("3.7"),
   compactArray(
@@ -1054,6 +1057,7 @@ const fileStateLayout = [
   "ShowToc",
   "DisplayR2L",
   "UniformPageWidth",
+  "TrimEmptyMargins",
 ];
 fileState.sort((a, b) => fileStateLayout.indexOf(a.Name) - fileStateLayout.indexOf(b.Name));
 

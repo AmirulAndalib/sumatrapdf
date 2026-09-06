@@ -314,7 +314,8 @@ enum {
     CmdSearchGoogleLensPage = 503,
     CmdSearchGoogleLensImage = 504,
     CmdSaveSelectionAsImage = 505,
-    CmdNone = 506,
+    CmdToggleTrimEmptyMargins = 506,
+    CmdNone = 507,
 
     /* range for file history */
     CmdFileHistoryFirst,
@@ -336,6 +337,7 @@ enum {
 
     CmdCreateAnnotFirst = CmdCreateAnnotText,
     CmdCreateAnnotLast = CmdCreateAnnotFileAttachment,
+    CmdTrimEmptyMargins = CmdToggleTrimEmptyMargins,
 };
 // clang-format on
 // @gen-end cmd-enum

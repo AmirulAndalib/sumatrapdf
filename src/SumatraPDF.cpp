@@ -2497,6 +2497,7 @@ static void ReplaceDocumentInCurrentTab(LoadArgs* args, DocController* ctrl, Fil
             dm->SetUiDpi(win->frameDpi > 0 ? win->frameDpi : DpiGetForHwnd(win->hwndFrame));
             if (fs) {
                 dm->SetUniformPageWidth(fs->uniformPageWidth);
+                dm->SetTrimEmptyMargins(fs->trimEmptyMargins);
             }
             FileState* favFs = fs ? fs : FileHistoryFindByPath(win->ctrl->GetFilePath());
             if (favFs && MigrateFileStatePagePos(win->ctrl, favFs)) {
@@ -8410,6 +8411,16 @@ static void ToggleUniformPageWidth(MainWindow* win) {
     dm->SetScrollState(state);
 }
 
+static void ToggleTrimEmptyMargins(MainWindow* win) {
+    DisplayModel* dm = win->AsFixed();
+    if (!dm) {
+        return;
+    }
+    ScrollState state = dm->GetScrollState();
+    dm->SetTrimEmptyMargins(!dm->GetTrimEmptyMargins());
+    dm->SetScrollState(state);
+}
+
 static Point GetSelectionCenter(MainWindow* win) {
     bool hasSelection = win->showSelection && win->CurrentTab()->selectionOnPage;
     if (!hasSelection) {
@@ -11920,6 +11931,10 @@ static LRESULT FrameOnCommand(MainWindow* win, HWND hwnd, UINT msg, WPARAM wp, L
 
         case CmdToggleUniformPageWidth:
             ToggleUniformPageWidth(win);
+            break;
+
+        case CmdToggleTrimEmptyMargins:
+            ToggleTrimEmptyMargins(win);
             break;
 
         case CmdToggleToolbar:

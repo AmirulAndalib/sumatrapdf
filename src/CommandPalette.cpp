@@ -2009,6 +2009,13 @@ static TempStr UpdateCommandNameTemp(MainWindow* win, int cmdId, Str s) {
                 newIsOn = !dm->GetUniformPageWidth();
             }
         } break;
+        case CmdToggleTrimEmptyMargins: {
+            DisplayModel* dm = win->AsFixed();
+            if (dm) {
+                isToggle = true;
+                newIsOn = !dm->GetTrimEmptyMargins();
+            }
+        } break;
         case CmdFindToggleMatchCase: {
             isToggle = true;
             newIsOn = !win->findMatchCase;

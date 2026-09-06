@@ -30,6 +30,7 @@ struct PageInfo {
 
     /* data that is calculated when needed. actual content size within a page (View target) */
     RectF contentBox;
+    bool contentBoxCalculated = false;
 
     /* data that changes when zoom and rotation changes */
     /* position and size within total area after applying zoom and rotation.
@@ -233,6 +234,9 @@ struct DisplayModel : DocController {
     bool GetDisplayR2L() const;
     void SetUniformPageWidth(bool enable);
     bool GetUniformPageWidth() const;
+    void SetTrimEmptyMargins(bool enable);
+    bool GetTrimEmptyMargins() const;
+    bool EnsureTrimEmptyMarginsForVisiblePages();
     bool GoToPageHorizontal(bool toRight);
 
     bool ShouldCacheRendering(int pageNo) const;
@@ -352,6 +356,8 @@ struct DisplayModel : DocController {
        this value is extracted from the PDF document */
     bool displayR2L = false;
     bool uniformPageWidth = false;
+    bool trimEmptyMargins = false;
+    bool inTrimMarginsUpdate = false;
 
     /* landscape image pages that occupy a full facing/book row
        (ComicBookUI / ImageUI LandscapeAsSpread; issues #1324, #872) */

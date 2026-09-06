@@ -265,6 +265,10 @@ static MenuDef menuDefView[] = {
         CmdToggleUniformPageWidth,
     },
     {
+        TrN("&Trim Empty Margins"),
+        CmdToggleTrimEmptyMargins,
+    },
+    {
         StrL(kMenuSeparator),
         0,
     },
@@ -1999,6 +2003,8 @@ static void MenuUpdateDisplayMode(MainWindow* win) {
         MenuSetEnabled(win->menu, CmdToggleMangaMode, true);
         MenuSetChecked(win->menu, CmdToggleUniformPageWidth, dm->GetUniformPageWidth());
         MenuSetEnabled(win->menu, CmdToggleUniformPageWidth, true);
+        MenuSetChecked(win->menu, CmdToggleTrimEmptyMargins, dm->GetTrimEmptyMargins());
+        MenuSetEnabled(win->menu, CmdToggleTrimEmptyMargins, true);
     }
 }
 

@@ -320,6 +320,8 @@ struct FileState {
     // if true, percentage zoom scales every page to the width page 1 has
     // at that zoom level
     bool uniformPageWidth;
+    // if true, empty margins around page content are trimmed from display
+    bool trimEmptyMargins;
 };
 
 // a subset of FileState required for restoring the state of a single
@@ -1796,14 +1798,15 @@ static const FieldInfo gFileStateFields[] = {
     {offsetof(FileState, showToc), SettingType::Bool, true},
     {offsetof(FileState, displayR2L), SettingType::Bool, false},
     {offsetof(FileState, uniformPageWidth), SettingType::Bool, false},
+    {offsetof(FileState, trimEmptyMargins), SettingType::Bool, false},
 };
 static StructInfo gFileStateInfo = {
     sizeof(FileState),
-    22,
+    23,
     gFileStateFields,
     "Favorites\0EBookUI\0TocState\0FilePath\0DecryptionKey\0DisplayMode\0Zoom\0BgCol\0TabCol\0OpenCount\0PageNo\0Rotati"
     "on\0WindowState\0SidebarDx\0ScrollPos\0WindowPos\0IsPinned\0IsMissing\0UseDefaultState\0ShowToc\0DisplayR2L\0Unifo"
-    "rmPageWidth",
+    "rmPageWidth\0TrimEmptyMargins",
     "pages of this document bookmarked in the Favorites menu\0reflowable (ebook) settings for just this document. The "
     "block is absent until you add it; a field left empty or 0 uses the global EBookUI value. The global section's "
     "WindowBgCol and DefaultDisplayMode are already per-document as BgCol and DisplayMode below\0data required to "
@@ -1820,7 +1823,8 @@ static StructInfo gFileStateInfo = {
     "don't displace it\0if true, the file is considered missing and won't be shown in any list\0if true, this document "
     "opens with the global defaults instead of the values below\0if true, show the table of contents (Bookmarks) "
     "sidebar when the document has one\0if true, the document is displayed right-to-left in facing and book view "
-    "modes\0if true, percentage zoom scales every page to the width page 1 has at that zoom level",
+    "modes\0if true, percentage zoom scales every page to the width page 1 has at that zoom level\0if true, empty "
+    "margins around page content are trimmed from display",
     false};
 
 static const FieldInfo gPointF_2_Fields[] = {

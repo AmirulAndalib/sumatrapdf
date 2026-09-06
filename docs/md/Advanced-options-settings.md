@@ -1189,6 +1189,10 @@ FileStates [
     ; if true, percentage zoom scales every page to the width page 1 has at that
     ; zoom level (introduced in version 3.7)
     UniformPageWidth = false
+
+    ; if true, empty margins around page content are trimmed from display
+    ; (introduced in version 3.7)
+    TrimEmptyMargins = false
   ]
 ]
 

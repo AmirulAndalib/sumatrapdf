@@ -361,6 +361,7 @@ Available in [pre-release](https://www.sumatrapdfreader.org/prerelease) builds.
 - `CmdSaveSelectionAsImage` : "Save As Image..." — rectangular selection → PNG/JPEG/BMP at a chosen DPI (fixes #6127)
 - `CmdSearchGoogleLensPage` : "Search Page with Google Lens"
 - `CmdSearchGoogleLensImage` : "Search Image with Google Lens"
+- `CmdToggleTrimEmptyMargins` : "Toggle Trim Empty Margins" — trims empty margins around page content from display on demand
 
 **New command-line arguments:**
 

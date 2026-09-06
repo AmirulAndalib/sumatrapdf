@@ -314,6 +314,7 @@ export const commands = [
     "CmdSearchGoogleLensPage", "Search Page with Google Lens",
     "CmdSearchGoogleLensImage", "Search Image with Google Lens",
     "CmdSaveSelectionAsImage", "Save As Image...",
+    "CmdToggleTrimEmptyMargins", "Toggle Trim Empty Margins",
     "CmdNone", "Do nothing",
 ];
 
@@ -373,6 +374,7 @@ function generateEnum(): string {
   lines.push("");
   lines.push("    CmdCreateAnnotFirst = CmdCreateAnnotText,");
   lines.push("    CmdCreateAnnotLast = CmdCreateAnnotFileAttachment,");
+  lines.push("    CmdTrimEmptyMargins = CmdToggleTrimEmptyMargins,");
   lines.push("};");
   lines.push("// clang-format on");
 

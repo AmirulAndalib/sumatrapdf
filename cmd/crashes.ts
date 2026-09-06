@@ -14,6 +14,7 @@ const WIN_SYM_CACHE = join(homedir(), ".symbols");
 const MS_SYMBOL_SERVER = "https://msdl.microsoft.com/download/symbols";
 const PROD_SERVER = "https://www.sumatrapdfreader.org";
 const LOCAL_SERVER = "http://127.0.0.1:9321";
+const SECRETS_GO = String.raw`D:\src\hack\webapps\sumatra-website\server\secrets.go`;
 
 type DumpRow = {
   id: string;
@@ -323,16 +324,37 @@ function printRows(rows: DumpRow[]): void {
   console.log(`${rows.length} minidump${rows.length === 1 ? "" : "s"}`);
 }
 
-async function fetchText(url: string): Promise<string> {
-  const res = await fetch(url);
+let cachedMinidumpPassword = "";
+
+function loadMinidumpPassword(): string {
+  if (cachedMinidumpPassword) {
+    return cachedMinidumpPassword;
+  }
+  if (!existsSync(SECRETS_GO)) {
+    throw new Error(`missing secrets file: ${SECRETS_GO}`);
+  }
+  const m = readFileSync(SECRETS_GO, "utf8").match(/MinidumpPassword\s*=\s*"([^"]+)"/);
+  if (!m) {
+    throw new Error(`MinidumpPassword not found in ${SECRETS_GO}`);
+  }
+  cachedMinidumpPassword = m[1];
+  return cachedMinidumpPassword;
+}
+
+function dumpAuth(password: string): { Authorization: string } {
+  return { Authorization: "Basic " + Buffer.from(":" + password).toString("base64") };
+}
+
+async function fetchText(url: string, headers?: HeadersInit): Promise<string> {
+  const res = await fetch(url, headers ? { headers } : undefined);
   if (!res.ok) {
     throw new Error(`GET ${url} -> ${res.status}`);
   }
   return await res.text();
 }
 
-async function fetchBytes(url: string): Promise<Uint8Array> {
-  const res = await fetch(url);
+async function fetchBytes(url: string, headers?: HeadersInit): Promise<Uint8Array> {
+  const res = await fetch(url, headers ? { headers } : undefined);
   if (!res.ok) {
     throw new Error(`GET ${url} -> ${res.status}`);
   }
@@ -688,7 +710,7 @@ async function analyze(server: string, row: DumpRow, reanalyze: boolean): Promis
   if (!existsSync(dmpPath)) {
     const url = `${server}/minidump/${row.id}`;
     console.log(`dump: downloading ${url}`);
-    writeFileSync(dmpPath, await fetchBytes(url));
+    writeFileSync(dmpPath, await fetchBytes(url, dumpAuth(loadMinidumpPassword())));
   }
   extractDumpLog(row.id, reanalyze);
   const outPath = analyzePath(row.id);
@@ -1041,7 +1063,8 @@ async function serveCrashes(rows: DumpRow[]): Promise<void> {
 
 async function main(): Promise<void> {
   const { server, id, reanalyze } = parseArgs(process.argv.slice(2));
-  const list = parseList(await fetchText(`${server}/minidumps.txt`));
+  const password = loadMinidumpPassword();
+  const list = parseList(await fetchText(`${server}/minidumps.txt`, dumpAuth(password)));
   if (id) {
     const row = list.find((r) => r.id === id);
     if (!row) {

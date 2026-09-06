@@ -4,6 +4,8 @@
 #include "base/Base.h"
 #include "CrashHandler.h"
 
+void CrashHandlerSetSettings(Str) {}
+
 void _uploadDebugReport(Str /*condStr*/, Str /*fileLine*/, bool /*isCrash*/, bool /*captureCallstack*/) {
 #if OS_WIN
     // outside of SumatraPDF binary, this only breaks if running under debugger

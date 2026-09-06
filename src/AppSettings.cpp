@@ -45,6 +45,7 @@
 #include "Tabs.h"
 #include "GlobalHotkeys.h"
 #include "PagePosition.h"
+#include "CrashHandler.h"
 #include "AppSettings.h"
 
 // workaround for OnMenuExit
@@ -397,6 +398,20 @@ void ApplySettingsToOpenWindows() {
     ReRegisterGlobalHotkeys();
 }
 
+// FileStates are large; the minidump comment only needs the rest.
+static void UpdateCrashHandlerSettings() {
+    if (!gSettings) {
+        return;
+    }
+    Vec<FileState*> empty;
+    Vec<FileState*>* saved = gSettings->fileStates;
+    gSettings->fileStates = &empty;
+    Str d = SerializeSettings(gSettings, {});
+    gSettings->fileStates = saved;
+    CrashHandlerSetSettings(d);
+    str::Free(d);
+}
+
 bool LoadSettings() {
     ReportIf(gSettings);
 
@@ -588,6 +603,8 @@ bool LoadSettings() {
     if (needsSave) {
         SaveSettings();
     }
+
+    UpdateCrashHandlerSettings();
 
     logf("LoadSettings('%s') took %.2f ms\n", settingsPath, TimeSinceInMs(timeStart));
     return true;
@@ -856,6 +873,7 @@ bool SaveSettings() {
     if (len(prefs) == 0) {
         return false;
     }
+    UpdateCrashHandlerSettings();
 
     if (IsLastSavedPrefs(prefs) || (prevPrefs.len == prefs.len && str::Eq(prefs, prevPrefs))) {
         RememberLastSavedPrefs(prefs);

@@ -118,12 +118,45 @@ function logPath(id: string): string {
   return join(dumpDir(id), "log.txt");
 }
 
+function settingsPath(id: string): string {
+  return join(dumpDir(id), "settings.txt");
+}
+
 function relAnalyze(id: string): string {
   return relative(ROOT, analyzePath(id)).replaceAll("\\", "/");
 }
 
 function relLog(id: string): string {
   return relative(ROOT, logPath(id)).replaceAll("\\", "/");
+}
+
+function relSettings(id: string): string {
+  return relative(ROOT, settingsPath(id)).replaceAll("\\", "/");
+}
+
+const kSettingsMark = "--- settings ---";
+const kSettingsMarkOld = "----- Settings file ----------";
+
+function splitMinidumpComment(text: string): { log: string; settings: string } {
+  let idx = -1;
+  let markLen = 0;
+  for (const m of [kSettingsMark, kSettingsMarkOld]) {
+    const i = text.indexOf(m);
+    if (i >= 0 && (idx < 0 || i < idx)) {
+      idx = i;
+      markLen = m.length;
+    }
+  }
+  if (idx < 0) {
+    return { log: text.replace(/\s+$/, ""), settings: "" };
+  }
+  return {
+    log: text.slice(0, idx).replace(/\s+$/, ""),
+    settings: text
+      .slice(idx + markLen)
+      .replace(/^\s+/, "")
+      .replace(/\s+$/, ""),
+  };
 }
 
 const kMinidumpSignature = 0x504d444d; // 'MDMP'
@@ -192,8 +225,7 @@ function extractMinidumpComment(dmp: Uint8Array): string {
   return commentA || commentW;
 }
 
-function isLogExtracted(id: string): boolean {
-  const p = logPath(id);
+function fileNonEmpty(p: string): boolean {
   if (!existsSync(p)) {
     return false;
   }
@@ -204,8 +236,32 @@ function isLogExtracted(id: string): boolean {
   }
 }
 
+function isLogExtracted(id: string): boolean {
+  return fileNonEmpty(logPath(id));
+}
+
+function isSettingsExtracted(id: string): boolean {
+  return fileNonEmpty(settingsPath(id));
+}
+
+function writeCommentParts(id: string, text: string): void {
+  const { log, settings } = splitMinidumpComment(text);
+  if (log) {
+    writeFileSync(logPath(id), log);
+  }
+  const sp = settingsPath(id);
+  if (settings) {
+    writeFileSync(sp, settings);
+  } else if (existsSync(sp)) {
+    unlinkSync(sp);
+  }
+}
+
 function extractDumpLog(id: string, force = false): void {
   if (!force && isLogExtracted(id)) {
+    if (!isSettingsExtracted(id)) {
+      writeCommentParts(id, readFileSync(logPath(id), "utf8"));
+    }
     return;
   }
   const p = dumpPath(id);
@@ -217,7 +273,7 @@ function extractDumpLog(id: string, force = false): void {
     if (!text) {
       return;
     }
-    writeFileSync(logPath(id), text);
+    writeCommentParts(id, text);
   } catch (e) {
     console.error(`${id}: comment extract: ${e instanceof Error ? e.message : e}`);
   }
@@ -259,6 +315,9 @@ function printRows(rows: DumpRow[]): void {
     }
     if (isLogExtracted(r.id)) {
       console.log(relLog(r.id));
+    }
+    if (isSettingsExtracted(r.id)) {
+      console.log(relSettings(r.id));
     }
   }
   console.log(`${rows.length} minidump${rows.length === 1 ? "" : "s"}`);
@@ -683,6 +742,7 @@ type ApiCrash = {
   GitSha1: string;
   IsCrash: boolean;
   HasLog: boolean;
+  HasSettings: boolean;
 };
 
 function parseAnalyzeSummary(txt: string): { crashLine: string; cond: string; isCrash: boolean } {
@@ -726,6 +786,7 @@ function crashApiRow(row: DumpRow): ApiCrash {
     GitSha1: "",
     IsCrash: isCrash,
     HasLog: isLogExtracted(row.id),
+    HasSettings: isSettingsExtracted(row.id),
   };
 }
 
@@ -734,8 +795,11 @@ function escapeHtml(s: string): string {
 }
 
 function crashHtml(id: string, analyzeTxt: string): string {
+  const enc = encodeURIComponent(id);
   const logTxt = isLogExtracted(id) ? readFileSync(logPath(id), "utf8") : "";
+  const settingsTxt = isSettingsExtracted(id) ? readFileSync(settingsPath(id), "utf8") : "";
   const logBlock = logTxt ? `<h2>minidump log</h2>\n<pre>${escapeHtml(logTxt)}</pre>` : "";
+  const settingsBlock = settingsTxt ? `<h2>settings</h2>\n<pre>${escapeHtml(settingsTxt)}</pre>` : "";
   return `<!doctype html>
 <meta charset="utf-8">
 <title>${escapeHtml(id)}</title>
@@ -748,12 +812,14 @@ function crashHtml(id: string, analyzeTxt: string): string {
 </style>
 <nav>
   <a href="/">index</a>
-  <a href="/crash/${encodeURIComponent(id)}">analyze.txt</a>
-  ${logTxt ? `<a href="/crash/${encodeURIComponent(id)}.log">log.txt</a>` : ""}
+  <a href="/crash/${enc}">analyze.txt</a>
+  ${logTxt ? `<a href="/crash/${enc}.log">log.txt</a>` : ""}
+  ${settingsTxt ? `<a href="/crash/${enc}.settings">settings.txt</a>` : ""}
 </nav>
 <h2>cdb !analyze</h2>
 <pre>${escapeHtml(analyzeTxt)}</pre>
 ${logBlock}
+${settingsBlock}
 `;
 }
 
@@ -819,6 +885,7 @@ function crashesIndexHtml(): string {
     function textURL(crash) { return "/crash/" + crash.FileNameTxt; }
     function htmlURL(crash) { return "/crash/" + crash.FileNameTxt + ".html"; }
     function logURL(crash) { return "/crash/" + crash.FileNameTxt + ".log"; }
+    function settingsURL(crash) { return "/crash/" + crash.FileNameTxt + ".settings"; }
   </script>
   <script src="https://unpkg.com/alpinejs" defer></script>
   <style>
@@ -858,6 +925,11 @@ function crashesIndexHtml(): string {
             <td>
               <template x-if="crash.HasLog">
                 <a :href="logURL(crash)" target="_blank">log</a>
+              </template>
+            </td>
+            <td>
+              <template x-if="crash.HasSettings">
+                <a :href="settingsURL(crash)" target="_blank">settings</a>
               </template>
             </td>
             <td>
@@ -901,7 +973,7 @@ function handleCrashHttp(req: Request, rows: DumpRow[]): Response {
   if (p === "/api/crashes") {
     return Response.json(rows.map(crashApiRow));
   }
-  const m = /^\/crash\/([^/]+?)(\.html|\.log)?$/.exec(p);
+  const m = /^\/crash\/([^/]+?)(\.html|\.log|\.settings)?$/.exec(p);
   if (m) {
     const id = decodeURIComponent(m[1]);
     const ext = m[2] || "";
@@ -913,6 +985,14 @@ function handleCrashHttp(req: Request, rows: DumpRow[]): Response {
         return new Response("not found", { status: 404 });
       }
       return new Response(readFileSync(logPath(id), "utf8"), {
+        headers: { "content-type": "text/plain; charset=utf-8" },
+      });
+    }
+    if (ext === ".settings") {
+      if (!isSettingsExtracted(id)) {
+        return new Response("not found", { status: 404 });
+      }
+      return new Response(readFileSync(settingsPath(id), "utf8"), {
         headers: { "content-type": "text/plain; charset=utf-8" },
       });
     }
@@ -971,6 +1051,9 @@ async function main(): Promise<void> {
     console.log(relAnalyze(row.id));
     if (isLogExtracted(row.id)) {
       console.log(relLog(row.id));
+    }
+    if (isSettingsExtracted(row.id)) {
+      console.log(relSettings(row.id));
     }
   } else {
     for (const row of list) {

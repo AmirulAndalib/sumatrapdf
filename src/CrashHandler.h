@@ -6,6 +6,7 @@ extern Str gSymbolsDir;
 
 void InstallCrashHandler(Str crashDumpPath, Str crashFilePath, Str symDir, bool localOnly);
 void UninstallCrashHandler();
+void CrashHandlerSetSettings(Str settings);
 bool CrashHandlerDownloadSymbols();
 bool AreSymbolsDownloaded(Str symDir);
 bool InitializeDbgHelp(bool force);

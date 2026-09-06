@@ -126,6 +126,27 @@ static ThreadId gDumpThreadId = 0;
 static MINIDUMP_EXCEPTION_INFORMATION gMei{};
 static LPTOP_LEVEL_EXCEPTION_FILTER gPrevExceptionFilter = nullptr;
 
+// Copy into the crash arena so the minidump comment can use it without allocating.
+void CrashHandlerSetSettings(Str settings) {
+    if (!gCrashHandlerArena) {
+        return;
+    }
+    gSettingsFile = {};
+    if (len(settings) == 0) {
+        return;
+    }
+    gSettingsFile = str::Dup(gCrashHandlerArena, settings);
+}
+
+static void AppendSettingsToCrashInfo() {
+    if (len(gSettingsFile) == 0) {
+        return;
+    }
+    CrashInfoAppend(StrL("\n--- settings ---\n"));
+    CrashInfoAppend(gSettingsFile);
+    CrashInfoAppend(StrL("\n"));
+}
+
 static bool TryStartCrashHandling(Str handlerName) {
     if (InterlockedCompareExchange(&gCrashHandlerStarted, 1, 0) == 0) {
         gCrashThreadId = GetCurrentThreadId();
@@ -252,11 +273,7 @@ static Str BuildCrashInfoText(Str condStr, Str fileLine, bool isCrash, bool capt
         CrashInfoAppend(StrL("(no log - crashed before initializing logging)\n"));
     }
 
-    if (gSettingsFile) {
-        CrashInfoAppend(StrL("\n\n----- Settings file ----------\n\n"));
-        CrashInfoAppend(gSettingsFile);
-        CrashInfoAppend(StrL("\n\n"));
-    }
+    AppendSettingsToCrashInfo();
 
     CrashInfoAppend(StrL("\n-------- Modules   ----------\n\n"));
     CrashInfoAppend(gModulesInfo);
@@ -358,11 +375,7 @@ static Str BuildMinidumpLogText() {
     } else {
         CrashInfoAppend(StrL("(no log - crashed before initializing logging)\n"));
     }
-    if (gSettingsFile) {
-        CrashInfoAppend(StrL("\n\n----- Settings file ----------\n\n"));
-        CrashInfoAppend(gSettingsFile);
-        CrashInfoAppend(StrL("\n"));
-    }
+    AppendSettingsToCrashInfo();
     return CrashInfoTake();
 }
 
@@ -1097,7 +1110,7 @@ void InstallCrashHandler(Str crashDumpPath, Str crashFilePath, Str symDir, bool 
             gp->fileStates = new Vec<FileState*>();
             // TODO: also sessionData?
             Str d = SerializeSettings(gp, {});
-            gSettingsFile = str::Dup(gCrashHandlerArena, d);
+            CrashHandlerSetSettings(d);
             str::Free(d);
             DeleteSettings(gp);
             str::Free(prefsData);

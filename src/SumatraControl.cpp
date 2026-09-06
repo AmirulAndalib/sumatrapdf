@@ -2343,6 +2343,9 @@ static void SumatraControlThread(ControlThreadArg* arg) {
         if (connected) {
             stop = ProcessControlConnection(pipe);
         }
+        // DisconnectNamedPipe discards data the client hasn't read yet; wait
+        // until it has, or the Quit reply is lost and the client sees EPIPE
+        FlushFileBuffers(pipe);
         DisconnectNamedPipe(pipe);
         CloseHandle(pipe);
         if (stop) {

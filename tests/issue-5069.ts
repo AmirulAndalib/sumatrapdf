@@ -20,7 +20,7 @@
 import { writeFileSync, mkdirSync, rmSync } from "node:fs";
 import { runStandalone, tmpPath } from "./util.ts";
 import { ControlClient, ControlCommand } from "./control.ts";
-import { launchControlled, findCanvas, killAndWait } from "./win-automation.ts";
+import { launchControlled, findCanvas, killAndWait, ensureModifierKeysUp } from "./win-automation.ts";
 import { sendMessage, getScrollPos, sleep, SB_VERT } from "./winapi.ts";
 
 const WM_MOUSEWHEEL = 0x020a;
@@ -80,6 +80,7 @@ async function currentPage(client: ControlClient): Promise<number> {
 }
 
 async function wheel(canvas: number, wp: bigint): Promise<void> {
+  await ensureModifierKeysUp();
   sendMessage(canvas, WM_MOUSEWHEEL, wp, 0n);
   await sleep(130);
 }

@@ -37,6 +37,8 @@ const user32 = dlopen("user32.dll", {
   GetClientRect: { args: [FFIType.ptr, FFIType.ptr], returns: FFIType.bool },
   GetScrollInfo: { args: [FFIType.ptr, FFIType.i32, FFIType.ptr], returns: FFIType.bool },
   SetCursorPos: { args: [FFIType.i32, FFIType.i32], returns: FFIType.bool },
+  GetAsyncKeyState: { args: [FFIType.i32], returns: FFIType.i16 },
+  keybd_event: { args: [FFIType.u8, FFIType.u8, FFIType.u32, FFIType.u64], returns: FFIType.void },
   ClientToScreen: { args: [FFIType.ptr, FFIType.ptr], returns: FFIType.bool },
   GetWindowTextW: { args: [FFIType.ptr, FFIType.ptr, FFIType.i32], returns: FFIType.i32 },
   GetWindowRect: { args: [FFIType.ptr, FFIType.ptr], returns: FFIType.bool },
@@ -265,7 +267,17 @@ export const MK_SHIFT = 0x0004;
 export const MK_CONTROL = 0x0008;
 export const MK_MBUTTON = 0x0010;
 // virtual key codes
+export const VK_RBUTTON = 0x02;
 export const VK_TAB = 0x09;
+export const VK_SHIFT = 0x10;
+export const VK_CONTROL = 0x11;
+export const VK_MENU = 0x12;
+export const VK_LSHIFT = 0xa0;
+export const VK_RSHIFT = 0xa1;
+export const VK_LCONTROL = 0xa2;
+export const VK_RCONTROL = 0xa3;
+export const VK_LMENU = 0xa4;
+export const VK_RMENU = 0xa5;
 export const VK_RETURN = 0x0d;
 export const VK_ESCAPE = 0x1b;
 export const VK_SPACE = 0x20;
@@ -691,6 +703,18 @@ export function isZoomed(hwnd: number): boolean {
 
 export function setCursorPos(x: number, y: number): boolean {
   return user32.symbols.SetCursorPos(x, y);
+}
+
+// physical (system-wide) key state: true while the key is held down
+export function isKeyDownAsync(vk: number): boolean {
+  return (user32.symbols.GetAsyncKeyState(vk) & 0x8000) !== 0;
+}
+
+const KEYEVENTF_KEYUP = 0x0002;
+
+// inject a key-up for vk, clearing a key the system thinks is still held
+export function injectKeyUp(vk: number): void {
+  user32.symbols.keybd_event(vk, 0, KEYEVENTF_KEYUP, 0n);
 }
 
 // a null-terminated UTF-16 (wide) string buffer, for LPCWSTR args

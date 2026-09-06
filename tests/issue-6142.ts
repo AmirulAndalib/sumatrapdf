@@ -10,7 +10,7 @@ import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { ControlClient, ControlCommand } from "./control.ts";
 import { runStandalone, tmpPath } from "./util.ts";
-import { findCanvas, launchControlled, killAndWait } from "./win-automation.ts";
+import { findCanvas, launchControlled, killAndWait, ensureModifierKeysUp } from "./win-automation.ts";
 import {
   clientToScreen,
   getClientRect,
@@ -73,6 +73,7 @@ async function waitScrollable(canvas: number, timeoutMs = 8000): Promise<void> {
 }
 
 async function wheelDown(canvas: number, notches: number): Promise<void> {
+  await ensureModifierKeysUp();
   const cr = getClientRect(canvas);
   const mid = clientToScreen(canvas, Math.floor(cr.right / 2), Math.floor(cr.bottom / 2));
   setCursorPos(mid.x, mid.y);

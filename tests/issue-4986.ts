@@ -9,7 +9,7 @@ import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { ControlClient, ControlCommand } from "./control.ts";
 import { runStandalone, tmpPath } from "./util.ts";
-import { findCanvas, launchControlled, killAndWait } from "./win-automation.ts";
+import { findCanvas, launchControlled, killAndWait, ensureModifierKeysUp } from "./win-automation.ts";
 import { sendMessage, sleep } from "./winapi.ts";
 
 const WM_MOUSEWHEEL = 0x020a;
@@ -109,6 +109,7 @@ export async function testit(): Promise<void> {
       throw new Error(`issue-4986: expected page 1, got ${atTop.page}`);
     }
 
+    await ensureModifierKeysUp();
     for (let i = 0; i < 12; i++) {
       sendMessage(canvas, WM_MOUSEWHEEL, WHEEL_DOWN, 0n);
       await sleep(40);

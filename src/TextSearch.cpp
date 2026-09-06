@@ -276,27 +276,6 @@ void TextSearch::SetLastResult(TextSelection* sel) {
     forward = true;
 }
 
-#if !OS_WIN
-static int FoldCaseWCharPortable(int c) {
-    if (c >= L'A' && c <= L'Z') {
-        return c + 32;
-    }
-    if (c >= 0x00C0 && c <= 0x00DE && c != 0x00D7) {
-        return c + 32;
-    }
-    if (c >= 0x0410 && c <= 0x042F) {
-        return c + 32;
-    }
-    if (c == 0x0401) {
-        return 0x0451;
-    }
-    if ((c >= 0x0391 && c <= 0x03A1) || (c >= 0x03A3 && c <= 0x03AB)) {
-        return c + 32;
-    }
-    return (int)towlower((wint_t)c);
-}
-#endif
-
 // Locale-independent Unicode case folding for search. CharLowerW folds accented
 // letters (e.g. É->é, Ş->ş) regardless of the CRT locale, unlike towlower() or
 // the ASCII-only fast paths we used before.
@@ -310,11 +289,7 @@ static int FoldCaseForSearch(int c) {
         return L'i';
     }
     if (c > 0 && c <= 0xffff) {
-#if OS_WIN
-        return (WCHAR)(uintptr_t)CharLowerW((LPWSTR)(uintptr_t)c);
-#else
-        return FoldCaseWCharPortable(c);
-#endif
+        return WCharToLower(c);
     }
     return c;
 }

@@ -417,6 +417,13 @@ void BaseUtilTest() {
     utassert(RoundToPowerOf2((1 << 13) + 1) == (1 << 14));
     utassert(RoundToPowerOf2((1 << 30) + 1) == -1); // overflow: no power of 2 fits in an int
 
+    utassert(WCharToLower('A') == 'a');
+    utassert(WCharToLower('Z') == 'z');
+    utassert(WCharToLower('a') == 'a');
+    utassert(WCharToLower('0') == '0');
+    utassert(WCharToLower(0x00C9) == 0x00E9); // É -> é
+    utassert(WCharToLower(0x0410) == 0x0430); // А -> а
+
     utassert(MurmurHash2(nullptr, 0) == 0);
     utassert(MurmurHash2("test", 4) != MurmurHash2("Test", 4));
 

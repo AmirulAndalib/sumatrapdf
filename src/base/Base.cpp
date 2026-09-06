@@ -1816,14 +1816,17 @@ Str StrArenaToStr(Arena* a, StrArena sa) {
     return Str((char*)p, (int)size);
 }
 
-// Locale-independent Unicode lowercase fold for one WCHAR.
-// On Windows, CharLowerBuffW matches FoldCaseWInPlace; on POSIX a small table
-// covers Latin/Cyrillic/Greek used by tests and falls back to towlower().
-static WCHAR FoldCaseWChar(WCHAR c) {
+// Unicode lowercase for one BMP code unit. ASCII is a fast path; Windows uses
+// CharLowerW, other platforms a Latin/Cyrillic/Greek table then towlower.
+int WCharToLower(int c) {
 #if OS_WIN
-    WCHAR ch = c;
-    CharLowerBuffW(&ch, 1);
-    return ch;
+    if (c < 0x80) {
+        if (c >= 'A' && c <= 'Z') {
+            return c + ('a' - 'A');
+        }
+        return c;
+    }
+    return (WCHAR)(uintptr_t)CharLowerW((LPWSTR)(uintptr_t)c);
 #else
     if (c >= L'A' && c <= L'Z') {
         return c + 32;
@@ -1840,7 +1843,7 @@ static WCHAR FoldCaseWChar(WCHAR c) {
     if ((c >= 0x0391 && c <= 0x03A1) || (c >= 0x03A3 && c <= 0x03AB)) {
         return c + 32;
     }
-    return (WCHAR)towlower(c);
+    return (int)towlower((wint_t)c);
 #endif
 }
 
@@ -1850,7 +1853,7 @@ static void FoldCaseWInPlace(WStr s) {
     CharLowerBuffW(s.s, (DWORD)s.len);
 #else
     for (int i = 0; i < s.len; i++) {
-        s.s[i] = FoldCaseWChar(s.s[i]);
+        s.s[i] = (WCHAR)WCharToLower(s.s[i]);
     }
 #endif
     for (int i = 0; i < s.len; i++) {
@@ -3848,8 +3851,8 @@ int CmpI(WStr a, WStr b) {
     }
     int n = std::min(a.len, b.len);
     for (int i = 0; i < n; i++) {
-        WCHAR c1 = FoldCaseWChar(a.s[i]);
-        WCHAR c2 = FoldCaseWChar(b.s[i]);
+        int c1 = WCharToLower(a.s[i]);
+        int c2 = WCharToLower(b.s[i]);
         if (c1 != c2) {
             return c1 < c2 ? -1 : 1;
         }

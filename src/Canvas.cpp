@@ -2563,7 +2563,6 @@ static void OnMouseLeftButtonUp(MainWindow* win, int x, int y, WPARAM key) {
     int pageNo = dm->GetPageNoByPoint(pt);
     PointF ptPage = dm->CvtFromScreen(pt, pageNo);
 
-    // TODO: win->linkHandler->GotoLink might spin the event loop
     IPageElement* link = win->linkOnLastButtonDown;
     win->linkOnLastButtonDown = nullptr;
 
@@ -3753,7 +3752,6 @@ static bool DrawDocument(MainWindow* win, HDC hdc, Rect rcArea) {
         } else {
             gr[0].LowerRight = 3;
         }
-        // TODO: disable for less than about two screen heights?
         ULONG nMesh = 1;
         if (needCenter) {
             nMesh = 2;
@@ -6156,7 +6154,6 @@ LRESULT CALLBACK WndProcCanvas(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
             return UiaReturnRawElementProvider(hwnd, wp, lp, win->uiaProvider);
 
         default:
-            // TODO: achieve this split through subclassing or different window classes
             if (win->AsFixed()) {
                 HomePageHideSearch(win);
                 return WndProcCanvasFixedPageUI(win, hwnd, msg, wp, lp);

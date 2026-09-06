@@ -7438,8 +7438,6 @@ IPageElement* EngineMupdf::GetElementAtPos(int pageNo, PointF pt) {
     return FzGetElementAtPos(pageInfo, pt);
 }
 
-// TOOD: optimize by returning reference or pointer so that
-// we don't have to re-create the Vec every time
 Vec<IPageElement*> EngineMupdf::GetElements(int pageNo) {
     auto* pageInfo = GetFzPageInfoFast(pageNo);
     if (!pageInfo) {
@@ -8805,7 +8803,6 @@ bool EngineMupdfSaveUpdated(EngineBase* engine, Str path, const ShowErrorCb& sho
         }
     }
 
-    // TOOD: what if not ok?
     // note: this should be short-lived as we should re-load the file
     if (ok) {
         epdf->modifiedAnnotations = false;

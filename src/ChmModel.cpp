@@ -77,9 +77,6 @@ ChmModel::ChmModel(DocControllerCallback* cb) : DocController(cb) {
 
 ChmModel::~ChmModel() {
     docAccess.Lock();
-    // TODO: deleting htmlWindow seems to spin a modal loop which
-    //       can lead to WM_PAINT being dispatched for the parent
-    //       hwnd and then crashing in SumatraPDF.cpp's DrawDocument
     delete docView;
     delete htmlWindowCb;
     delete doc;
@@ -279,7 +276,6 @@ bool ChmModel::DisplayPage(Str pageUrl) {
         // open external links in an external browser
         // (same as for PDF, XPS, etc. documents)
         if (cb) {
-            // TODO: optimize, create just destination
             auto* item = NewChmTocItem(nullptr, nullptr, {}, 0, pageUrl);
             cb->GotoLink(item->dest);
             FreeTocItemRec(nullptr, item);
@@ -511,7 +507,6 @@ struct ChmTocBuilder : EbookTocVisitor {
     StrVec* pages = nullptr;
     Vec<ChmTocTraceItem>* tocTrace = nullptr;
     Arena* a = nullptr;
-    // TODO: could use dict::MapStrToInt instead of StrList in the caller as well
     dict::MapStrToInt urlsSet;
 
     // We fake page numbers by doing a depth-first traversal of
@@ -850,7 +845,6 @@ TocTree* ChmModel::GetToc() {
     int idCounter = 0;
 
     for (ChmTocTraceItem& ti : *tocTrace) {
-        // TODO: set parent
         TocItem* item = NewChmTocItem(poolAlloc, nullptr, ti.title, ti.pageNo, ti.url);
         item->id = ++idCounter;
         // append the item at the correct level
@@ -1026,7 +1020,6 @@ void ChmThumbnailTask::OnDocumentComplete(Str url) {
     }
     // delay deleting because ~ChmThumbnailTask() deletes HtmlWindow
     // and we're currently processing HtmlWindow messages
-    // TODO: it's possible we still have timing issue
     auto fn = MkFunc0<ChmThumbnailTask>(SafeDeleteChmThumbnailTask, this);
     uitask::Post(fn, "SafeDeleteChmThumbnailTask");
 }

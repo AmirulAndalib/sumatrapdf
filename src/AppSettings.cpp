@@ -191,7 +191,6 @@ static UiFontsAtDpi* GetUiFontsAtDpi(int dpi) {
     return &gUiFontsAtDpi[n];
 }
 
-// TODO: if font sizes change, would need to re-layout the app
 static void ResetCachedFonts() {
     // Fonts are interned PlatformFonts, so just drop these per-DPI references;
     // old fonts stay valid for windows that still hold them.
@@ -772,7 +771,6 @@ static void RememberSessionState() {
             }
         }
         windowState->tabIndex = selectedDocOrdinal;
-        // TODO: allow recording this state without changing gSettings
         RememberDefaultWindowPosition(win);
         windowState->windowState = gSettings->windowState;
         windowState->windowPos = gSettings->windowPos;

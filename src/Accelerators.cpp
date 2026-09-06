@@ -31,7 +31,6 @@ static ACCEL gBuiltInAccelerators[] = {
     {FSHIFT | FVIRTKEY, VK_LEFT, CmdScrollLeftPage},
     {FSHIFT | FVIRTKEY, VK_RIGHT, CmdScrollRightPage},
 
-    // TODO: maybe CmdGoToNextPage / CmdGoToPrevPage is better
     {FVIRTKEY, VK_NEXT, CmdScrollDownPage},
     {FVIRTKEY, VK_PRIOR, CmdScrollUpPage},
 
@@ -139,8 +138,6 @@ static ACCEL gBuiltInAccelerators[] = {
     // '?' i.e. Shift + '/'
     {FSHIFT | FVIRTKEY, VK_OEM_2, CmdToggleKeyboardHelp},
 
-    // need 2 entries for 'a' and 'Shift + a'
-    // TODO: maybe add CmdCreateAnnotHighlightAndOpenWindow (kind of clumsy)
     {FVIRTKEY, 'A', CmdCreateAnnotHighlight},
     {FVIRTKEY | FSHIFT, 'A', CmdCreateAnnotHighlight},
 

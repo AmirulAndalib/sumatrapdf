@@ -1,9 +1,6 @@
 /* Copyright 2022 the SumatraPDF project authors (see AUTHORS file).
    License: Simplified BSD (see COPYING.BSD) */
 
-// TODO: not quite happy how those functions are split among
-// Annotation.cpp, EngineMupdf.cpp and AnnotEditToolbar.cpp
-
 struct Pixmap;
 
 // for fast conversions, must match the order of pdf_annot_type enum in annot.h

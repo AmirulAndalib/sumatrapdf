@@ -4,7 +4,7 @@ import { copyFileSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { ROOT, runStandalone, tmpPath } from "./util";
 import { postMessage, setCursorPos, sleep } from "./winapi";
-import { findCanvas, launchControlled, killAndWait } from "./win-automation";
+import { findCanvas, launchControlled, killAndWait, ensureModifierKeysUp } from "./win-automation";
 import type { ControlClient, HomeSelection } from "./control.ts";
 
 const WM_MOUSEWHEEL = 0x020a;
@@ -100,6 +100,7 @@ export async function testit(): Promise<void> {
 
     let sawWouldOverlap = false;
     let last = await settled();
+    await ensureModifierKeysUp();
     for (let i = 0; i < 12; i++) {
       postMessage(canvas, WM_MOUSEWHEEL, (-WHEEL_DELTA << 16) >>> 0, 0n);
       const h = await settled();

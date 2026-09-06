@@ -8,7 +8,7 @@ import { deflateSync } from "node:zlib";
 import { join } from "node:path";
 import { ControlClient, ControlCommand } from "./control.ts";
 import { runStandalone, tmpPath } from "./util.ts";
-import { findCanvas, launchControlled, killAndWait } from "./win-automation.ts";
+import { findCanvas, launchControlled, killAndWait, ensureModifierKeysUp } from "./win-automation.ts";
 import { clientToScreen, getClientRect, packCoords, sendMessage, setCursorPos, sleep } from "./winapi.ts";
 
 const WM_MOUSEWHEEL = 0x020a;
@@ -157,6 +157,7 @@ export async function testit(): Promise<void> {
     setCursorPos(mid.x, mid.y);
     const lp = packCoords(mid.x, mid.y);
     const wp = (-WHEEL_DELTA << 16) >>> 0;
+    await ensureModifierKeysUp();
     for (let i = 0; i < 10; i++) {
       sendMessage(canvas, WM_MOUSEWHEEL, wp, lp);
     }

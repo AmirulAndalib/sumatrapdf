@@ -1470,22 +1470,12 @@ static CommandArg* TryParseNamedArg(int firstArgIdx, Str* argsInOut) {
     }
     if (type == CommandArg::Type::Bool) {
         auto bv = ParseBool(val);
-        bool b;
-        if (bv == 0) {
-            b = false;
-            *argsInOut = afterVal;
-        } else if (bv == 1) {
-            b = true;
-            *argsInOut = afterVal;
-        } else {
-            // bv is -1, which means not a recognized bool value, so assume
-            // it wasn't given
-            // TODO: should apply only if arg doesn't end with ':' or '='
-            b = true;
-            *argsInOut = valStart;
+        if (bv < 0) {
+            return nullptr;
         }
+        *argsInOut = afterVal;
         auto* arg = NewArg(type, argName);
-        arg->boolVal = b;
+        arg->boolVal = (bv == 1);
         return arg;
     }
 

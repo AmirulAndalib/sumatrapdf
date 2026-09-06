@@ -257,6 +257,22 @@ static void parseCommandsTest() {
         utassert(GetCommandBoolArg(cmd, kCmdArgOpenEdit, false) == true);
     }
     {
+        auto* cmd = CreateCommandFromDefinition(StrL(" CmdCreateAnnotHighlight   #00ff00 OpenEdit=no"));
+        utassert(cmd->origId == CmdCreateAnnotHighlight);
+
+        utassert(GetCommandArg(cmd, kCmdArgColor) != nullptr);
+        utassert(GetCommandArg(cmd, kCmdArgOpenEdit) != nullptr);
+        utassert(GetCommandBoolArg(cmd, kCmdArgOpenEdit, true) == false);
+    }
+    {
+        auto* cmd = CreateCommandFromDefinition(StrL("CmdCreateAnnotHighlight OpenEdit=bogus"));
+        utassert(cmd == nullptr);
+    }
+    {
+        auto* cmd = CreateCommandFromDefinition(StrL("CmdCreateAnnotHighlight OpenEdit: bogus"));
+        utassert(cmd == nullptr);
+    }
+    {
         {
             auto* cmd = CreateCommandFromDefinition(StrL("CmdGoToNextPage 3"));
             assertGoToNextPage3(cmd->id);

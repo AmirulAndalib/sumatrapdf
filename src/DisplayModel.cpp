@@ -1674,7 +1674,7 @@ void DisplayModel::RelayoutKeepingView() {
     }
     RecalcVisibleParts();
     RenderVisibleParts();
-    cb->UpdateScrollbars(canvasSize);
+    cb->UpdateScrollbars(this, canvasSize);
     RepaintDisplay();
 }
 
@@ -2081,7 +2081,7 @@ void DisplayModel::SetViewPortSize(Size newViewPortSize) {
     // during document swap in ReplaceDocumentInCurrentTab a WM_PAINT can
     // arrive before a valid zoom is set; relayout would corrupt the state
     if (!IsValidZoom(zoomVirtual)) {
-        cb->UpdateScrollbars(canvasSize);
+        cb->UpdateScrollbars(this, canvasSize);
         return;
     }
     Relayout(zoomVirtual, rotation);
@@ -2103,7 +2103,7 @@ void DisplayModel::SetViewPortSize(Size newViewPortSize) {
         RecalcVisibleParts();
         EnsureMediaBoxesForVisiblePages();
         RenderVisibleParts();
-        cb->UpdateScrollbars(canvasSize);
+        cb->UpdateScrollbars(this, canvasSize);
     }
 }
 
@@ -2214,7 +2214,7 @@ void DisplayModel::GoToPage(int pageNo, int scrollY, bool addNavPt, int scrollX)
     RecalcVisibleParts();
     EnsureMediaBoxesForVisiblePages();
     RenderVisibleParts();
-    cb->UpdateScrollbars(canvasSize);
+    cb->UpdateScrollbars(this, canvasSize);
     cb->PageNoChanged(this, pageNo);
     RepaintDisplay();
     RememberStableNavPointCandidateAfterViewChange(this, GetScrollState());
@@ -2585,7 +2585,7 @@ void DisplayModel::ScrollXTo(int xOff) {
     viewPort.x = xOff;
     RecalcVisibleParts();
     EnsureMediaBoxesForVisiblePages();
-    cb->UpdateScrollbars(canvasSize);
+    cb->UpdateScrollbars(this, canvasSize);
 
     if (CurrentPageNo() != currPageNo) {
         cb->PageNoChanged(this, CurrentPageNo());
@@ -2612,7 +2612,7 @@ void DisplayModel::ScrollYTo(int yOff) {
     EnsureMediaBoxesForVisiblePages();
     RenderVisibleParts();
     // Match ScrollXTo: keep scrollbar thumb (and smart overlay reveal) in sync.
-    cb->UpdateScrollbars(canvasSize);
+    cb->UpdateScrollbars(this, canvasSize);
 
     int newPageNo = CurrentPageNo();
     if (newPageNo != currPageNo) {
@@ -2675,7 +2675,7 @@ void DisplayModel::ScrollYBy(int dy, bool changePage) {
     RecalcVisibleParts();
     EnsureMediaBoxesForVisiblePages();
     RenderVisibleParts();
-    cb->UpdateScrollbars(canvasSize);
+    cb->UpdateScrollbars(this, canvasSize);
     newPageNo = CurrentPageNo();
     if (newPageNo != currPageNo) {
         cb->PageNoChanged(this, newPageNo);

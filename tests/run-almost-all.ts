@@ -250,6 +250,7 @@ import { testit as issue6132 } from "./issue-6132.ts";
 import { testit as issue6133 } from "./issue-6133.ts";
 import { testit as issue6135 } from "./issue-6135.ts";
 import { testit as issue6137 } from "./issue-6137.ts";
+import { testit as toolbarTabSwitchPos } from "./toolbar-tab-switch-pos.ts";
 
 async function annotationClipboardTests(): Promise<void> {
   beginSharedControlledSession();
@@ -496,6 +497,7 @@ export const tests: NamedTest[] = [
   ["toc-title-fallback", tocTitleFallback],
   ["issue-6132", issue6132],
   ["issue-6133", issue6133],
+  ["toolbar-tab-switch-pos", toolbarTabSwitchPos],
 ];
 
 export async function testit(opts?: SuiteOptions): Promise<void> {

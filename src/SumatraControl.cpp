@@ -871,6 +871,7 @@ enum class ControlCmd : u16 {
     TestCanvasFlags = 92,
     CrashMe = 93,
     TestDocumentProperties = 94,
+    TestHiddenTabGoToPage = 95,
 };
 
 enum class ControlArgType : u16 {
@@ -2098,6 +2099,13 @@ static void ExecuteControlRequest(ControlRequest* req) {
             IntArg(req, 0, layoutChapter); // optional
             int exitCode = 0;
             Str res = RenumberSelResultTemp(layoutChapter, &exitCode);
+            AppendTestResult(req, exitCode, res);
+            break;
+        }
+
+        case ControlCmd::TestHiddenTabGoToPage: {
+            int exitCode = 0;
+            Str res = HiddenTabGoToPageResultTemp(&exitCode);
             AppendTestResult(req, exitCode, res);
             break;
         }

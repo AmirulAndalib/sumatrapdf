@@ -89,6 +89,7 @@ export enum ControlCommand {
   TestCanvasFlags = 92,
   CrashMe = 93,
   TestDocumentProperties = 94,
+  TestHiddenTabGoToPage = 95,
 }
 
 export type ControlArg = number | string | Uint8Array | ControlArg[];
@@ -593,6 +594,15 @@ export class ControlClient {
   // 1, lays out `layoutChapter` (triggering SyncWithEngineLayout /
   // PagesRenumbered), and reports whether both survived instead of being
   // wiped (see C9 in the location-chapters plan).
+  async hiddenTabGoToPage(): Promise<void> {
+    const res = await this.request(ControlCommand.TestHiddenTabGoToPage, []);
+    const code = typeof res[0] === "number" ? res[0] : -1;
+    const raw = String(res[1] ?? "").trim();
+    if (code !== 0) {
+      throw new Error(`TestHiddenTabGoToPage failed: ${raw || code}`);
+    }
+  }
+
   async selectionSurvivesRenumber(
     layoutChapter: number,
   ): Promise<{ survived: boolean; pageNo: number; textSurvived: boolean }> {

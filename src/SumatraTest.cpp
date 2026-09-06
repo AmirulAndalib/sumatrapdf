@@ -2449,3 +2449,42 @@ TempStr GoToLocationResultTemp(int chapter, int page, int* exitCodeOut) {
     }
     return ToStrTemp(out);
 }
+
+// GoToPage on a background tab so UpdateScrollbars sees a non-current dm.
+TempStr HiddenTabGoToPageResultTemp(int* exitCodeOut) {
+    str::Builder out;
+    auto fail = [&](Str msg, int code = 1) -> TempStr {
+        out.Append(msg);
+        out.AppendChar('\n');
+        if (exitCodeOut) {
+            *exitCodeOut = code;
+        }
+        return ToStrTemp(out);
+    };
+
+    if (len(gWindows) == 0) {
+        return fail(StrL("NOTREADY no-window"), 2);
+    }
+    MainWindow* win = gWindows[0];
+    if (!win) {
+        return fail(StrL("NOTREADY no-window"), 2);
+    }
+
+    DisplayModel* dm = nullptr;
+    for (WindowTab* tab : win->Tabs()) {
+        if (tab && tab != win->CurrentTab() && tab->AsFixed()) {
+            dm = tab->AsFixed();
+            break;
+        }
+    }
+    if (!dm) {
+        return fail(StrL("NOTREADY no-hidden-doc"), 2);
+    }
+
+    dm->GoToPage(dm->CurrentPageNo(), false);
+    out.Append(StrL("OK\n"));
+    if (exitCodeOut) {
+        *exitCodeOut = 0;
+    }
+    return ToStrTemp(out);
+}

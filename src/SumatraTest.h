@@ -37,3 +37,4 @@ TempStr SignDocumentResultTemp(Str pdfPath, Str destPath, Str thumbprint, Str ce
 TempStr CmykImageSaveResultTemp(Str jpegPath, Str tiffPath, int* exitCodeOut = nullptr);
 TempStr ChapterInfoResultTemp(int* exitCodeOut = nullptr);
 TempStr GoToLocationResultTemp(int chapter, int page, int* exitCodeOut = nullptr);
+TempStr HiddenTabGoToPageResultTemp(int* exitCodeOut = nullptr);

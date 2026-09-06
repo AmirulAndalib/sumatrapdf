@@ -1105,7 +1105,7 @@ struct ControllerCallbackHandler : DocControllerCallback {
     void Repaint() override { ScheduleRepaint(win, 0); }
     void PageNoChanged(DocController* ctrl, int pageNo) override;
     void ZoomChanged(DocController* ctrl, float zoomVirtual) override;
-    void UpdateScrollbars(Size canvas) override;
+    void UpdateScrollbars(DisplayModel* dm, Size canvas) override;
     void RequestRendering(DisplayModel* dm, int pageNo) override;
     void RequestPredictiveRendering(DisplayModel* dm, int originPageNo, const int* pages, int nPages) override;
     void CleanUp(DisplayModel* dm) override;
@@ -1565,9 +1565,11 @@ static bool SidebarOnRightLayout() {
     return gSettings && gSettings->sidebarOnRight && !IsUIRtl();
 }
 
-void ControllerCallbackHandler::UpdateScrollbars(Size canvas) {
-    ReportIf(!win->AsFixed());
-    DisplayModel* dm = win->AsFixed();
+void ControllerCallbackHandler::UpdateScrollbars(DisplayModel* dm, Size canvas) {
+    // background tab (Home, another document) must not drive this window's bars
+    if (win->AsFixed() != dm) {
+        return;
+    }
 
     // called on every viewport change, so this is where scrolling is noticed;
     // the recompute itself is debounced
@@ -7696,7 +7698,7 @@ static bool RelayoutFrame(MainWindow* win, bool updateToolbars, int sidebarDx) {
     BindSlot(win->canvasSlot, win->hwndCanvas, &dh, !discardCanvasBits);
     BindSlot(win->aiChatSlot, win->hwndAiChatBox, &dh, aiChatVisible);
 
-    LayoutToSize(win->chromeLayout, {rc.dx, rc.dy});
+    win->chromeLayout->Layout(Tight({rc.dx, rc.dy}));
     win->chromeLayout->SetBounds(rc);
     if (discardCanvasBits) {
         dh.MoveWindowNoCopyBits(win->hwndCanvas, win->canvasSlot->lastBounds);
@@ -13406,7 +13408,7 @@ void RelayoutCaption(MainWindow* win) {
     if (dy <= 0) {
         dy = rc.dy;
     }
-    LayoutToSize(win->captionLayout, {rc.dx, dy});
+    win->captionLayout->Layout(Tight({rc.dx, dy}));
     win->captionLayout->SetBounds({rc.x, rc.y, rc.dx, dy});
     win->captionRect = {rc.x, rc.y, rc.dx, dy};
     BindSlot(win->capMenuSlot, nullptr, nullptr, false);

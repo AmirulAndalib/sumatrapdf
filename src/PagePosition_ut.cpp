@@ -14,7 +14,7 @@ struct MockDocControllerCallback : DocControllerCallback {
     void ZoomChanged(DocController*, float) override {}
     void GotoLink(IPageDestination*) override {}
     void Repaint() override {}
-    void UpdateScrollbars(Size) override {}
+    void UpdateScrollbars(DisplayModel*, Size) override {}
     void RequestRendering(DisplayModel*, int) override {}
     void RequestPredictiveRendering(DisplayModel*, int, const int*, int) override {}
     void CleanUp(DisplayModel*) override {}

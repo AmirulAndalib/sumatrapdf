@@ -1147,7 +1147,7 @@ FileStates [
     OpenCount = 0
 
     ; number of the last read page, or `bm:<bookmark>` for documents with
-    ; chapters (see PagePosition.cpp)
+    ; chapters (folds in ReparseIdx; see PagePosition.cpp)
     PageNo = 1
 
     ; how far pages have been rotated as a multiple of 90 degrees
@@ -1160,9 +1160,6 @@ FileStates [
     ; width of the bookmarks / favorites sidebar in screen pixels, as last
     ; resized
     SidebarDx = 0
-
-    ; data required to restore the last read page in the ebook UI
-    ReparseIdx = 0
 
     ; how far this document has been scrolled (in x and y direction)
     ScrollPos = 0 0

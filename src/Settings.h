@@ -284,7 +284,7 @@ struct FileState {
     // used to be opened a lot
     int openCount;
     // number of the last read page, or `bm:<bookmark>` for documents with
-    // chapters (see PagePosition.cpp)
+    // chapters (folds in ReparseIdx; see PagePosition.cpp)
     Str pageNo;
     // how far pages have been rotated as a multiple of 90 degrees
     int rotation;
@@ -294,10 +294,6 @@ struct FileState {
     // width of the bookmarks / favorites sidebar in screen pixels, as last
     // resized
     int sidebarDx;
-    // index into an ebook's HTML data from which reparsing has to happen
-    // in order to restore the last viewed page (i.e. the equivalent of
-    // PageNo for the ebook UI)
-    int reparseIdx;
     // temporary value needed for FileHistory::cmpOpenCount
     int index;
     // index of the file's shell icon in Himl, -1 if not loaded yet
@@ -1792,7 +1788,6 @@ static const FieldInfo gFileStateFields[] = {
     {offsetof(FileState, rotation), SettingType::Int, 0},
     {offsetof(FileState, windowState), SettingType::Int, 0},
     {offsetof(FileState, sidebarDx), SettingType::Int, 0},
-    {offsetof(FileState, reparseIdx), SettingType::Int, 0},
     {offsetof(FileState, scrollPos), SettingType::Compact, (intptr_t)&gPointF_1_Info},
     {offsetof(FileState, windowPos), SettingType::Compact, (intptr_t)&gRect_3_Info},
     {offsetof(FileState, isPinned), SettingType::Bool, false},
@@ -1804,11 +1799,11 @@ static const FieldInfo gFileStateFields[] = {
 };
 static StructInfo gFileStateInfo = {
     sizeof(FileState),
-    23,
+    22,
     gFileStateFields,
     "Favorites\0EBookUI\0TocState\0FilePath\0DecryptionKey\0DisplayMode\0Zoom\0BgCol\0TabCol\0OpenCount\0PageNo\0Rotati"
-    "on\0WindowState\0SidebarDx\0ReparseIdx\0ScrollPos\0WindowPos\0IsPinned\0IsMissing\0UseDefaultState\0ShowToc\0Displ"
-    "ayR2L\0UniformPageWidth",
+    "on\0WindowState\0SidebarDx\0ScrollPos\0WindowPos\0IsPinned\0IsMissing\0UseDefaultState\0ShowToc\0DisplayR2L\0Unifo"
+    "rmPageWidth",
     "pages of this document bookmarked in the Favorites menu\0reflowable (ebook) settings for just this document. The "
     "block is absent until you add it; a field left empty or 0 uses the global EBookUI value. The global section's "
     "WindowBgCol and DefaultDisplayMode are already per-document as BgCol and DisplayMode below\0data required to "
@@ -1817,16 +1812,15 @@ static StructInfo gFileStateInfo = {
     "automatic, single page, facing, book view, continuous, continuous facing, continuous book view\0zoom (in %) or "
     "one of those values: fit page, fit width, fit height, fit content\0if given, overrides the background color for "
     "this document\0if given, overrides the tab color for this document\0number of times this document has been opened "
-    "recently\0number of the last read page, or `bm:<bookmark>` for documents with chapters (see "
+    "recently\0number of the last read page, or `bm:<bookmark>` for documents with chapters (folds in ReparseIdx; see "
     "PagePosition.cpp)\0how far pages have been rotated as a multiple of 90 degrees\0state of the window. 1 is normal, "
     "2 is maximized, 3 is fullscreen, 4 is minimized\0width of the bookmarks / favorites sidebar in screen pixels, as "
-    "last resized\0data required to restore the last read page in the ebook UI\0how far this document has been "
-    "scrolled (in x and y direction)\0default position (can be on any monitor)\0if true, the document is \"pinned\" to "
-    "the Frequently Read list, so that recently opened documents don't displace it\0if true, the file is considered "
-    "missing and won't be shown in any list\0if true, this document opens with the global defaults instead of the "
-    "values below\0if true, show the table of contents (Bookmarks) sidebar when the document has one\0if true, the "
-    "document is displayed right-to-left in facing and book view modes\0if true, percentage zoom scales every page to "
-    "the width page 1 has at that zoom level",
+    "last resized\0how far this document has been scrolled (in x and y direction)\0default position (can be on any "
+    "monitor)\0if true, the document is \"pinned\" to the Frequently Read list, so that recently opened documents "
+    "don't displace it\0if true, the file is considered missing and won't be shown in any list\0if true, this document "
+    "opens with the global defaults instead of the values below\0if true, show the table of contents (Bookmarks) "
+    "sidebar when the document has one\0if true, the document is displayed right-to-left in facing and book view "
+    "modes\0if true, percentage zoom scales every page to the width page 1 has at that zoom level",
     false};
 
 static const FieldInfo gPointF_2_Fields[] = {

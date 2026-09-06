@@ -982,7 +982,7 @@ const fileState: Field[] = [
     "PageNo",
     Str,
     "1",
-    "number of the last read page, or `bm:<bookmark>` for documents with chapters (see PagePosition.cpp)",
+    "number of the last read page, or `bm:<bookmark>` for documents with chapters (folds in ReparseIdx; see PagePosition.cpp)",
   ),
   field("Zoom", Str, "fit page", "zoom (in %) or one of those values: fit page, fit width, fit height, fit content"),
   field("Rotation", Int, 0, "how far pages have been rotated as a multiple of 90 degrees"),
@@ -1004,13 +1004,6 @@ const fileState: Field[] = [
   ).ver("3.7"),
   field("BgCol", Color, "", "if given, overrides the background color for this document").ver("3.7"),
   field("TabCol", Color, "", "if given, overrides the tab color for this document").ver("3.7"),
-  field(
-    "ReparseIdx",
-    Int,
-    0,
-    "index into an ebook's HTML data from which reparsing has to happen " +
-      "in order to restore the last viewed page (i.e. the equivalent of PageNo for the ebook UI)",
-  ).doc("data required to restore the last read page in the ebook UI"),
   compactArray(
     "TocState",
     Int,
@@ -1051,7 +1044,6 @@ const fileStateLayout = [
   "Rotation",
   "WindowState",
   "SidebarDx",
-  "ReparseIdx",
   "Index",
   "IconIdx",
   "ScrollPos",

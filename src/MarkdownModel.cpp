@@ -58,12 +58,22 @@ static TempStr NormalizeMarkdownUrlTemp(Str url) {
     return str::JoinTemp(Str(kMdVirtualHost), plainUrl);
 }
 
-// Keep the fragment when navigating the browser. GetFullPathTemp() intentionally
-// removes it for page lookup and state tracking, but WebView2 needs it to scroll
-// to a heading within the current HTML page.
-static Str MarkdownBrowserNavigationUrl(Str url) {
+// Keep #fragment (GetFullPathTemp strips it). Encode the path so a name with a
+// space is a valid URI; some WebView2 builds 404 "Test Test.html" (issue #6140).
+static TempStr MarkdownBrowserNavigationUrl(Str url) {
     str::TrimPrefix(url, Str(kMdVirtualHost));
-    return url;
+    int hash = str::IndexOfChar(url, '#');
+    Str path = url;
+    Str frag;
+    if (hash >= 0) {
+        path = Str(url.s, hash);
+        frag = Str(url.s + hash, url.len - hash);
+    }
+    TempStr encoded = url::EncodePathTemp(path);
+    if (len(frag) == 0) {
+        return encoded;
+    }
+    return str::JoinTemp(encoded, frag);
 }
 
 // Extensions the embedded browser can display on its own: the pages we render
@@ -959,7 +969,15 @@ bool MarkdownModel::IsHtmlFileType(FileType kind) {
 #if IS_DEBUG
 bool MarkdownModel_UnitTestBrowserNavigationUrl() {
     Str url = StrL("https://sumatrapdf.markdown/issue-5842.html#target-heading");
-    return str::Eq(MarkdownBrowserNavigationUrl(url), StrL("issue-5842.html#target-heading"));
+    if (!str::Eq(MarkdownBrowserNavigationUrl(url), StrL("issue-5842.html#target-heading"))) {
+        return false;
+    }
+    Str spaced = StrL("https://sumatrapdf.markdown/Test Test.html");
+    if (!str::Eq(MarkdownBrowserNavigationUrl(spaced), StrL("Test%20Test.html"))) {
+        return false;
+    }
+    Str spacedFrag = StrL("https://sumatrapdf.markdown/dir/Test Test.html#heading");
+    return str::Eq(MarkdownBrowserNavigationUrl(spacedFrag), StrL("dir/Test%20Test.html#heading"));
 }
 #endif
 

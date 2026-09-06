@@ -250,6 +250,7 @@ import { testit as issue6132 } from "./issue-6132.ts";
 import { testit as issue6133 } from "./issue-6133.ts";
 import { testit as issue6135 } from "./issue-6135.ts";
 import { testit as issue6137 } from "./issue-6137.ts";
+import { testit as issue6140 } from "./issue-6140.ts";
 import { testit as issue6143 } from "./issue-6143.ts";
 import { testit as toolbarTabSwitchPos } from "./toolbar-tab-switch-pos.ts";
 
@@ -268,6 +269,7 @@ export const tests: NamedTest[] = [
   // first: it drives the home page, whose thumbnail selection follows the
   // mouse, so it is the one test that cares what the machine was doing before
   ["issue-5978", issue5978],
+  ["issue-6140", issue6140],
   ["issue-6143", issue6143],
   ["issue-5993", issue5993],
   ["issue-2629", issue2629],

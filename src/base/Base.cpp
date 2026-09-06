@@ -3118,6 +3118,30 @@ TempStr EncodeTemp(Str s) {
     return Str(buf, dst);
 }
 
+// Like EncodeTemp but '/' stays a path separator, so a relative path with
+// spaces or non-ASCII ("dir/Test Test.md") is a valid URI path.
+TempStr EncodePathTemp(Str path) {
+    if (str::IsNull(path)) {
+        return {};
+    }
+    if (len(path) == 0) {
+        return str::DupTemp(StrL(""));
+    }
+    int n = len(path);
+    char* buf = AllocArrayTemp<char>(n * 3 + 1);
+    int dst = 0;
+    for (int i = 0; i < n; i++) {
+        u8 c = (u8)path.s[i];
+        if (c == '/') {
+            buf[dst++] = '/';
+        } else {
+            UrlAppendEncodedByte(buf, dst, c);
+        }
+    }
+    buf[dst] = '\0';
+    return Str(buf, dst);
+}
+
 // Encoded length depends on the bytes, not the rune count: ASCII stays 1, a
 // space or '?' becomes 3, a CJK rune is 3 UTF-8 bytes so 9 encoded chars.
 // Cut on a UTF-8 character boundary so we never emit a partial %HH sequence

@@ -237,6 +237,13 @@ static void StrUrlExtractTest() {
     // euro sign: 3 UTF-8 bytes → 9 encoded chars
     utassert(str::Eq(url::EncodeTemp(StrL("\xE2\x82\xAC")), StrL("%E2%82%AC")));
     utassert(str::Eq(url::DecodeTemp(url::EncodeTemp(StrL("caf\xC3\xA9?x=\"y\""))), StrL("caf\xC3\xA9?x=\"y\"")));
+    // path encoding keeps '/' so a relative url with a space in a segment is valid
+    utassert(str::Eq(url::EncodePathTemp(StrL("")), StrL("")));
+    utassert(len(url::EncodePathTemp({})) == 0);
+    utassert(str::Eq(url::EncodePathTemp(StrL("Test Test.html")), StrL("Test%20Test.html")));
+    utassert(str::Eq(url::EncodePathTemp(StrL("dir/Test Test.html")), StrL("dir/Test%20Test.html")));
+    utassert(str::Eq(url::EncodePathTemp(StrL("a/b c/d")), StrL("a/b%20c/d")));
+    utassert(str::Eq(url::DecodeTemp(url::EncodePathTemp(StrL("dir/Test Test.html"))), StrL("dir/Test Test.html")));
 
     bool truncated = true;
     TempStr fit = url::EncodeMayTruncateTemp(StrL("abc"), 100, &truncated);

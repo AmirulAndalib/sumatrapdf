@@ -2043,6 +2043,7 @@ namespace url {
 
 TempStr DecodeTemp(Str url);
 TempStr EncodeTemp(Str s);
+TempStr EncodePathTemp(Str path);
 TempStr EncodeMayTruncateTemp(Str s, int maxEncodedLen, bool* didTruncateOut = nullptr);
 bool IsAbsolute(Str url);
 TempStr GetFullPathTemp(Str url);

@@ -71,6 +71,7 @@ class BrowserDocView {
     void SubclassParent();
     void UnsubclassParent();
     bool visible = false;
+    bool forwardingWheel = false;
     static LRESULT CALLBACK ParentWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp, UINT_PTR subclassId,
                                           DWORD_PTR data);
     static bool ResourceGet(void* ctx, Str path, WebViewResourceResult* res);

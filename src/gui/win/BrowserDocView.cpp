@@ -495,8 +495,16 @@ LRESULT BrowserDocView::ParentWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp,
 
         case WM_MOUSEWHEEL:
         case WM_MOUSEHWHEEL:
+            // WebView2 often delivers the wheel to this parent; swallowing it
+            // left markdown/CHM unscrollable when the browser wasn't focused (#6142).
             if (view->wv && view->wv->hwnd) {
-                return 0;
+                if (view->forwardingWheel) {
+                    return 0;
+                }
+                view->forwardingWheel = true;
+                LRESULT res = view->SendMsg(msg, wp, lp);
+                view->forwardingWheel = false;
+                return res;
             }
             break;
 
@@ -840,6 +848,18 @@ void BrowserDocView::CopySelection() {
 
 LRESULT BrowserDocView::SendMsg(UINT msg, WPARAM wp, LPARAM lp) {
     if (backend == Backend::WebView2 && wv && wv->hwnd) {
+        if (msg == WM_MOUSEWHEEL || msg == WM_MOUSEHWHEEL) {
+            // Chromium ignores WM_MOUSEWHEEL on the host hwnd. When the frame
+            // (focused) or canvas parent gets the wheel, scroll via JS (#6142).
+            if ((LOWORD(wp) & MK_CONTROL) || IsCtrlPressed()) {
+                return SendMessageW(wv->hwnd, msg, wp, lp);
+            }
+            short delta = GET_WHEEL_DELTA_WPARAM(wp);
+            bool horiz = (msg == WM_MOUSEHWHEEL) || (LOWORD(wp) & MK_SHIFT) || IsShiftPressed();
+            int d = -(int)delta;
+            wv->Eval(horiz ? fmt("window.scrollBy(%d, 0)", d) : fmt("window.scrollBy(0, %d)", d));
+            return 0;
+        }
         return SendMessageW(wv->hwnd, msg, wp, lp);
     }
     if (backend == Backend::IE && ie) {

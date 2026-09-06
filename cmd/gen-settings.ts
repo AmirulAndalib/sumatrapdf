@@ -914,7 +914,7 @@ const fileEBookUI: Field[] = [
   field("CustomCSS", Str, "", "additional CSS applied to this document; empty uses EBookUI.CustomCSS").ver("3.7"),
 ];
 
-const fileSettings: Field[] = [
+const fileState: Field[] = [
   field("FilePath", Str, null, "path of the document"),
   array("Favorites", favorite, "pages of this document bookmarked in the Favorites menu"),
   field(
@@ -1059,7 +1059,7 @@ const fileStateLayout = [
   "DisplayR2L",
   "UniformPageWidth",
 ];
-fileSettings.sort((a, b) => fileStateLayout.indexOf(a.Name) - fileStateLayout.indexOf(b.Name));
+fileState.sort((a, b) => fileStateLayout.indexOf(a.Name) - fileStateLayout.indexOf(b.Name));
 
 const tabState: Field[] = [
   field("FilePath", Str, null, "path of the document"),
@@ -1720,7 +1720,7 @@ const globalPrefs: Field[] = [
     .ver("3.7")
     .internal(),
 
-  array("FileStates", fileSettings, "information about opened files (in most recently used order)"),
+  array("FileStates", fileState, "information about opened files (in most recently used order)"),
   array("SessionData", sessionData, "state of the last session, usage depends on RestoreSession").ver("3.1"),
 
   compactArray(

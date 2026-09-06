@@ -92,8 +92,12 @@ fz_md_to_html(fz_context *ctx, fz_html_font_set *set, fz_buffer *buffer_in, fz_a
 	fz_var(parser);
 	fz_var(document);
 
+	if (!buffer_in)
+		fz_throw(ctx, FZ_ERROR_ARGUMENT, "no markdown data");
+
+	/* terminate writes a 0 at data[len] without growing len; len-1 underflows if empty */
 	fz_terminate_buffer(ctx, buffer_in);
-	len = buffer_in->len-1;
+	len = buffer_in->len;
 	src = (char *)buffer_in->data;
 	for (i = 0; i < len; i++)
 		if (src[i] == 0)

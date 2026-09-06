@@ -243,15 +243,15 @@ static HRESULT CALLBACK AIChatNotInstalledDialogCallback(HWND /*hwnd*/, UINT msg
 }
 
 void AIChatShowNotInstalledDialog(const AIChatNotInstalledDialogArgs& args) {
-    Str linkLabel = _TRA("AI Chat documentation");
+    Str linkLabel = Tr("AI Chat documentation");
     TempStr link = fmt(R"(<a href="#">%s</a>)", linkLabel);
-    TempStr content = fmt(_TRA("See %s for setup instructions.").s, link);
+    TempStr content = fmt(Tr("See %s for setup instructions.").s, link);
 
     TASKDIALOG_BUTTON buttons[2];
     buttons[0].nButtonID = IDOK;
-    buttons[0].pszButtonText = CWStrTemp(_TRA("OK"));
+    buttons[0].pszButtonText = CWStrTemp(Tr("OK"));
     buttons[1].nButtonID = kBtnIdAIChatLearnMore;
-    buttons[1].pszButtonText = CWStrTemp(_TRA("Learn more"));
+    buttons[1].pszButtonText = CWStrTemp(Tr("Learn more"));
 
     TASKDIALOGCONFIG dialogConfig{};
     DWORD flags = TDF_ALLOW_DIALOG_CANCELLATION | TDF_SIZE_TO_CONTENT | TDF_ENABLE_HYPERLINKS;

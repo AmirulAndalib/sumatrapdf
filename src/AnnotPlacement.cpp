@@ -380,37 +380,35 @@ static bool HasPreview(AnnotPlacementKind kind) {
 
 static Str PlacementNotification(AnnotPlacementKind kind, bool circle, int cmdId) {
     if (OrigCommandId(cmdId) == CmdCreateAnnotRedact) {
-        return _TRA("Mark content for redaction. Drag or click twice. **Esc** to cancel.");
+        return Tr("Mark content for redaction. Drag or click twice. **Esc** to cancel.");
     }
     switch (kind) {
         case AnnotPlacementKind::Stamp:
-            return _TRA("Place stamp annotation. **Esc** to cancel.");
+            return Tr("Place stamp annotation. **Esc** to cancel.");
         case AnnotPlacementKind::Caret:
-            return _TRA("Place caret annotation. **Esc** to cancel.");
+            return Tr("Place caret annotation. **Esc** to cancel.");
         case AnnotPlacementKind::FileAttachment:
-            return _TRA("Place file attachment. **Esc** to cancel.");
+            return Tr("Place file attachment. **Esc** to cancel.");
         case AnnotPlacementKind::Text:
-            return _TRA("Place text annotation. **Esc** to cancel.");
+            return Tr("Place text annotation. **Esc** to cancel.");
         case AnnotPlacementKind::FreeText:
-            return _TRA("Place free text annotation. **Esc** to cancel.");
+            return Tr("Place free text annotation. **Esc** to cancel.");
         case AnnotPlacementKind::Line:
-            return _TRA("Place line annotation. **Shift** to snap to multiples of 45 degrees. **Esc** to cancel.");
+            return Tr("Place line annotation. **Shift** to snap to multiples of 45 degrees. **Esc** to cancel.");
         case AnnotPlacementKind::PolyLine:
-            return _TRA(
+            return Tr(
                 "Place polyline annotation. **Double-click**, **right-click**, **Space**, or **Enter** to finish, "
                 "**Ctrl+click** to close it. **Esc** to cancel.");
         case AnnotPlacementKind::Shape:
             return circle
-                       ? _TRA(
-                             "Place circle annotation. Drag or click twice. **Shift** for a circle. **Esc** to cancel.")
-                       : _TRA(
-                             "Place rectangle annotation. Drag or click twice. **Shift** for a square. **Esc** to "
-                             "cancel.");
+                       ? Tr("Place circle annotation. Drag or click twice. **Shift** for a circle. **Esc** to cancel.")
+                       : Tr("Place rectangle annotation. Drag or click twice. **Shift** for a square. **Esc** to "
+                            "cancel.");
         case AnnotPlacementKind::Ink:
             if (OrigCommandId(cmdId) == CmdAnnotationHighlightBrush) {
-                return _TRA("Paint with the highlighter. Release to finish. **Esc** to cancel.");
+                return Tr("Paint with the highlighter. Release to finish. **Esc** to cancel.");
             }
-            return _TRA("Draw ink annotation. Release to finish. **Esc** to cancel.");
+            return Tr("Draw ink annotation. Release to finish. **Esc** to cancel.");
         default:
             return {};
     }

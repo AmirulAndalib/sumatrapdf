@@ -1161,22 +1161,22 @@ bool IsAppFontSizeDefault() {
 
 TempStr ZoomLevelStr(float zoom) {
     if (zoom == kZoomFitPage) {
-        return _TRA("Fit Page");
+        return Tr("Fit Page");
     }
     if (zoom == kZoomFitWidth) {
-        return _TRA("Fit Width");
+        return Tr("Fit Width");
     }
     if (zoom == kZoomFitHeight) {
-        return _TRA("Fit Height");
+        return Tr("Fit Height");
     }
     if (zoom == kZoomFitContent) {
-        return _TRA("Fit Content");
+        return Tr("Fit Content");
     }
     if (zoom == kZoomShrinkToFit) {
-        return _TRA("Shrink To Fit");
+        return Tr("Shrink To Fit");
     }
     if (zoom == kZoomFitByOrientation) {
-        return _TRA("Fit by Orientation");
+        return Tr("Fit by Orientation");
     }
     if (zoom == 0) {
         return StrL("-");

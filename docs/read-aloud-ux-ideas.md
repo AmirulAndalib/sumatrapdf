@@ -59,7 +59,7 @@ Implication: toolbar and menus always target the **current tab**, which is also 
 - **Session chrome** — playback bar answers “what is playing, from where, how far” at a glance.
 - **Discoverability** — menubar, context menu, toolbar dropdown, palette, and playback bar.
 - **Consistent naming** — Pause Reading, Continue Reading, Stop Reading, Start Reading From Top (renamed from “From Here”).
-- **Localized menu strings** — `_TRA` / `_TRN` on menu labels.
+- **Localized menu strings** — `Tr` / `TrN` on menu labels.
 - **Voice remembered** — `ReadAloudVoiceId` advanced setting persists Voice submenu choice.
 - **Sensible text cleanup** — soft hyphens and line breaks normalized before speech.
 - **Backend choice** — WinRT Speech Synthesis with SAPI fallback.

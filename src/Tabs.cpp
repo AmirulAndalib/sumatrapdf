@@ -52,7 +52,7 @@ TempStr MakeTabTooltipTemp(Str path, bool dirty) {
         tip = path;
     }
     if (dirty) {
-        tip = str::JoinTemp(tip, StrL(" "), _TRA("(unsaved annotations)"));
+        tip = str::JoinTemp(tip, StrL(" "), Tr("(unsaved annotations)"));
     }
     return tip;
 }
@@ -363,15 +363,15 @@ static MenuDef menuDefContextTab[] = {
     // these top items are removed unless the document has unsaved changes;
     // text matches the "Unsaved changes" close dialog
     {
-        _TRN("&Save changes to existing PDF"),
+        TrN("&Save changes to existing PDF"),
         CmdSaveAnnotations,
     },
     {
-        _TRN("Save changes to &new PDF"),
+        TrN("Save changes to &new PDF"),
         CmdSaveAnnotationsNewFile,
     },
     {
-        _TRN("&Discard changes"),
+        TrN("&Discard changes"),
         CmdDiscardChanges,
     },
     {
@@ -379,23 +379,23 @@ static MenuDef menuDefContextTab[] = {
         0,
     },
     {
-        _TRN("Properties..."),
+        TrN("Properties..."),
         CmdProperties,
     },
     {
-        _TRN("Show in folder"),
+        TrN("Show in folder"),
         CmdShowInFolder,
     },
     {
-        _TRN("Copy File Path"),
+        TrN("Copy File Path"),
         CmdCopyFilePath,
     },
     {
-        _TRN("Open In New Window"),
+        TrN("Open In New Window"),
         CmdDuplicateInNewWindow,
     },
     {
-        _TRN("Change Tab Color"),
+        TrN("Change Tab Color"),
         CmdSetTabColor,
     },
     {
@@ -403,23 +403,23 @@ static MenuDef menuDefContextTab[] = {
         0,
     },
     {
-        _TRN("Close"),
+        TrN("Close"),
         CmdClose,
     },
     {
-        _TRN("Close Other Tabs"),
+        TrN("Close Other Tabs"),
         CmdCloseOtherTabs,
     },
     {
-        _TRN("Close Tabs To The Right"),
+        TrN("Close Tabs To The Right"),
         CmdCloseTabsToTheRight,
     },
     {
-        _TRN("Close Tabs To The Left"),
+        TrN("Close Tabs To The Left"),
         CmdCloseTabsToTheLeft,
     },
     {
-        _TRN("Close All Tabs"),
+        TrN("Close All Tabs"),
         CmdCloseAllTabs,
     },
     {
@@ -427,11 +427,11 @@ static MenuDef menuDefContextTab[] = {
         0,
     },
     {
-        _TRN("Save Tab Group"),
+        TrN("Save Tab Group"),
         CmdTabGroupSave,
     },
     {
-        _TRN("Restore Tab Group"),
+        TrN("Restore Tab Group"),
         CmdTabGroupRestore,
     },
     {

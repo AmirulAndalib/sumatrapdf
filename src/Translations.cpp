@@ -278,6 +278,6 @@ void Destroy() {
 
 } // namespace trans
 
-Str _TRA(Str s) {
+Str Tr(Str s) {
     return trans::GetTranslation(s);
 }

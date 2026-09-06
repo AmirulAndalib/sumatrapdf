@@ -3795,7 +3795,7 @@ static bool DrawDocument(MainWindow* win, HDC hdc, Rect rcArea) {
             PlatformFont* fontRightTxt = HdcCreateSimpleFont(hdc, StrL("MS Shell Dlg"), 14);
             HGDIOBJ hPrevFont = SelectObject(hdc, fontRightTxt->GetHFont());
             auto prevCol = SetTextColor(hdc, colDocTxt);
-            TempStr msg = fmt(_TRA("Couldn't render page %d").s, pageNo);
+            TempStr msg = fmt(Tr("Couldn't render page %d").s, pageNo);
             HdcDrawCenteredText(hdc, bounds, msg, isRtl);
             SetTextColor(hdc, prevCol);
             SelectObject(hdc, hPrevFont);
@@ -3824,14 +3824,14 @@ static bool DrawDocument(MainWindow* win, HDC hdc, Rect rcArea) {
                     // set shouldPaint and gNoFlickerRender skips flushing the buffer.
                     shouldPaint = true;
                     SetTextColor(hdc, colDocTxt);
-                    TempStr msg = fmt(_TRA("Rendering page %d...").s, pageNo);
+                    TempStr msg = fmt(Tr("Rendering page %d...").s, pageNo);
                     HdcDrawCenteredText(hdc, bounds, msg, isRtl);
                 }
                 rendering = true;
             } else {
                 shouldPaint = true;
                 auto prevCol = SetTextColor(hdc, colDocTxt);
-                TempStr msg = fmt(_TRA("Couldn't render page %d").s, pageNo);
+                TempStr msg = fmt(Tr("Couldn't render page %d").s, pageNo);
                 HdcDrawCenteredText(hdc, bounds, msg, isRtl);
                 SetTextColor(hdc, prevCol);
             }
@@ -5249,7 +5249,7 @@ static LRESULT WndProcCanvasChmUI(MainWindow* win, HWND hwnd, UINT msg, WPARAM w
 // string around the %s instead of assuming the name comes last. Falls back to
 // one plain run for RTL, where laying runs out left to right would be wrong.
 static void DrawLoadErrorLine(Gfx* gfx, Rect r, Str name, PlatformFont* font, Color textColor) {
-    Str tmpl = _TRA("Error loading %s");
+    Str tmpl = Tr("Error loading %s");
     int at = str::IndexOf(tmpl, StrL("%s"));
     if (at < 0 || IsUIRtl()) {
         u32 flags = gfxTextCenter | gfxTextVCenter | (IsUIRtl() ? gfxTextRtl : 0);
@@ -5308,12 +5308,12 @@ static void OnPaintDocumentStatus(MainWindow* win) {
                 TempStr copied = str::FormatSizeShortTemp(tab->loadCopyBytesCopied, nullptr);
                 if (tab->loadCopyBytesTotal > 0) {
                     TempStr total = str::FormatSizeShortTemp(tab->loadCopyBytesTotal, nullptr);
-                    msg = fmt(_TRA("Copying %s: %s / %s").s, basename, copied, total);
+                    msg = fmt(Tr("Copying %s: %s / %s").s, basename, copied, total);
                 } else {
-                    msg = fmt(_TRA("Copying %s: %s").s, basename, copied);
+                    msg = fmt(Tr("Copying %s: %s").s, basename, copied);
                 }
             } else {
-                msg = fmt(_TRA("Loading %s ...").s, basename);
+                msg = fmt(Tr("Loading %s ...").s, basename);
             }
             if (tab->loadStartedAt != 0) {
                 u64 elapsedSecs = (GetTickCount64() - tab->loadStartedAt) / 1000;

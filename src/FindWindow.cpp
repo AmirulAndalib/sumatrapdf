@@ -231,15 +231,15 @@ static TempStr AppendCmdAccel(Str base, int cmd) {
 static TempStr FindWindowButtonTooltip(int cmd) {
     switch (cmd) {
         case CmdFindPrev:
-            return AppendCmdAccel(_TRA("Find Previous"), cmd);
+            return AppendCmdAccel(Tr("Find Previous"), cmd);
         case CmdFindNext:
-            return AppendCmdAccel(_TRA("Find Next"), cmd);
+            return AppendCmdAccel(Tr("Find Next"), cmd);
         case CmdFindToggleMatchCase:
-            return AppendCmdAccel(_TRA("Match Case"), cmd);
+            return AppendCmdAccel(Tr("Match Case"), cmd);
         case CmdFindToggleMatchWholeWord:
-            return AppendCmdAccel(_TRA("Match Whole Word"), cmd);
+            return AppendCmdAccel(Tr("Match Whole Word"), cmd);
         case kFindWinPinCmdId:
-            return _TRA("Dock to toolbar");
+            return Tr("Dock to toolbar");
     }
     return {};
 }
@@ -312,7 +312,7 @@ bool FindWindowWnd::Create(MainWindow* mainWin) {
     {
         CreateCustomArgs args;
         args.visible = false;
-        args.title = _TRA("Find");
+        args.title = Tr("Find");
         // WS_CLIPCHILDREN neutralizes CS_PARENTDC of the standard controls
         // (their DCs get clipped to the control, not to this window), so e.g.
         // the results listbox can't paint its partially visible bottom row
@@ -340,7 +340,7 @@ bool FindWindowWnd::Create(MainWindow* mainWin) {
         edit = new DropDown();
         edit->SetColors(colTxt, colBg);
         edit->Create(args);
-        CbSetCueBanner(edit, _TRA("Find"));
+        CbSetCueBanner(edit, Tr("Find"));
         edit->onTextChanged = MkMethod0<FindWindowWnd, &FindWindowWnd::OnTextChanged>(this);
         edit->onCloseUp = MkMethod0<FindWindowWnd, &FindWindowWnd::OnHistoryCommitted>(this);
         ApplyFindHistory(edit);
@@ -799,7 +799,7 @@ void FindWindowWnd::UpdatePagesLabel() {
         n = std::max(win->ctrl->PageCount(), 1);
     }
     if (pagesLabel) {
-        pagesLabel->SetText(fmt(_TRA("Limit to pages 1-%d:").s, n));
+        pagesLabel->SetText(fmt(Tr("Limit to pages 1-%d:").s, n));
     }
 }
 

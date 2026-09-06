@@ -260,12 +260,10 @@ static void ShowModeNotification(MainWindow* win) {
     NotificationCreateArgs args;
     args.hwndParent = win->hwndCanvas;
     args.msg = win->textSelectModeVisual
-                   ? _TRA(
-                         "**Arrows**: extend selection * **V**: cursor mode * "
-                         "**Esc**: exit keyboard selection")
-                   : _TRA(
-                         "**Arrows**: move the caret * **Shift+Arrows**: select * **V**: selection mode * "
-                         "**Esc**: exit keyboard selection");
+                   ? Tr("**Arrows**: extend selection * **V**: cursor mode * "
+                        "**Esc**: exit keyboard selection")
+                   : Tr("**Arrows**: move the caret * **Shift+Arrows**: select * **V**: selection mode * "
+                        "**Esc**: exit keyboard selection");
     // no timeout: the keys are the whole interface of this mode, so the hint
     // stays up for as long as the mode does (removed by StopSelectTextWithKeyboard).
     // The close button is still there for anyone who has learned them.
@@ -291,7 +289,7 @@ void ToggleSelectTextWithKeyboard(MainWindow* win) {
         // feedback (scanned pages without OCR, blank pages)
         NotificationCreateArgs args;
         args.hwndParent = win->hwndCanvas;
-        args.msg = _TRA("No text on this page");
+        args.msg = Tr("No text on this page");
         args.timeoutMs = 2000;
         args.groupId = kNotifTextSelectMode;
         ShowNotification(args);

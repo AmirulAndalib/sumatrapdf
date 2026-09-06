@@ -69,64 +69,64 @@ struct ToolbarButtonInfo {
 };
 
 static ToolbarButtonInfo gToolbarButtons[] = {
-    {gIconFileOpen, CmdOpenFile, _TRN("Open")},
-    {gIconPrint, CmdPrint, _TRN("Print")},
+    {gIconFileOpen, CmdOpenFile, TrN("Open")},
+    {gIconPrint, CmdPrint, TrN("Print")},
     {nullptr, 0, {}},          // separator
     {nullptr, PageInfoId, {}}, // text box for page number + show current page / no of pages
-    {gIconPagePrev, CmdGoToPrevPage, _TRN("Previous Page")},
-    {gIconPageNext, CmdGoToNextPage, _TRN("Next Page")},
+    {gIconPagePrev, CmdGoToPrevPage, TrN("Previous Page")},
+    {gIconPageNext, CmdGoToNextPage, TrN("Next Page")},
     {nullptr, 0, {}}, // separator
-    {gIconNavigateBack, CmdNavigateBack, _TRN("Back")},
-    {gIconNavigateForward, CmdNavigateForward, _TRN("Forward")},
+    {gIconNavigateBack, CmdNavigateBack, TrN("Back")},
+    {gIconNavigateForward, CmdNavigateForward, TrN("Forward")},
     {nullptr, 0, {}}, // separator
-    {gIconSpeak, CmdReadAloud, _TRN("Read Aloud")},
+    {gIconSpeak, CmdReadAloud, TrN("Read Aloud")},
     {nullptr, 0, {}}, // separator
-    {gIconLayoutContinuous, CmdZoomFitWidthAndContinuous, _TRN("Fit Width and Show Pages Continuously")},
-    {gIconLayoutSinglePage, CmdZoomFitPageAndSinglePage, _TRN("Fit a Single Page")},
-    {gIconRotateLeft, CmdRotateLeft, _TRN("Rotate &Left")},
-    {gIconRotateRight, CmdRotateRight, _TRN("Rotate &Right")},
-    {gIconZoomOut, CmdZoomOut, _TRN("Zoom Out")},
-    {gIconZoomIn, CmdZoomIn, _TRN("Zoom In")},
+    {gIconLayoutContinuous, CmdZoomFitWidthAndContinuous, TrN("Fit Width and Show Pages Continuously")},
+    {gIconLayoutSinglePage, CmdZoomFitPageAndSinglePage, TrN("Fit a Single Page")},
+    {gIconRotateLeft, CmdRotateLeft, TrN("Rotate &Left")},
+    {gIconRotateRight, CmdRotateRight, TrN("Rotate &Right")},
+    {gIconZoomOut, CmdZoomOut, TrN("Zoom Out")},
+    {gIconZoomIn, CmdZoomIn, TrN("Zoom In")},
     {nullptr, 0, {}}, // separator
-    {gIconSearch, CmdFindFirst, _TRN("Find")},
+    {gIconSearch, CmdFindFirst, TrN("Find")},
     {nullptr, 0, {}}, // separator
-    {gIconEditAnnotations, CmdToggleEditPDF, _TRN("Edit PDF")},
+    {gIconEditAnnotations, CmdToggleEditPDF, TrN("Edit PDF")},
 };
 // unicode chars: https://www.compart.com/en/unicode/U+25BC
 
 constexpr int kButtonsCount = dimof(gToolbarButtons);
 
 static ToolbarButtonInfo gPdfAnnotationButtons[] = {
-    {gIconAnnotHighlightBrush, CmdAnnotationHighlightBrush, _TRN("Highlighter")},
-    {gIconAnnotHighlight, CmdCreateAnnotHighlight, _TRN("Highlight")},
-    {gIconAnnotUnderline, CmdCreateAnnotUnderline, _TRN("Underline")},
-    {gIconAnnotSquiggly, CmdCreateAnnotSquiggly, _TRN("Squiggly")},
-    {gIconAnnotStrikeOut, CmdCreateAnnotStrikeOut, _TRN("Strike Out")},
+    {gIconAnnotHighlightBrush, CmdAnnotationHighlightBrush, TrN("Highlighter")},
+    {gIconAnnotHighlight, CmdCreateAnnotHighlight, TrN("Highlight")},
+    {gIconAnnotUnderline, CmdCreateAnnotUnderline, TrN("Underline")},
+    {gIconAnnotSquiggly, CmdCreateAnnotSquiggly, TrN("Squiggly")},
+    {gIconAnnotStrikeOut, CmdCreateAnnotStrikeOut, TrN("Strike Out")},
     {nullptr, 0, {}},
-    {gIconAnnotText, CmdCreateAnnotText, _TRN("Text")},
-    {gIconAnnotFreeText, CmdCreateAnnotFreeText, _TRN("Free Text")},
+    {gIconAnnotText, CmdCreateAnnotText, TrN("Text")},
+    {gIconAnnotFreeText, CmdCreateAnnotFreeText, TrN("Free Text")},
     {nullptr, 0, {}},
-    {gIconAnnotLine, CmdCreateAnnotLine, _TRN("Line")},
-    {gIconAnnotPolyLine, CmdCreateAnnotPolyLine, _TRN("Polyline")},
-    {gIconAnnotSquare, CmdCreateAnnotSquare, _TRN("Square")},
-    {gIconAnnotCircle, CmdCreateAnnotCircle, _TRN("Circle")},
-    {gIconAnnotPolygon, CmdCreateAnnotPolygon, _TRN("Polygon")},
-    {gIconAnnotInk, CmdCreateAnnotInk, _TRN("Ink")},
+    {gIconAnnotLine, CmdCreateAnnotLine, TrN("Line")},
+    {gIconAnnotPolyLine, CmdCreateAnnotPolyLine, TrN("Polyline")},
+    {gIconAnnotSquare, CmdCreateAnnotSquare, TrN("Square")},
+    {gIconAnnotCircle, CmdCreateAnnotCircle, TrN("Circle")},
+    {gIconAnnotPolygon, CmdCreateAnnotPolygon, TrN("Polygon")},
+    {gIconAnnotInk, CmdCreateAnnotInk, TrN("Ink")},
     {nullptr, 0, {}},
-    {gIconAnnotRedact, CmdCreateAnnotRedact, _TRN("Redact")},
-    {gIconApplyRedactions, CmdApplyRedactions, _TRN("Apply Redactions")},
-    {gIconAnnotStamp, CmdCreateAnnotStamp, _TRN("Stamp")},
-    {gIconAnnotCaret, CmdCreateAnnotCaret, _TRN("Caret")},
-    {gIconAnnotFileAttachment, CmdCreateAnnotFileAttachment, _TRN("File Attachment")},
+    {gIconAnnotRedact, CmdCreateAnnotRedact, TrN("Redact")},
+    {gIconApplyRedactions, CmdApplyRedactions, TrN("Apply Redactions")},
+    {gIconAnnotStamp, CmdCreateAnnotStamp, TrN("Stamp")},
+    {gIconAnnotCaret, CmdCreateAnnotCaret, TrN("Caret")},
+    {gIconAnnotFileAttachment, CmdCreateAnnotFileAttachment, TrN("File Attachment")},
     {nullptr, 0, {}},
-    {gIconUndo, CmdUndo, _TRN("Undo")},
-    {gIconRedo, CmdRedo, _TRN("Redo")},
+    {gIconUndo, CmdUndo, TrN("Undo")},
+    {gIconRedo, CmdRedo, TrN("Redo")},
     {nullptr, 0, {}},
-    {gIconFindAnnotation, CmdFindAnnotation, _TRN("Find Annotation")},
+    {gIconFindAnnotation, CmdFindAnnotation, TrN("Find Annotation")},
     {nullptr, 0, {}},
     // the tooltip names the file, see ToolbarUpdateStateForWindow. Hovering it
     // opens a drop-down with the other two ways to end an editing session
-    {gIconSave, CmdSaveAnnotations, _TRN("Save changes to existing PDF")},
+    {gIconSave, CmdSaveAnnotations, TrN("Save changes to existing PDF")},
 };
 
 constexpr int kPdfAnnotationButtonsCount = dimof(gPdfAnnotationButtons);
@@ -674,11 +674,11 @@ void ToolbarUpdateStateForWindow(MainWindow* win, bool setButtonsVisibility) {
             bool speaking = TtsIsSpeaking();
             SetToolbarButtonImageByIdx(win, i, speaking ? gIconPauseSpeaking : gIconSpeak);
             // tooltip reflects what clicking the button will do
-            Str tip = _TRA("Read Aloud");
+            Str tip = Tr("Read Aloud");
             if (speaking) {
-                tip = _TRA("Pause Reading");
+                tip = Tr("Pause Reading");
             } else if (CanContinueReadAloud(win->CurrentTab())) {
-                tip = _TRA("Continue Reading");
+                tip = Tr("Continue Reading");
             }
             SetToolbarButtonToolTipByIdx(win, i, cmdId, tip);
         }
@@ -700,9 +700,9 @@ void ToolbarUpdateStateForWindow(MainWindow* win, bool setButtonsVisibility) {
             // name the file it writes to, like the annotation list's Save button
             WindowTab* tab = win->CurrentTab();
             TempStr base = tab ? path::GetBaseNameTemp(tab->filePath) : TempStr{};
-            Str tip = _TRA("Save changes to existing PDF");
+            Str tip = Tr("Save changes to existing PDF");
             if (len(base) > 0) {
-                tip = fmt(_TRA("Save changes to %s").s, base);
+                tip = fmt(Tr("Save changes to %s").s, base);
             }
             SetPdfAnnotationButtonToolTipByIdx(win, i, ToolbarTipTemp(bi.cmdId, tip, false));
         }
@@ -1118,7 +1118,7 @@ void UpdateToolbarPageText(MainWindow* win, int pageCount, bool updateOnly) {
 
     bool hasChapters = win->ctrl && win->ctrl->HasChapters();
     if (tb->pageLabel) {
-        tb->pageLabel->SetText(hasChapters ? _TRA("Chapter:") : _TRA("Page:"));
+        tb->pageLabel->SetText(hasChapters ? Tr("Chapter:") : Tr("Page:"));
     }
     Visibility chapterVis = hasChapters ? Visibility::Visible : Visibility::Collapse;
     bool chapterVisChanged = false;
@@ -2232,15 +2232,15 @@ static void BuildSaveHoverMenu(MainWindow* win, ToolbarHoverBuildEvent* ev) {
     bool dirty = ctx->hasUnsavedAnnotations;
 
     TempStr base = tab ? path::GetBaseNameTemp(tab->filePath) : TempStr{};
-    Str saveText = _TRA("Save changes to existing PDF");
+    Str saveText = Tr("Save changes to existing PDF");
     if (len(base) > 0) {
-        saveText = fmt(_TRA("Save changes to %s").s, base);
+        saveText = fmt(Tr("Save changes to %s").s, base);
     }
 
     Vec<ToolbarHoverMenuItem> items;
     VecAppend(items, {Str(gIconSave), saveText, CmdSaveAnnotations, dirty});
-    VecAppend(items, {Str(gIconSaveToNewFile), _TRA("Save changes to a new PDF"), CmdSaveAnnotationsNewFile, dirty});
-    VecAppend(items, {Str(gIconTrash), _TRA("Discard changes"), CmdDiscardChanges, dirty});
+    VecAppend(items, {Str(gIconSaveToNewFile), Tr("Save changes to a new PDF"), CmdSaveAnnotationsNewFile, dirty});
+    VecAppend(items, {Str(gIconTrash), Tr("Discard changes"), CmdDiscardChanges, dirty});
     ev->layout = NewToolbarHoverMenu(win, items);
 }
 
@@ -2308,7 +2308,7 @@ static void BuildToolbarLayout(MainWindow* win) {
             // Old toolbar: label HWND was text + kTextPaddingRight + kButtonSpacingX
             // (10dpi) so "Page:" and "/ N" were not flush against the edit.
             int pageGap = DpiScale(kTextPaddingRight) + DpiScale(kButtonSpacingX);
-            auto* label = new VirtText(_TRA("Page:"), tb->platformFont);
+            auto* label = new VirtText(Tr("Page:"), tb->platformFont);
             label->isRtl = box->rtl;
             label->SetColor(kColText, fg);
             label->padding = {0, pageGap, 0, DpiScale(4)};
@@ -2332,7 +2332,7 @@ static void BuildToolbarLayout(MainWindow* win) {
             box->AddChild(chapterTotal);
 
             // second "Page:" label, shown before pageEdit only for HasChapters() docs
-            auto* label2 = new VirtText(_TRA("Page:"), tb->platformFont);
+            auto* label2 = new VirtText(Tr("Page:"), tb->platformFont);
             label2->isRtl = box->rtl;
             label2->SetColor(kColText, fg);
             label2->padding = {0, pageGap, 0, DpiScale(4)};

@@ -1262,7 +1262,7 @@ void AdvancedSettingsWnd::UpdateChangedCountLabel() {
     bool show = n > 0;
     Visibility vis = show ? Visibility::Visible : Visibility::Collapse;
     if (show) {
-        changedCountText->SetText(fmt(_TRA("Unsaved changes: %d").s, n));
+        changedCountText->SetText(fmt(Tr("Unsaved changes: %d").s, n));
     }
     changedCountRow->SetVisibility(vis);
     changedCountText->SetIsVisible(show);
@@ -1301,7 +1301,7 @@ bool AdvancedSettingsWnd::Create(MainWindow* mainWin) {
 
     {
         CreateCustomArgs args;
-        args.title = _TRA("Advanced Settings");
+        args.title = Tr("Advanced Settings");
         args.visible = false;
         args.style = WS_POPUPWINDOW | WS_CAPTION | WS_THICKFRAME;
         args.font = GetFont();
@@ -1327,7 +1327,7 @@ bool AdvancedSettingsWnd::Create(MainWindow* mainWin) {
         args.parent = hwnd;
         args.isMultiLine = false;
         args.withBorder = true;
-        args.cueText = _TRA("enter search term to filter settings");
+        args.cueText = Tr("enter search term to filter settings");
         args.font = GetFont();
         args.isRtl = isRtl;
         auto* c = new Edit();
@@ -1400,7 +1400,7 @@ bool AdvancedSettingsWnd::Create(MainWindow* mainWin) {
         hbox->alignMain = MainAxisAlign::MainCenter;
         hbox->alignCross = CrossAxisAlign::CrossCenter;
         auto* c = NewVirtText({
-            .s = _TRA("Enter or double-click to edit. Bold value: different from default"),
+            .s = Tr("Enter or double-click to edit. Bold value: different from default"),
             .font = font,
             .isRtl = isRtl,
         });
@@ -1420,19 +1420,19 @@ bool AdvancedSettingsWnd::Create(MainWindow* mainWin) {
         left->alignMain = MainAxisAlign::MainStart;
         left->alignCross = CrossAxisAlign::CrossCenter;
         left->gap = font->averageCharWidth;
-        btnSave = NewThemedButton(hwnd, _TRA("Save"), font, true);
+        btnSave = NewThemedButton(hwnd, Tr("Save"), font, true);
         btnSave->onClick = MkMethod1<AdvancedSettingsWnd, VirtMouseEvent*, &AdvancedSettingsWnd::OnSave>(this);
         left->AddChild(new Padding(btnSave, pad));
-        btnCancel = NewThemedButton(hwnd, _TRA("Cancel"), font, false);
+        btnCancel = NewThemedButton(hwnd, Tr("Cancel"), font, false);
         btnCancel->onClick = MkMethod1<AdvancedSettingsWnd, VirtMouseEvent*, &AdvancedSettingsWnd::OnCancel>(this);
         left->AddChild(new Padding(btnCancel, pad));
-        btnOpenSettingsFile = NewThemedButton(hwnd, _TRA("Open Settings File"), font, false);
+        btnOpenSettingsFile = NewThemedButton(hwnd, Tr("Open Settings File"), font, false);
         btnOpenSettingsFile->onClick =
             MkMethod1<AdvancedSettingsWnd, VirtMouseEvent*, &AdvancedSettingsWnd::OnOpenSettingsFile>(this);
         left->AddChild(new Padding(btnOpenSettingsFile, pad));
         hbox->AddChild(left);
 
-        btnHelp = NewThemedButton(hwnd, _TRA("Help"), font, false);
+        btnHelp = NewThemedButton(hwnd, Tr("Help"), font, false);
         btnHelp->onClick = MkMethod1<AdvancedSettingsWnd, VirtMouseEvent*, &AdvancedSettingsWnd::OnHelp>(this);
         hbox->AddChild(new Padding(btnHelp, pad));
         vbox->AddChild(hbox);

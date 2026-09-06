@@ -251,12 +251,12 @@ static bool WriteInstallerFileRobust(Str path, Str data) {
 
 static TempStr WriteInstallerFileFailureMsgTemp(Str filePath) {
     if (IsDiskFullError(gLastWriteInstallerErr)) {
-        return fmt(_TRA("Not enough free disk space to write %s.\n\n"
-                        "Free up space on this drive and try again.")
+        return fmt(Tr("Not enough free disk space to write %s.\n\n"
+                      "Free up space on this drive and try again.")
                        .s,
                    filePath);
     }
-    return fmt(_TRA("Couldn't write %s to disk").s, filePath);
+    return fmt(Tr("Couldn't write %s to disk").s, filePath);
 }
 
 // --- Rename locked install files aside before extract ----------------------------
@@ -578,58 +578,58 @@ static bool MoveAsideLooksLikeAccessDenied(Str path) {
 static TempStr FormatMoveAsideDialogContentTemp(Str fileName, Str path) {
     TempStr holders = ProcessesHoldingFileTemp(path);
     if (holders) {
-        return fmt(_TRA("Could not update %s because another program still has the file open.\n\n"
-                        "Programs currently using this file:\n"
-                        "%s\n\n"
-                        "What to try:\n"
-                        "• Close the programs listed above\n"
-                        "• Close Explorer windows that show a PDF preview pane\n"
-                        "• Stop the \"Windows Search\" service temporarily (services.msc)\n\n"
-                        "The installer keeps retrying every few seconds. Click Abort to cancel.\n\n"
-                        "More help: <a href=\"%s\">Installation documentation</a>")
+        return fmt(Tr("Could not update %s because another program still has the file open.\n\n"
+                      "Programs currently using this file:\n"
+                      "%s\n\n"
+                      "What to try:\n"
+                      "• Close the programs listed above\n"
+                      "• Close Explorer windows that show a PDF preview pane\n"
+                      "• Stop the \"Windows Search\" service temporarily (services.msc)\n\n"
+                      "The installer keeps retrying every few seconds. Click Abort to cancel.\n\n"
+                      "More help: <a href=\"%s\">Installation documentation</a>")
                        .s,
                    fileName, holders, kInstallDocsURL());
     }
     if (gLastMoveAsideError == ERROR_ACCESS_DENIED) {
         if (IsProcessRunningElevated()) {
             // Elevated + no holders + ERROR_ACCESS_DENIED: not missing UAC.
-            return fmt(_TRA("Could not update %s (access denied).\n\n"
-                            "No program is listed as using this file, but Windows still denied renaming it. "
-                            "This installer is already running as administrator, so the usual cause is "
-                            "antivirus, Controlled Folder Access, a restrictive file ACL, or a leftover lock "
-                            "that only a reboot clears.\n\n"
-                            "What to try:\n"
-                            "• Temporarily exclude the install folder from antivirus / Controlled Folder Access\n"
-                            "• Reboot, then run the installer again before opening SumatraPDF\n"
-                            "• Or install to a folder your account can write to (Options)\n\n"
-                            "The installer keeps retrying every few seconds. Click Abort to cancel.\n\n"
-                            "More help: <a href=\"%s\">Installation documentation</a>")
+            return fmt(Tr("Could not update %s (access denied).\n\n"
+                          "No program is listed as using this file, but Windows still denied renaming it. "
+                          "This installer is already running as administrator, so the usual cause is "
+                          "antivirus, Controlled Folder Access, a restrictive file ACL, or a leftover lock "
+                          "that only a reboot clears.\n\n"
+                          "What to try:\n"
+                          "• Temporarily exclude the install folder from antivirus / Controlled Folder Access\n"
+                          "• Reboot, then run the installer again before opening SumatraPDF\n"
+                          "• Or install to a folder your account can write to (Options)\n\n"
+                          "The installer keeps retrying every few seconds. Click Abort to cancel.\n\n"
+                          "More help: <a href=\"%s\">Installation documentation</a>")
                            .s,
                        fileName, kInstallDocsURL());
         }
-        return fmt(_TRA("Could not update %s due to insufficient permissions.\n\n"
-                        "The install folder is protected (for example Program Files) or access was denied.\n\n"
-                        "What to try:\n"
-                        "• Run the installer again and accept the administrator (UAC) prompt\n"
-                        "• Temporarily exclude the install folder from antivirus / Controlled Folder Access\n"
-                        "• Or install to a folder your account can write to (Options)\n"
-                        "• If it still fails when elevated: reboot, then install before opening SumatraPDF\n\n"
-                        "The installer keeps retrying every few seconds. Click Abort to cancel.\n\n"
-                        "More help: <a href=\"%s\">Installation documentation</a>")
+        return fmt(Tr("Could not update %s due to insufficient permissions.\n\n"
+                      "The install folder is protected (for example Program Files) or access was denied.\n\n"
+                      "What to try:\n"
+                      "• Run the installer again and accept the administrator (UAC) prompt\n"
+                      "• Temporarily exclude the install folder from antivirus / Controlled Folder Access\n"
+                      "• Or install to a folder your account can write to (Options)\n"
+                      "• If it still fails when elevated: reboot, then install before opening SumatraPDF\n\n"
+                      "The installer keeps retrying every few seconds. Click Abort to cancel.\n\n"
+                      "More help: <a href=\"%s\">Installation documentation</a>")
                        .s,
                    fileName, kInstallDocsURL());
     }
-    return fmt(_TRA("Could not update %s because another program still has the file open.\n\n"
-                    "Common causes:\n"
-                    "• Windows Search Indexer (loads PdfFilter.dll for PDF search)\n"
-                    "• File Explorer PDF preview (loads PdfPreview.dll / libsumatrapdf.dll)\n"
-                    "• Another SumatraPDF window or PDF application\n\n"
-                    "What to try:\n"
-                    "• Close Explorer windows that show a PDF preview pane\n"
-                    "• Stop the \"Windows Search\" service temporarily (services.msc)\n"
-                    "• Close all SumatraPDF and other PDF apps\n\n"
-                    "The installer keeps retrying every few seconds. Click Abort to cancel.\n\n"
-                    "More help: <a href=\"%s\">Installation documentation</a>")
+    return fmt(Tr("Could not update %s because another program still has the file open.\n\n"
+                  "Common causes:\n"
+                  "• Windows Search Indexer (loads PdfFilter.dll for PDF search)\n"
+                  "• File Explorer PDF preview (loads PdfPreview.dll / libsumatrapdf.dll)\n"
+                  "• Another SumatraPDF window or PDF application\n\n"
+                  "What to try:\n"
+                  "• Close Explorer windows that show a PDF preview pane\n"
+                  "• Stop the \"Windows Search\" service temporarily (services.msc)\n"
+                  "• Close all SumatraPDF and other PDF apps\n\n"
+                  "The installer keeps retrying every few seconds. Click Abort to cancel.\n\n"
+                  "More help: <a href=\"%s\">Installation documentation</a>")
                    .s,
                fileName, kInstallDocsURL());
 }
@@ -639,37 +639,37 @@ static void NotifyMoveAsideFailed(Str fileName, Str path, bool userAborted) {
         bool elevated = IsProcessRunningElevated();
         if (userAborted) {
             if (elevated) {
-                NotifyFailed(fmt(_TRA("Installation aborted: could not update %s (access denied; antivirus, "
-                                      "Controlled Folder Access, or file ACL — already running as administrator).")
+                NotifyFailed(fmt(Tr("Installation aborted: could not update %s (access denied; antivirus, "
+                                    "Controlled Folder Access, or file ACL — already running as administrator).")
                                      .s,
                                  fileName));
             } else {
-                NotifyFailed(fmt(_TRA("Installation aborted: could not update %s (access denied; try running as "
-                                      "administrator).")
+                NotifyFailed(fmt(Tr("Installation aborted: could not update %s (access denied; try running as "
+                                    "administrator).")
                                      .s,
                                  fileName));
             }
         } else if (elevated) {
-            NotifyFailed(fmt(_TRA("Could not update %s: access denied (antivirus, Controlled Folder Access, or "
-                                  "file ACL). Exclude the install folder, reboot and retry, or choose a different "
-                                  "folder. See https://www.sumatrapdfreader.org/docs/Installation")
+            NotifyFailed(fmt(Tr("Could not update %s: access denied (antivirus, Controlled Folder Access, or "
+                                "file ACL). Exclude the install folder, reboot and retry, or choose a different "
+                                "folder. See https://www.sumatrapdfreader.org/docs/Installation")
                                  .s,
                              fileName));
         } else {
-            NotifyFailed(fmt(_TRA("Could not update %s: access denied. Run the installer as administrator, "
-                                  "or choose a folder you can write to. "
-                                  "See https://www.sumatrapdfreader.org/docs/Installation")
+            NotifyFailed(fmt(Tr("Could not update %s: access denied. Run the installer as administrator, "
+                                "or choose a folder you can write to. "
+                                "See https://www.sumatrapdfreader.org/docs/Installation")
                                  .s,
                              fileName));
         }
         return;
     }
     if (userAborted) {
-        NotifyFailed(fmt(_TRA("Installation aborted: could not update %s (file in use).").s, fileName));
+        NotifyFailed(fmt(Tr("Installation aborted: could not update %s (file in use).").s, fileName));
     } else {
-        NotifyFailed(fmt(_TRA("Could not update %s because it is in use by another program. "
-                              "Stop Windows Search / close Explorer previews and try again. "
-                              "See https://www.sumatrapdfreader.org/docs/Installation")
+        NotifyFailed(fmt(Tr("Could not update %s because it is in use by another program. "
+                            "Stop Windows Search / close Explorer previews and try again. "
+                            "See https://www.sumatrapdfreader.org/docs/Installation")
                              .s,
                          fileName));
     }
@@ -731,7 +731,7 @@ static bool ShowMoveAsideBlockedDialog(Str path, Str copyPath, Str fileName) {
 
     TASKDIALOG_BUTTON buttons[1];
     buttons[0].nButtonID = IDCANCEL;
-    buttons[0].pszButtonText = CWStrTemp(_TRA("Abort installation"));
+    buttons[0].pszButtonText = CWStrTemp(Tr("Abort installation"));
 
     TASKDIALOGCONFIG cfg{};
     DWORD flags = TDF_SIZE_TO_CONTENT | TDF_ENABLE_HYPERLINKS | TDF_CALLBACK_TIMER | TDF_ALLOW_DIALOG_CANCELLATION |
@@ -742,7 +742,7 @@ static bool ShowMoveAsideBlockedDialog(Str path, Str copyPath, Str fileName) {
     cfg.cbSize = sizeof(cfg);
     cfg.hwndParent = gWnd ? gWnd->hwnd : nullptr;
     cfg.pszWindowTitle = L"SumatraPDF";
-    cfg.pszMainInstruction = CWStrTemp(fmt(_TRA("Cannot update %s").s, fileName));
+    cfg.pszMainInstruction = CWStrTemp(fmt(Tr("Cannot update %s").s, fileName));
     cfg.pszContent = CWStrTemp(content);
     cfg.dwFlags = (TASKDIALOG_FLAGS)flags;
     cfg.pfCallback = MoveAsideBlockedDialogCallback;
@@ -949,7 +949,7 @@ static bool ExtractInstallerFiles(lzma::SimpleArchive* archive, Str destDir) {
         if (!uncompressed) {
             logf("  GetFileDataByIdx failed for '%s'\n", fi->name);
             NotifyFailed(
-                _TRA("The installer has been corrupted. Please download it again.\nSorry for the inconvenience!"));
+                Tr("The installer has been corrupted. Please download it again.\nSorry for the inconvenience!"));
             return false;
         }
         TempStr filePath = path::JoinTemp(destDir, fi->name);
@@ -1045,21 +1045,21 @@ static bool CopySelfToDir(Str destDir) {
     logf("  failed to copy '%s' to '%s' lastError=%u\n", exePath, dstPath, lastErr);
     if (lastErr == ERROR_ACCESS_DENIED) {
         NotifyFailed(
-            _TRA("Couldn't copy SumatraPDF.exe to the installation directory (access denied). "
-                 "Temporarily disable antivirus or Controlled Folder Access for this folder, "
-                 "run the installer as administrator, or choose a different install folder. "
-                 "See https://www.sumatrapdfreader.org/docs/Installation"));
+            Tr("Couldn't copy SumatraPDF.exe to the installation directory (access denied). "
+               "Temporarily disable antivirus or Controlled Folder Access for this folder, "
+               "run the installer as administrator, or choose a different install folder. "
+               "See https://www.sumatrapdfreader.org/docs/Installation"));
     } else if (lastErr == ERROR_SHARING_VIOLATION || lastErr == ERROR_LOCK_VIOLATION) {
         NotifyFailed(
-            _TRA("Couldn't copy SumatraPDF.exe to the installation directory (file in use). "
-                 "Close all SumatraPDF windows and Explorer PDF previews, then try again. "
-                 "See https://www.sumatrapdfreader.org/docs/Installation"));
+            Tr("Couldn't copy SumatraPDF.exe to the installation directory (file in use). "
+               "Close all SumatraPDF windows and Explorer PDF previews, then try again. "
+               "See https://www.sumatrapdfreader.org/docs/Installation"));
     } else if (IsDiskFullError(lastErr)) {
         NotifyFailed(
-            _TRA("Not enough free disk space to copy SumatraPDF.exe to the installation directory.\n\n"
-                 "Free up space on this drive and try again."));
+            Tr("Not enough free disk space to copy SumatraPDF.exe to the installation directory.\n\n"
+               "Free up space on this drive and try again."));
     } else {
-        NotifyFailed(_TRA("Couldn't copy SumatraPDF.exe to the installation directory"));
+        NotifyFailed(Tr("Couldn't copy SumatraPDF.exe to the installation directory"));
     }
     return false;
 }
@@ -1244,12 +1244,12 @@ static void InstallerThread(Flags* cli) {
 
     ok = WriteUninstallerRegistryInfo(key, allUsers, cli->installDir);
     if (!ok) {
-        NotifyFailed(_TRA("Failed to write the uninstallation information to the registry"));
+        NotifyFailed(Tr("Failed to write the uninstallation information to the registry"));
     }
 
     ok = WriteExtendedFileExtensionInfo(key, installedExePath);
     if (!ok) {
-        NotifyFailed(_TRA("Failed to write the extended file extension information to the registry"));
+        NotifyFailed(Tr("Failed to write the extended file extension information to the registry"));
     }
 
     AddInstallDirToPath(allUsers, cli->installDir);
@@ -1361,7 +1361,7 @@ static void StartInstallation(InstallerWnd* wnd) {
     DeleteWnd(&wnd->checkboxRegisterPreview);
     DeleteWnd(&wnd->btnOptions);
 
-    SetMsg(_TRA("Installation in progress..."), kColorMsgInstallation);
+    SetMsg(Tr("Installation in progress..."), kColorMsgInstallation);
     HwndRepaintNow(wnd->hwnd);
 
     auto fn = MkFunc0(InstallerThread, &gCliNew);
@@ -1461,7 +1461,7 @@ static HRESULT CALLBACK InstallationFailedDialogCallback(HWND /*hwnd*/, UINT msg
         case TDN_BUTTON_CLICKED:
             if ((int)wParam == kBtnIdShowInstallLog) {
                 Str logText = gLogBuf ? ToStr(*gLogBuf) : StrL("(no log available)");
-                ShowTextInWindowDialog(_TRA("SumatraPDF installation log"), logText);
+                ShowTextInWindowDialog(Tr("SumatraPDF installation log"), logText);
                 return S_FALSE; // keep TaskDialog open
             }
             break;
@@ -1477,8 +1477,8 @@ static void ShowInstallationFailedUi(HWND hwndParent) {
     log(StrL("ShowInstallationFailedUi\n"));
     Str firstErr = gFirstError ? gFirstError : StrL("(no details)");
     TempStr content =
-        fmt("%s\n\n%s\n\n%s", firstErr, _TRA("Installation could not be completed."),
-            _TRA("If a previous version is running or Windows Explorer is previewing a PDF, close it and try again."));
+        fmt("%s\n\n%s\n\n%s", firstErr, Tr("Installation could not be completed."),
+            Tr("If a previous version is running or Windows Explorer is previewing a PDF, close it and try again."));
 
     TASKDIALOG_BUTTON buttons[2];
     buttons[0].nButtonID = kBtnIdShowInstallLog;
@@ -1538,10 +1538,10 @@ static void OnInstallationFinished(Flags* cli) {
     DeleteWnd(&gWnd->progressBar);
     auto isRtl = IsUIRtl();
     if (!cli->fastInstall) {
-        gWnd->btnRunSumatra = CreateDefaultButton(gWnd->hwnd, _TRA("Start SumatraPDF"), isRtl);
+        gWnd->btnRunSumatra = CreateDefaultButton(gWnd->hwnd, Tr("Start SumatraPDF"), isRtl);
         gWnd->btnRunSumatra->onClick = MkFunc0Void(OnButtonStartSumatra);
     }
-    SetMsg(_TRA("Thank you! SumatraPDF has been installed."), kColorMsgOk);
+    SetMsg(Tr("Thank you! SumatraPDF has been installed."), kColorMsgOk);
     gMsgError = gFirstError;
     HwndRepaintNow(gWnd->hwnd);
 
@@ -1661,10 +1661,10 @@ static void UpdateUIForOptionsState(InstallerWnd* wnd) {
     auto* btnOptions = wnd->btnOptions;
     //[ ACCESSKEY_GROUP Installer
     //[ ACCESSKEY_ALTERNATIVE // ideally, the same access key is used for both
-    auto s = _TRA("&Options");
+    auto s = Tr("&Options");
     if (showOpts) {
         //| ACCESSKEY_ALTERNATIVE
-        s = _TRA("Hide &Options");
+        s = Tr("Hide &Options");
     }
     Size sz = SetButtonTextAndResize(btnOptions, s);
     if (wnd->optionsBtnSlot) {
@@ -1748,7 +1748,7 @@ static void OnButtonBrowse(InstallerWnd* wnd) {
         installDir = path::GetDirTemp(installDir);
     }
 
-    auto caption = _TRA("Select the folder where SumatraPDF should be installed:");
+    auto caption = Tr("Select the folder where SumatraPDF should be installed:");
     TempStr installPath = BrowseForFolderTemp(wnd->hwnd, installDir, caption);
     if (len(installPath) == 0) {
         HwndSetFocus(wnd->btnBrowseDir->hwnd);
@@ -1801,11 +1801,11 @@ static void CreateInstallerWindowControls(InstallerWnd* wnd, Flags* cli) {
     bool isRtl = IsUIRtl();
     bool showInstallButton = !cli->fastInstall;
 
-    wnd->btnInstall = CreateDefaultButton(hwnd, _TRA("Install SumatraPDF"), isRtl);
+    wnd->btnInstall = CreateDefaultButton(hwnd, Tr("Install SumatraPDF"), isRtl);
     wnd->btnInstall->onClick = MkFunc0(OnButtonInstall, wnd);
     ShowAndEnable(wnd->btnInstall, showInstallButton);
 
-    wnd->btnOptions = CreateDefaultButton(hwnd, _TRA("&Options"), isRtl);
+    wnd->btnOptions = CreateDefaultButton(hwnd, Tr("&Options"), isRtl);
     wnd->btnOptions->onClick = MkFunc0(OnButtonOptions, wnd);
     Size optSz = wnd->btnOptions->GetIdealSize();
     gButtonDy = optSz.dy;
@@ -1815,7 +1815,7 @@ static void CreateInstallerWindowControls(InstallerWnd* wnd, Flags* cli) {
     // (assuming that the installer has the same CPU arch as its content!)
     if (IsProcessAndOsArchSame()) {
         // for Windows XP, this means only basic thumbnail support
-        Str s = _TRA("Let Windows show &previews of PDF documents");
+        Str s = Tr("Let Windows show &previews of PDF documents");
         bool isChecked = cli->withPreview || IsPreviewInstalled();
         if (isChecked) {
             showOptions = true;
@@ -1826,12 +1826,12 @@ static void CreateInstallerWindowControls(InstallerWnd* wnd, Flags* cli) {
         if (isChecked) {
             showOptions = true;
         }
-        s = _TRA("Let Windows Desktop Search &search PDF documents");
+        s = Tr("Let Windows Desktop Search &search PDF documents");
         wnd->checkboxRegisterSearchFilter = CreateCheckbox(hwnd, s, isChecked);
     }
 
     {
-        Str s = _TRA("Install for all users");
+        Str s = Tr("Install for all users");
         bool isChecked = cli->allUsers;
         if (isChecked) {
             showOptions = true;
@@ -1853,7 +1853,7 @@ static void CreateInstallerWindowControls(InstallerWnd* wnd, Flags* cli) {
     wnd->editInstallationDir->SetText(cli->installDir);
 
     wnd->staticInstDir = NewVirtText({
-        .s = _TRA("Install SumatraPDF in &folder:"),
+        .s = Tr("Install SumatraPDF in &folder:"),
         .font = GetDefaultGuiFont(),
         .textColor = kColBlack,
         .isRtl = IsUIRtl(),
@@ -2015,7 +2015,7 @@ static bool CreateInstallerWnd(Flags* cli) {
         RegisterClassExW(&wcex);
     }
 
-    TempStr title = fmt(_TRA("SumatraPDF %s Installer").s, StrL(CURR_VERSION_STRA));
+    TempStr title = fmt(Tr("SumatraPDF %s Installer").s, StrL(CURR_VERSION_STRA));
     DWORD exStyle = 0;
     if (trans::IsCurrLangRtl()) {
         exStyle = WS_EX_LAYOUTRTL;
@@ -2041,7 +2041,7 @@ static bool CreateInstallerWnd(Flags* cli) {
 }
 
 static bool CreateInstallerWindow(Flags* cli) {
-    gDefaultMsg = _TRA("Thank you for choosing SumatraPDF!");
+    gDefaultMsg = Tr("Thank you for choosing SumatraPDF!");
     if (!CreateInstallerWnd(cli)) {
         return false;
     }
@@ -2101,7 +2101,7 @@ static void ShowNoEmbeddedFiles(Str msg) {
         log(msg);
         return;
     }
-    MsgBox(nullptr, msg, _TRA("Error"), MB_OK);
+    MsgBox(nullptr, msg, Tr("Error"), MB_OK);
 }
 
 static LoadedDataResource gLoadedArchive;
@@ -2231,9 +2231,9 @@ static bool EnsureEnoughDiskSpaceForInstall(Str installDir, const lzma::SimpleAr
     }
     int freeMb = (int)(freeBytes / (1024ull * 1024ull));
     int needMb = (int)((need + (1024ll * 1024) - 1) / (1024ll * 1024));
-    NotifyFailed(fmt(_TRA("Not enough free disk space to install SumatraPDF.\n\n"
-                          "Required: about %d MB free\nAvailable: %d MB\n\n"
-                          "Free up space on this drive and try again.")
+    NotifyFailed(fmt(Tr("Not enough free disk space to install SumatraPDF.\n\n"
+                        "Required: about %d MB free\nAvailable: %d MB\n\n"
+                        "Free up space on this drive and try again.")
                          .s,
                      needMb, freeMb));
     return false;
@@ -2245,7 +2245,7 @@ bool ExtractInstallerFiles(Str dir) {
     if (!ok) {
         log(StrL("  dir::CreateAll() failed\n"));
         LogLastError();
-        NotifyFailed(_TRA("Couldn't create the installation directory"));
+        NotifyFailed(Tr("Couldn't create the installation directory"));
         return false;
     }
 
@@ -2300,10 +2300,10 @@ static bool ShouldInstallMismatchedArch(HWND hwndParent) {
     TASKDIALOG_BUTTON buttons[2];
 
     buttons[0].nButtonID = kBtnIdDownload;
-    Str s = _TRA("Download 64-bit version");
+    Str s = Tr("Download 64-bit version");
     buttons[0].pszButtonText = CWStrTemp(s);
     buttons[1].nButtonID = kBtnIdContinue;
-    s = _TRA("&Continue installing 32-bit version");
+    s = Tr("&Continue installing 32-bit version");
     buttons[1].pszButtonText = CWStrTemp(s);
 
     DWORD flags = TDF_SIZE_TO_CONTENT | TDF_POSITION_RELATIVE_TO_WINDOW;
@@ -2311,10 +2311,10 @@ static bool ShouldInstallMismatchedArch(HWND hwndParent) {
         flags |= TDF_RTL_LAYOUT;
     }
     dialogConfig.cbSize = sizeof(TASKDIALOGCONFIG);
-    s = _TRA("Installing 32-bit SumatraPDF on 64-bit OS");
+    s = Tr("Installing 32-bit SumatraPDF on 64-bit OS");
     dialogConfig.pszWindowTitle = CWStrTemp(s);
     // dialogConfig.pszMainInstruction = mainInstr;
-    s = _TRA("You're installing 32-bit SumatraPDF on 64-bit OS.\nWould you like to download\n64-bit version?");
+    s = Tr("You're installing 32-bit SumatraPDF on 64-bit OS.\nWould you like to download\n64-bit version?");
     dialogConfig.pszContent = CWStrTemp(s);
     dialogConfig.nDefaultButton = kBtnIdContinue;
     dialogConfig.dwFlags = (TASKDIALOG_FLAGS)flags;

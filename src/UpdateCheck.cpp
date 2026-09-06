@@ -306,9 +306,9 @@ static void NotifyUserOfUpdate(UpdateInfo* updateInfo) {
         return;
     }
 
-    auto mainInstr = _TRA("New version available");
+    auto mainInstr = Tr("New version available");
     auto ver = updateInfo->latestVer;
-    auto fmtStr = _TRA("You have version '%s' and version '%s' is available.\nDo you want to install the new version?");
+    auto fmtStr = Tr("You have version '%s' and version '%s' is available.\nDo you want to install the new version?");
     TempStr content = fmt(fmtStr.s, StrL(CURR_VERSION_STRA), ver);
 
     auto installerPath = updateInfo->installerPath;
@@ -316,18 +316,18 @@ static void NotifyUserOfUpdate(UpdateInfo* updateInfo) {
 
     constexpr int kBtnIdDontInstall = 100;
     constexpr int kBtnIdInstall = 101;
-    auto title = _TRA("SumatraPDF Update");
+    auto title = Tr("SumatraPDF Update");
     TASKDIALOGCONFIG dialogConfig{};
     TASKDIALOG_BUTTON buttons[2];
 
     buttons[0].nButtonID = kBtnIdDontInstall;
-    auto s = _TRA("Don't install");
+    auto s = Tr("Don't install");
     buttons[0].pszButtonText = CWStrTemp(s);
     buttons[1].nButtonID = kBtnIdInstall;
     if (didDownloadInstaller) {
-        s = _TRA("Install and relaunch");
+        s = Tr("Install and relaunch");
     } else {
-        s = _TRA("Download update");
+        s = Tr("Download update");
     }
     buttons[1].pszButtonText = CWStrTemp(s);
 
@@ -455,7 +455,7 @@ static void ShowUpdateAvailableNotification(MainWindow* win, UpdateInfo* updateI
     if (!win || !updateInfo) {
         return;
     }
-    TempStr link = fmt("[%s](CmdInstallPrereleaseUpdate)", _TRA("Update"));
+    TempStr link = fmt("[%s](CmdInstallPrereleaseUpdate)", Tr("Update"));
     // pre-release "Latest" is a build number (e.g. 17616); show as 3.7.17616
     TempStr displayVer = updateInfo->latestVer;
     if (!str::ContainsChar(displayVer, '.')) {
@@ -463,9 +463,9 @@ static void ShowUpdateAvailableNotification(MainWindow* win, UpdateInfo* updateI
     }
     TempStr msg;
     if (updateInfo->builtOn) {
-        msg = fmt(_TRA("Version %s from %s available. %s").s, displayVer, updateInfo->builtOn, link);
+        msg = fmt(Tr("Version %s from %s available. %s").s, displayVer, updateInfo->builtOn, link);
     } else {
-        msg = fmt(_TRA("Version %s available. %s").s, displayVer, link);
+        msg = fmt(Tr("Version %s available. %s").s, displayVer, link);
     }
     NotificationCreateArgs args;
     args.hwndParent = win->hwndCanvas;
@@ -498,7 +498,7 @@ void DownloadAndInstallPendingUpdate(MainWindow* win) {
     // progress notification updated by UpdateDownloadProgressNotif (same group)
     NotificationCreateArgs nargs;
     nargs.hwndParent = hwndForNotif;
-    nargs.msg = _TRA("Downloading update...");
+    nargs.msg = Tr("Downloading update...");
     nargs.warning = true;
     nargs.groupId = kNotifUpdateCheckInProgress;
     nargs.timeoutMs = 0;
@@ -561,7 +561,7 @@ static void NotifySuspiciousUpdate(HWND hwndParent, Str dlURL) {
     logf("  url hex[0..%d]=%s\n", kUrlHexHead, HexHeadTemp(dlURL, kUrlHexHead));
     logf("  host hex[0..%d]=%s\n", kUrlHexHead, HexHeadTemp(kExpectedDlHost, kUrlHexHead));
     ReportIfFast(true);
-    auto title = _TRA("SumatraPDF Update");
+    auto title = Tr("SumatraPDF Update");
     auto content = fmt(R"(Suspicious update.
 
 Download link should come from <a href="%s">%s</a> but is %s.
@@ -579,7 +579,7 @@ Visit <a href="%s">%s</a> to download the latest version.)",
     constexpr int kBtnIdVisitWebsite = 100;
     TASKDIALOG_BUTTON buttons[1];
     buttons[0].nButtonID = kBtnIdVisitWebsite;
-    buttons[0].pszButtonText = CWStrTemp(_TRA("Visit &Website"));
+    buttons[0].pszButtonText = CWStrTemp(Tr("Visit &Website"));
 
     dialogConfig.cbSize = sizeof(TASKDIALOGCONFIG);
     dialogConfig.pszWindowTitle = CWStrTemp(title);
@@ -604,9 +604,9 @@ Visit <a href="%s">%s</a> to download the latest version.)",
 // update manually (e.g. if TLS validation or the network failed).
 static void NotifyUpdateCheckFailed(HWND hwndParent, DWORD err) {
     logf("NotifyUpdateCheckFailed: err=%#x\n", (unsigned)err);
-    auto title = _TRA("SumatraPDF Update");
-    auto mainInstr = _TRA("Couldn't check for updates");
-    TempStr msg = fmt(_TRA("Couldn't download update information (error %#x).").s, err);
+    auto title = Tr("SumatraPDF Update");
+    auto mainInstr = Tr("Couldn't check for updates");
+    TempStr msg = fmt(Tr("Couldn't download update information (error %#x).").s, err);
     TempStr content = fmt(R"(%s
 
 Visit <a href="%s">%s</a> to download the latest version.)",
@@ -622,7 +622,7 @@ Visit <a href="%s">%s</a> to download the latest version.)",
     constexpr int kBtnIdVisitWebsite = 100;
     TASKDIALOG_BUTTON buttons[1];
     buttons[0].nButtonID = kBtnIdVisitWebsite;
-    buttons[0].pszButtonText = CWStrTemp(_TRA("Visit &Website"));
+    buttons[0].pszButtonText = CWStrTemp(Tr("Visit &Website"));
 
     dialogConfig.cbSize = sizeof(TASKDIALOGCONFIG);
     dialogConfig.pszWindowTitle = CWStrTemp(title);
@@ -700,7 +700,7 @@ static DWORD MaybeStartUpdateDownload(HWND hwndParent, HttpRsp* rsp, UpdateCheck
         if (updateCheckType == UpdateCheck::UserInitiated) {
             auto* wnd = GetNotificationForGroup(hwndForNotif, kNotifUpdateCheckInProgress);
             if (wnd) {
-                NotificationUpdateMessage(wnd, _TRA("You have the latest version."), 5 * 1000, true);
+                NotificationUpdateMessage(wnd, Tr("You have the latest version."), 5 * 1000, true);
             }
         }
         delete updateInfo;
@@ -854,7 +854,7 @@ void StartAsyncUpdateCheck(MainWindow* win, UpdateCheck updateCheckType) {
     if (UpdateCheck::UserInitiated == updateCheckType) {
         NotificationCreateArgs args;
         args.hwndParent = win->hwndCanvas;
-        args.msg = _TRA("Checking for update...");
+        args.msg = Tr("Checking for update...");
         args.warning = true;
         args.timeoutMs = 0;
         args.groupId = kNotifUpdateCheckInProgress;

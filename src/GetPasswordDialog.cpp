@@ -100,7 +100,7 @@ bool GetPasswordWnd::Create() {
     {
         CreateCustomArgs args;
         args.parent = hwndParent;
-        args.title = _TRA("Enter password");
+        args.title = Tr("Enter password");
         args.visible = false;
         args.style = WS_POPUPWINDOW | WS_CAPTION;
         args.font = GetFont();
@@ -118,7 +118,7 @@ bool GetPasswordWnd::Create() {
 
     {
         auto* c = NewVirtText({
-            .s = fmt(_TRA("Enter password for %s").s, fileName),
+            .s = fmt(Tr("Enter password for %s").s, fileName),
             .font = font,
             .isRtl = isRtl,
             .padding = DpiScaledInsets(0, 0, 4, 0),
@@ -133,7 +133,7 @@ bool GetPasswordWnd::Create() {
         hbox->alignCross = CrossAxisAlign::CrossCenter;
 
         auto* lab = NewVirtText({
-            .s = _TRA("&Password:"),
+            .s = Tr("&Password:"),
             .font = font,
             .isRtl = isRtl,
             .prefix = true,
@@ -159,7 +159,7 @@ bool GetPasswordWnd::Create() {
     {
         Checkbox::CreateArgs args;
         args.parent = hwnd;
-        args.text = _TRA("&Show password");
+        args.text = Tr("&Show password");
         args.isRtl = isRtl;
         if (showPassword && *showPassword) {
             args.initialState = Checkbox::State::Checked;
@@ -178,7 +178,7 @@ bool GetPasswordWnd::Create() {
     if (remember) {
         Checkbox::CreateArgs args;
         args.parent = hwnd;
-        args.text = _TRA("&Remember the password for this document");
+        args.text = Tr("&Remember the password for this document");
         args.isRtl = isRtl;
         auto* c = new Checkbox();
         c->SetInsetsPt(4, 0, 0, 0);
@@ -194,10 +194,10 @@ bool GetPasswordWnd::Create() {
         hbox->gap = font->averageCharWidth;
         auto pad = Insets{4, 0, 4, 0};
 
-        btnCancel = NewThemedButton(hwnd, _TRA("Cancel"), font, false);
+        btnCancel = NewThemedButton(hwnd, Tr("Cancel"), font, false);
         btnCancel->onClick = MkMethod1<GetPasswordWnd, VirtMouseEvent*, &GetPasswordWnd::OnCancel>(this);
         hbox->AddChild(new Padding(btnCancel, pad));
-        btnOk = NewThemedButton(hwnd, _TRA("OK"), font, true);
+        btnOk = NewThemedButton(hwnd, Tr("OK"), font, true);
         btnOk->onClick = MkMethod1<GetPasswordWnd, VirtMouseEvent*, &GetPasswordWnd::OnOk>(this);
         hbox->AddChild(new Padding(btnOk, pad));
         vbox->AddChild(hbox);

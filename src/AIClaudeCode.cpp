@@ -259,10 +259,10 @@ struct ClaudeCodeProvider : AIChatProvider {
         terminateOnFinish = true;
     }
 
-    TempStr TitleTemp() override { return str::DupTemp(_TRA("Claude chat")); }
+    TempStr TitleTemp() override { return str::DupTemp(Tr("Claude chat")); }
 
     TempStr NotInstalledInstructionTemp() override {
-        return str::DupTemp(_TRA("Install Claude Code to use this feature."));
+        return str::DupTemp(Tr("Install Claude Code to use this feature."));
     }
 
     TempStr FindExecutableTemp() override { return FindClaudeExecutableTemp(); }

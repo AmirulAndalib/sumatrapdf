@@ -162,24 +162,24 @@ static bool ParseEditInt(Edit* e, int* out) {
 static Str PageGridUnitName(int i) {
     switch (i) {
         case 1:
-            return _TRA("inches");
+            return Tr("inches");
         case 2:
-            return _TRA("millimeters");
+            return Tr("millimeters");
         case 3:
-            return _TRA("centimeters");
+            return Tr("centimeters");
         default:
-            return _TRA("points");
+            return Tr("points");
     }
 }
 
 static Str PageGridStyleName(int i) {
     if (i == 1) {
-        return _TRA("Dotted lines");
+        return Tr("Dotted lines");
     }
     if (i == 2) {
-        return _TRA("Solid lines");
+        return Tr("Solid lines");
     }
-    return _TRA("Dots");
+    return Tr("Dots");
 }
 
 static PageGrid* PageGridPrefs() {
@@ -506,7 +506,7 @@ bool PageGridWnd::Create(MainWindow* mainWin) {
     {
         CreateCustomArgs args;
         args.owner = win ? win->hwndFrame : nullptr;
-        args.title = _TRA("Page Grid");
+        args.title = Tr("Page Grid");
         args.visible = false;
         args.style = WS_POPUPWINDOW | WS_CAPTION;
         args.font = GetFont();
@@ -558,12 +558,12 @@ bool PageGridWnd::Create(MainWindow* mainWin) {
             ddUnits->SetItems(items);
             ddUnits->onSelectionChanged = MkMethod0<PageGridWnd, &PageGridWnd::OnUnitsChanged>(this);
         }
-        AddPageGridRow(t, 0, PageGridLabel(_TRA("Units:"), font, isRtl), ddUnits);
+        AddPageGridRow(t, 0, PageGridLabel(Tr("Units:"), font, isRtl), ddUnits);
         vbox->AddChild(t);
     }
 
     vbox->AddChild(NewVirtText({
-        .s = _TRA("Distance between grid lines"),
+        .s = Tr("Distance between grid lines"),
         .font = font,
         .isRtl = isRtl,
         .padding = DpiScaledInsets(8, 0, 4, 0),
@@ -575,11 +575,11 @@ bool PageGridWnd::Create(MainWindow* mainWin) {
         t->colGap = DpiScale(8);
         t->rowGap = DpiScale(6);
         editWidth = makeEdit();
-        AddPageGridRow(t, 0, PageGridLabel(_TRA("Horizontal:"), font, isRtl), editWidth, false);
+        AddPageGridRow(t, 0, PageGridLabel(Tr("Horizontal:"), font, isRtl), editWidth, false);
         editHeight = makeEdit();
-        AddPageGridRow(t, 1, PageGridLabel(_TRA("Vertical:"), font, isRtl), editHeight, false);
+        AddPageGridRow(t, 1, PageGridLabel(Tr("Vertical:"), font, isRtl), editHeight, false);
         editSub = makeEdit();
-        AddPageGridRow(t, 2, PageGridLabel(_TRA("Subdivisions:"), font, isRtl), editSub, false);
+        AddPageGridRow(t, 2, PageGridLabel(Tr("Subdivisions:"), font, isRtl), editSub, false);
         vbox->AddChild(t);
     }
 
@@ -590,15 +590,15 @@ bool PageGridWnd::Create(MainWindow* mainWin) {
         t->rowGap = DpiScale(6);
         t->padding = DpiScaledInsets(8, 0, 0, 0);
         vbox->AddChild(NewVirtText({
-            .s = _TRA("Grid line origin offset"),
+            .s = Tr("Grid line origin offset"),
             .font = font,
             .isRtl = isRtl,
             .padding = DpiScaledInsets(8, 0, 4, 0),
         }));
         editOffX = makeEdit();
-        AddPageGridRow(t, 0, PageGridLabel(_TRA("From left:"), font, isRtl), editOffX, false);
+        AddPageGridRow(t, 0, PageGridLabel(Tr("From left:"), font, isRtl), editOffX, false);
         editOffY = makeEdit();
-        AddPageGridRow(t, 1, PageGridLabel(_TRA("From bottom:"), font, isRtl), editOffY, false);
+        AddPageGridRow(t, 1, PageGridLabel(Tr("From bottom:"), font, isRtl), editOffY, false);
         vbox->AddChild(t);
     }
 
@@ -618,7 +618,7 @@ bool PageGridWnd::Create(MainWindow* mainWin) {
             ddStyle->SetItems(items);
             ddStyle->onSelectionChanged = MkMethod0<PageGridWnd, &PageGridWnd::ApplyLive>(this);
         }
-        AddPageGridRow(t, 0, PageGridLabel(_TRA("Grid style:"), font, isRtl), ddStyle);
+        AddPageGridRow(t, 0, PageGridLabel(Tr("Grid style:"), font, isRtl), ddStyle);
 
         {
             auto* row = new HBox();
@@ -637,13 +637,13 @@ bool PageGridWnd::Create(MainWindow* mainWin) {
             editColor = makeEdit();
             editColor->onTextChanged = MkMethod0<PageGridWnd, &PageGridWnd::OnColorEditChanged>(this);
             row->AddChild(editColor, 1);
-            AddPageGridRow(t, 1, PageGridLabel(_TRA("Color:"), font, isRtl), row);
+            AddPageGridRow(t, 1, PageGridLabel(Tr("Color:"), font, isRtl), row);
         }
 
         {
             Checkbox::CreateArgs args;
             args.parent = hwnd;
-            args.text = _TRA("&Show Grid");
+            args.text = Tr("&Show Grid");
             args.isRtl = isRtl;
             cbShow = new Checkbox();
             cbShow->Create(args);
@@ -660,7 +660,7 @@ bool PageGridWnd::Create(MainWindow* mainWin) {
         hbox->gap = font->averageCharWidth;
         auto pad = Insets{8, 0, 4, 0};
 
-        btnReset = NewThemedButton(hwnd, _TRA("Reset to defaults"), font, false);
+        btnReset = NewThemedButton(hwnd, Tr("Reset to defaults"), font, false);
         btnReset->onClick = MkMethod1<PageGridWnd, VirtMouseEvent*, &PageGridWnd::OnReset>(this);
         hbox->AddChild(new Padding(btnReset, pad));
 
@@ -668,10 +668,10 @@ bool PageGridWnd::Create(MainWindow* mainWin) {
         right->alignMain = MainAxisAlign::MainEnd;
         right->alignCross = CrossAxisAlign::CrossCenter;
         right->gap = font->averageCharWidth;
-        btnCancel = NewThemedButton(hwnd, _TRA("Cancel"), font, false);
+        btnCancel = NewThemedButton(hwnd, Tr("Cancel"), font, false);
         btnCancel->onClick = MkMethod1<PageGridWnd, VirtMouseEvent*, &PageGridWnd::OnCancel>(this);
         right->AddChild(new Padding(btnCancel, pad));
-        btnOk = NewThemedButton(hwnd, _TRA("OK"), font, true);
+        btnOk = NewThemedButton(hwnd, Tr("OK"), font, true);
         btnOk->onClick = MkMethod1<PageGridWnd, VirtMouseEvent*, &PageGridWnd::OnOk>(this);
         right->AddChild(new Padding(btnOk, pad));
         hbox->AddChild(right);

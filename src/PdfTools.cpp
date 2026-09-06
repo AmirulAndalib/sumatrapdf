@@ -260,7 +260,7 @@ void PdfToolDialog::AddButtonsRow(Str actionText, Str hint) {
     actionBtn->onClick = MkMethod1<PdfToolDialog, VirtMouseEvent*, &PdfToolDialog::DoIt>(this);
     row->AddChild(actionBtn);
 
-    cancelBtn = NewButton(_TRA("Cancel"), false);
+    cancelBtn = NewButton(Tr("Cancel"), false);
     cancelBtn->onClick = MkMethod1<PdfToolDialog, VirtMouseEvent*, &PdfToolDialog::OnCancel>(this);
     row->AddChild(cancelBtn);
 }
@@ -301,7 +301,7 @@ void PdfBakeDialog::DoIt(VirtMouseEvent*) {
     if (engine && EngineHasUnsavedAnnotations(engine)) {
         tmpPath = GetTempFilePathTemp(StrL("bake"));
         if (len(tmpPath) == 0 || !EngineMupdfSaveCopy(engine, tmpPath)) {
-            MessageBoxWarning(hwnd, StrL("Failed to bake PDF file."), _TRA("Bake PDF"));
+            MessageBoxWarning(hwnd, StrL("Failed to bake PDF file."), Tr("Bake PDF"));
             return;
         }
         inputPath = tmpPath;
@@ -329,17 +329,17 @@ void PdfBakeDialog::DoIt(VirtMouseEvent*) {
         StartLoadDocument(&args);
     } else {
         logf("PdfBakeDoIt: pdfbake_main failed with %d\n", res);
-        MessageBoxWarning(hwnd, StrL("Failed to bake PDF file."), _TRA("Bake PDF"));
+        MessageBoxWarning(hwnd, StrL("Failed to bake PDF file."), Tr("Bake PDF"));
     }
 }
 
 bool PdfBakeDialog::Create(MainWindow* w, WindowTab* tab) {
-    if (!CreateToolDialog(w, tab, _TRA("Bake PDF"))) {
+    if (!CreateToolDialog(w, tab, Tr("Bake PDF"))) {
         return false;
     }
     AddPathRow();
     AddDestRow(MakeUniqueFilePathTemp(srcPath), L"PDF Files\0*.pdf\0All Files\0*.*\0", L"pdf");
-    AddButtonsRow(_TRA("Bake PDF"));
+    AddButtonsRow(Tr("Bake PDF"));
     FinishDialog(destEdit);
     return true;
 }
@@ -439,12 +439,12 @@ void PdfExtractTextDialog::DoIt(VirtMouseEvent*) {
         OpenPathInDefaultFileManager(path);
     } else {
         logf("PdfExtractTextDoIt: failed to extract text, isPdf: %d\n", (int)isPdf);
-        MessageBoxWarning(hwnd, StrL("Failed to extract text."), _TRA("Extract Text"));
+        MessageBoxWarning(hwnd, StrL("Failed to extract text."), Tr("Extract Text"));
     }
 }
 
 bool PdfExtractTextDialog::Create(MainWindow* w, WindowTab* tab) {
-    if (!CreateToolDialog(w, tab, _TRA("Extract Text From PDF"))) {
+    if (!CreateToolDialog(w, tab, Tr("Extract Text From PDF"))) {
         return false;
     }
     AddPathRow();
@@ -452,8 +452,8 @@ bool PdfExtractTextDialog::Create(MainWindow* w, WindowTab* tab) {
     TempStr txtPath = str::JoinTemp(noExt, StrL(".txt"));
     AddDestRow(MakeUniqueFilePathTemp(txtPath), L"Text Files\0*.txt\0All Files\0*.*\0", L"txt");
     int pageCount = w->ctrl ? w->ctrl->PageCount() : 1;
-    pagesEdit = AddLabeledEdit(_TRA("Pages:"), fmt("1-%d", pageCount));
-    AddButtonsRow(_TRA("Extract Text"));
+    pagesEdit = AddLabeledEdit(Tr("Pages:"), fmt("1-%d", pageCount));
+    AddButtonsRow(Tr("Extract Text"));
     FinishDialog(destEdit);
     return true;
 }
@@ -505,17 +505,17 @@ void PdfCompressDialog::DoIt(VirtMouseEvent*) {
         StartLoadDocument(&args);
     } else {
         logf("PdfCompressDoIt: pdfclean_main failed with %d\n", res);
-        MessageBoxWarning(hwnd, StrL("Failed to compress PDF file."), _TRA("Compress PDF"));
+        MessageBoxWarning(hwnd, StrL("Failed to compress PDF file."), Tr("Compress PDF"));
     }
 }
 
 bool PdfCompressDialog::Create(MainWindow* w, WindowTab* tab) {
-    if (!CreateToolDialog(w, tab, _TRA("Compress PDF"))) {
+    if (!CreateToolDialog(w, tab, Tr("Compress PDF"))) {
         return false;
     }
     AddPathRow();
     AddDestRow(MakeUniqueFilePathTemp(srcPath), L"PDF Files\0*.pdf\0All Files\0*.*\0", L"pdf");
-    AddButtonsRow(_TRA("Compress PDF"));
+    AddButtonsRow(Tr("Compress PDF"));
     FinishDialog(destEdit);
     return true;
 }
@@ -569,17 +569,17 @@ void PdfDecompressDialog::DoIt(VirtMouseEvent*) {
         StartLoadDocument(&args);
     } else {
         logf("PdfDecompressDoIt: pdfclean_main failed with %d\n", res);
-        MessageBoxWarning(hwnd, StrL("Failed to decompress PDF file."), _TRA("Decompress PDF"));
+        MessageBoxWarning(hwnd, StrL("Failed to decompress PDF file."), Tr("Decompress PDF"));
     }
 }
 
 bool PdfDecompressDialog::Create(MainWindow* w, WindowTab* tab) {
-    if (!CreateToolDialog(w, tab, _TRA("Decompress PDF"))) {
+    if (!CreateToolDialog(w, tab, Tr("Decompress PDF"))) {
         return false;
     }
     AddPathRow();
     AddDestRow(MakeUniqueFilePathTemp(srcPath), L"PDF Files\0*.pdf\0All Files\0*.*\0", L"pdf");
-    AddButtonsRow(_TRA("Decompress PDF"));
+    AddButtonsRow(Tr("Decompress PDF"));
     FinishDialog(destEdit);
     return true;
 }
@@ -820,12 +820,12 @@ void PdfDeletePageDialog::DoIt(VirtMouseEvent*) {
     EngineBase* sourceEngine = sourceTab ? sourceTab->GetEngine() : nullptr;
     if (isExtract && onlyWithAnnotations && onlyWithAnnotations->IsChecked()) {
         if (!sourceEngine || !KeepOnlyPagesWithAnnotations(sourceEngine, parsedPages)) {
-            MessageBoxWarning(hwnd, StrL("Failed to read annotations from PDF file."), _TRA("Extract Pages From PDF"));
+            MessageBoxWarning(hwnd, StrL("Failed to read annotations from PDF file."), Tr("Extract Pages From PDF"));
             return;
         }
         if (len(parsedPages) == 0) {
             MessageBoxWarning(hwnd, StrL("No pages with annotations in the selected range."),
-                              _TRA("Extract Pages From PDF"));
+                              Tr("Extract Pages From PDF"));
             return;
         }
     }
@@ -848,7 +848,7 @@ void PdfDeletePageDialog::DoIt(VirtMouseEvent*) {
     if (isExtract && sourceEngine && EngineHasUnsavedAnnotations(sourceEngine)) {
         tmpPath = GetTempFilePathTemp(StrL("extract-pages"));
         if (len(tmpPath) == 0 || !EngineMupdfSaveCopy(sourceEngine, tmpPath)) {
-            MessageBoxWarning(hwnd, StrL("Failed to extract pages from PDF file."), _TRA("Extract Pages From PDF"));
+            MessageBoxWarning(hwnd, StrL("Failed to extract pages from PDF file."), Tr("Extract Pages From PDF"));
             return;
         }
         inputPath = tmpPath;
@@ -879,7 +879,7 @@ void PdfDeletePageDialog::DoIt(VirtMouseEvent*) {
         logf("PdfDeletePageDoIt: pdfclean_main failed with %d for %s\n", res, op);
         Str msg =
             isExtract ? StrL("Failed to extract pages from PDF file.") : StrL("Failed to delete pages from PDF file.");
-        Str title = isExtract ? _TRA("Extract Pages From PDF") : _TRA("Delete Pages From PDF");
+        Str title = isExtract ? Tr("Extract Pages From PDF") : Tr("Delete Pages From PDF");
         MessageBoxWarning(hwnd, msg, title);
     }
 }
@@ -913,7 +913,7 @@ void PdfDeletePageDialog::PreTranslate(WindowBase::PreTranslateEvent* ev) {
 
 bool PdfDeletePageDialog::Create(MainWindow* w, WindowTab* tab, bool isExtractArg) {
     isExtract = isExtractArg;
-    Str title = isExtract ? _TRA("Extract Pages From PDF") : _TRA("Delete Pages From PDF");
+    Str title = isExtract ? Tr("Extract Pages From PDF") : Tr("Delete Pages From PDF");
     if (!CreateToolDialog(w, tab, title)) {
         return false;
     }
@@ -922,7 +922,7 @@ bool PdfDeletePageDialog::Create(MainWindow* w, WindowTab* tab, bool isExtractAr
     AddDestRow(MakeUniqueFilePathTemp(srcPath), L"PDF Files\0*.pdf\0All Files\0*.*\0", L"pdf");
 
     int currentPage = w->ctrl ? w->ctrl->CurrentPageNo() : 1;
-    Str pagesLabel = isExtract ? _TRA("Pages To Extract:") : _TRA("Pages To Delete:");
+    Str pagesLabel = isExtract ? Tr("Pages To Extract:") : Tr("Pages To Delete:");
     pagesEdit = AddLabeledEdit(pagesLabel, fmt("%d", currentPage));
     // "of N" after the edit
     lastRow->AddChild(new Spacer(gap, 0));
@@ -931,7 +931,7 @@ bool PdfDeletePageDialog::Create(MainWindow* w, WindowTab* tab, bool isExtractAr
     if (isExtract) {
         Checkbox::CreateArgs args;
         args.parent = hwnd;
-        args.text = _TRA("Only with annotations");
+        args.text = Tr("Only with annotations");
         args.font = font;
         args.isRtl = IsUIRtl();
         onlyWithAnnotations = new Checkbox();
@@ -940,7 +940,7 @@ bool PdfDeletePageDialog::Create(MainWindow* w, WindowTab* tab, bool isExtractAr
         AddRow()->AddChild(onlyWithAnnotations);
     }
 
-    Str actionText = isExtract ? _TRA("Extract Pages") : _TRA("Delete Pages");
+    Str actionText = isExtract ? Tr("Extract Pages") : Tr("Delete Pages");
     AddButtonsRow(actionText, StrL("Syntax: 2,5-7,13-"));
     onPreTranslate =
         MkMethod1<PdfDeletePageDialog, WindowBase::PreTranslateEvent*, &PdfDeletePageDialog::PreTranslate>(this);
@@ -1036,18 +1036,18 @@ void PdfEncryptDialog::DoIt(VirtMouseEvent*) {
         StartLoadDocument(&args);
     } else {
         logf("PdfEncryptDoIt: pdfclean_main failed with %d\n", res);
-        MessageBoxWarning(hwnd, StrL("Failed to encrypt PDF file."), _TRA("Encrypt PDF"));
+        MessageBoxWarning(hwnd, StrL("Failed to encrypt PDF file."), Tr("Encrypt PDF"));
     }
 }
 
 bool PdfEncryptDialog::Create(MainWindow* w, WindowTab* tab) {
-    if (!CreateToolDialog(w, tab, _TRA("Encrypt PDF"))) {
+    if (!CreateToolDialog(w, tab, Tr("Encrypt PDF"))) {
         return false;
     }
     AddPathRow();
     AddDestRow(MakeUniqueFilePathTemp(srcPath), L"PDF Files\0*.pdf\0All Files\0*.*\0", L"pdf");
-    passwordEdit = AddLabeledEdit(_TRA("Password:"), {}, true);
-    AddButtonsRow(_TRA("Encrypt PDF"));
+    passwordEdit = AddLabeledEdit(Tr("Password:"), {}, true);
+    AddButtonsRow(Tr("Encrypt PDF"));
     FinishDialog(passwordEdit);
     passwordEdit->onTextChanged = MkMethod0<PdfEncryptDialog, &PdfEncryptDialog::UpdateButton>(this);
     UpdateButton();
@@ -1119,18 +1119,18 @@ void PdfDecryptDialog::DoIt(VirtMouseEvent*) {
     } else {
         logf("PdfDecryptDoIt: pdfclean_main failed with %d, src: '%s', password len: %d\n", res, srcPath,
              len(password));
-        MessageBoxWarning(hwnd, StrL("Failed to decrypt PDF file."), _TRA("Decrypt PDF"));
+        MessageBoxWarning(hwnd, StrL("Failed to decrypt PDF file."), Tr("Decrypt PDF"));
     }
 }
 
 bool PdfDecryptDialog::Create(MainWindow* w, WindowTab* tab, Str pwd) {
-    if (!CreateToolDialog(w, tab, _TRA("Decrypt PDF"))) {
+    if (!CreateToolDialog(w, tab, Tr("Decrypt PDF"))) {
         return false;
     }
     password = str::Dup(pwd);
     AddPathRow();
     AddDestRow(MakeUniqueFilePathTemp(srcPath), L"PDF Files\0*.pdf\0All Files\0*.*\0", L"pdf");
-    AddButtonsRow(_TRA("Decrypt PDF"));
+    AddButtonsRow(Tr("Decrypt PDF"));
     FinishDialog(destEdit);
     return true;
 }
@@ -1297,7 +1297,7 @@ void ConvertToPdfDialog::DoIt(VirtMouseEvent*) {
     DisplayModel* dm = win->AsFixed();
     EngineBase* engine = dm ? dm->GetEngine() : nullptr;
     if (!engine || !engine->IsImageCollection()) {
-        MessageBoxWarning(hwnd, _TRA("Failed to save a file"), _TRA("Convert to PDF"));
+        MessageBoxWarning(hwnd, Tr("Failed to save a file"), Tr("Convert to PDF"));
         return;
     }
 
@@ -1312,17 +1312,17 @@ void ConvertToPdfDialog::DoIt(VirtMouseEvent*) {
         StartLoadDocument(&args);
     } else {
         logf("ConvertToPdf: SaveImageCollectionAsPdf failed\n");
-        MessageBoxWarning(hwnd, _TRA("Failed to save a file"), _TRA("Convert to PDF"));
+        MessageBoxWarning(hwnd, Tr("Failed to save a file"), Tr("Convert to PDF"));
     }
 }
 
 bool ConvertToPdfDialog::Create(MainWindow* w, WindowTab* tab) {
-    if (!CreateToolDialog(w, tab, _TRA("Convert to PDF"))) {
+    if (!CreateToolDialog(w, tab, Tr("Convert to PDF"))) {
         return false;
     }
     AddPathRow();
     AddDestRow(DefaultPdfDestPathTemp(srcPath), L"PDF Files\0*.pdf\0All Files\0*.*\0", L"pdf");
-    AddButtonsRow(_TRA("Convert to PDF"));
+    AddButtonsRow(Tr("Convert to PDF"));
     FinishDialog(destEdit);
     return true;
 }
@@ -1734,7 +1734,7 @@ void ConvertPdfToImagesDialog::DoIt(VirtMouseEvent*) {
     DisplayModel* dm = win ? win->AsFixed() : nullptr;
     EngineBase* engine = dm ? dm->GetEngine() : nullptr;
     if (!engine) {
-        MessageBoxWarning(hwnd, StrL("Failed to convert PDF to images."), _TRA("Convert PDF to Images"));
+        MessageBoxWarning(hwnd, StrL("Failed to convert PDF to images."), Tr("Convert PDF to Images"));
         return;
     }
 
@@ -1763,7 +1763,7 @@ void ConvertPdfToImagesDialog::DoIt(VirtMouseEvent*) {
 
     if (nOk == 0) {
         str::Free(firstPath);
-        MessageBoxWarning(hwnd, StrL("Failed to convert PDF to images."), _TRA("Convert PDF to Images"));
+        MessageBoxWarning(hwnd, StrL("Failed to convert PDF to images."), Tr("Convert PDF to Images"));
         return;
     }
     logf("ConvertPdfToImages: wrote %d of %d file(s)\n", nOk, len(pages));
@@ -1774,7 +1774,7 @@ void ConvertPdfToImagesDialog::DoIt(VirtMouseEvent*) {
 }
 
 bool ConvertPdfToImagesDialog::Create(MainWindow* w, WindowTab* tab) {
-    if (!CreateToolDialog(w, tab, _TRA("Convert PDF to Images"))) {
+    if (!CreateToolDialog(w, tab, Tr("Convert PDF to Images"))) {
         return false;
     }
     pageCount = w->ctrl ? w->ctrl->PageCount() : 1;
@@ -1826,18 +1826,18 @@ bool ConvertPdfToImagesDialog::Create(MainWindow* w, WindowTab* tab) {
 
     HBox* row = AddRow();
     row->gap = font->averageCharWidth;
-    row->AddChild(NewVirtText({.s = _TRA("Pages:"), .font = font, .isRtl = IsUIRtl()}));
+    row->AddChild(NewVirtText({.s = Tr("Pages:"), .font = font, .isRtl = IsUIRtl()}));
 
-    radioCurrent = NewPagesRadio(hwnd, font, _TRA("Current"), true, false);
+    radioCurrent = NewPagesRadio(hwnd, font, Tr("Current"), true, false);
     radioCurrent->onStateChanged =
         MkMethod0<ConvertPdfToImagesDialog, &ConvertPdfToImagesDialog::OnPagesModeChanged>(this);
     row->AddChild(radioCurrent);
 
-    radioAll = NewPagesRadio(hwnd, font, _TRA("All"), false, true);
+    radioAll = NewPagesRadio(hwnd, font, Tr("All"), false, true);
     radioAll->onStateChanged = MkMethod0<ConvertPdfToImagesDialog, &ConvertPdfToImagesDialog::OnPagesModeChanged>(this);
     row->AddChild(radioAll);
 
-    radioCustom = NewPagesRadio(hwnd, font, _TRA("Custom"), false, false);
+    radioCustom = NewPagesRadio(hwnd, font, Tr("Custom"), false, false);
     radioCustom->onStateChanged =
         MkMethod0<ConvertPdfToImagesDialog, &ConvertPdfToImagesDialog::OnPagesModeChanged>(this);
     row->AddChild(radioCustom);
@@ -1853,7 +1853,7 @@ bool ConvertPdfToImagesDialog::Create(MainWindow* w, WindowTab* tab) {
     pagesEdit->SetIsEnabled(false);
     row->AddChild(pagesEdit, 1);
 
-    AddButtonsRow(_TRA("Convert"), _TRA("Use <N> for the page number"));
+    AddButtonsRow(Tr("Convert"), Tr("Use <N> for the page number"));
     FinishDialog(destEdit);
 
     destEdit->onTextChanged = MkMethod0<ConvertPdfToImagesDialog, &ConvertPdfToImagesDialog::UpdateButton>(this);

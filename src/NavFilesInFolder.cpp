@@ -591,7 +591,7 @@ void NavFilesInFolderWnd::DeleteCurrentSelection() {
     DeleteFileFromDiskAndHistory(path);
 
     if (file::Exists(path)) {
-        MessageBoxWarning(hwnd, fmt(_TRA("Couldn't delete %s").s, path));
+        MessageBoxWarning(hwnd, fmt(Tr("Couldn't delete %s").s, path));
     }
     // re-list; keep the selection where the deleted entry was
     TempStr dir = str::DupTemp(currDir);
@@ -839,7 +839,7 @@ bool NavFilesInFolderWnd::Create(MainWindow* mainWin) {
         args.visible = false;
         // regular resizable window (not a popup that auto-dismisses)
         args.style = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME;
-        args.title = _TRA("Navigate Files in Folder");
+        args.title = Tr("Navigate Files in Folder");
         args.font = GetFont();
         args.icon = LoadIconW(GetModuleHandleW(nullptr), MAKEINTRESOURCEW(GetAppIconID()));
         args.isRtl = IsUIRtl();
@@ -884,10 +884,10 @@ bool NavFilesInFolderWnd::Create(MainWindow* mainWin) {
     {
         // {shortcut, description} pairs, two per table row; translators keep
         // the key names in English
-        Str strings[4][2] = {{_TRA("Enter"), _TRA("open file in current tab")},
-                             {_TRA("Ctrl + Enter"), _TRA("open file in a new tab")},
-                             {_TRA("Alt + Up"), _TRA("go to parent directory")},
-                             {_TRA("Del"), _TRA("delete file")}};
+        Str strings[4][2] = {{Tr("Enter"), Tr("open file in current tab")},
+                             {Tr("Ctrl + Enter"), Tr("open file in a new tab")},
+                             {Tr("Alt + Up"), Tr("go to parent directory")},
+                             {Tr("Del"), Tr("delete file")}};
         int n = dimofi(strings);
         // the hints are secondary information, so they get a smaller font
         PlatformFont* helpFont = GetDefaultGuiFontOfSize(std::max(GetAppFontSize() - 2, 8));

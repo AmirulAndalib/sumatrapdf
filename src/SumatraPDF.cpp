@@ -889,7 +889,7 @@ uint MbRtlReadingMaybe() {
 void MessageBoxWarning(HWND hwnd, Str msg, Str title) {
     uint type = MB_OK | MB_ICONEXCLAMATION | MbRtlReadingMaybe();
     if (len(title) == 0) {
-        title = _TRA("Warning");
+        title = Tr("Warning");
     }
     MsgBox(hwnd, msg, title, type);
 }
@@ -1715,7 +1715,7 @@ void ControllerCallbackHandler::UpdateScrollbars(DisplayModel* dm, Size canvas) 
 
 static TempStr BuildZoomString(float zoomLevel) {
     TempStr zoomLevelStr = ZoomLevelStr(zoomLevel);
-    Str zoomStr = _TRA("Zoom");
+    Str zoomStr = Tr("Zoom");
     return fmt("%s: %s", zoomStr, zoomLevelStr);
 }
 
@@ -1767,13 +1767,13 @@ static void UpdatePageInfoHelper(DocController* ctrl, NotificationWnd* wnd, int 
     if (ctrl->HasChapters()) {
         Location loc = ctrl->LocationFromPageNo(pageNo);
         int chapterPages = ctrl->ChapterPageCount(loc.chapter);
-        pageInfo = fmt("%s %d / %d, %s %d / %d", _TRA("Chapter:"), loc.chapter, ctrl->ChapterCount(), _TRA("Page:"),
+        pageInfo = fmt("%s %d / %d, %s %d / %d", Tr("Chapter:"), loc.chapter, ctrl->ChapterCount(), Tr("Page:"),
                        loc.page, chapterPages);
     } else if (ctrl->HasPageLabels()) {
         TempStr label = ctrl->GetPageLabeTemp(pageNo);
-        pageInfo = fmt("%s %s (%d / %d)", _TRA("Page:"), label, pageNo, nPages);
+        pageInfo = fmt("%s %s (%d / %d)", Tr("Page:"), label, pageNo, nPages);
     } else {
-        pageInfo = fmt("%s %d / %d", _TRA("Page:"), pageNo, nPages);
+        pageInfo = fmt("%s %d / %d", Tr("Page:"), pageNo, nPages);
     }
     float zoomLevel = ctrl->GetZoomVirtual();
     auto zoomStr = BuildZoomString(zoomLevel);
@@ -2167,7 +2167,7 @@ static void SetFrameTitleForTab(WindowTab* tab, bool needRefresh) {
         // base the prefix on the freshly-built title 's', not tab->frameTitle:
         // the latter may already carry the prefix from a previous refresh, so
         // reusing it stacks "[..] [..] [..] file.pdf" on repeated changes (#5690)
-        s = fmt(_TRA("[Changes detected; refreshing] %s").s, s);
+        s = fmt(Tr("[Changes detected; refreshing] %s").s, s);
     }
     str::ReplaceWithCopy(&tab->frameTitle, s);
 }
@@ -2718,7 +2718,7 @@ static void ReplaceDocumentInCurrentTab(LoadArgs* args, DocController* ctrl, Fil
     // tab may already be selected by the time we get here.
     TempStr unsupported = win->ctrl->GetPropertyTemp(DocProp::UnsupportedFeatures);
     if (unsupported) {
-        Str s = _TRA("%s not supported");
+        Str s = Tr("%s not supported");
         TempStr msg = fmt(s.s, unsupported);
         NotificationCreateArgs nargs;
         nargs.hwndParent = win->hwndCanvas;
@@ -2741,7 +2741,7 @@ static void ReplaceDocumentInCurrentTab(LoadArgs* args, DocController* ctrl, Fil
     DisplayModel* dmErr = win->AsFixed();
     EngineBase* engineErr = dmErr ? dmErr->GetEngine() : nullptr;
     if (engineErr && engineErr->HasErrors()) {
-        TempStr msg = fmt("[%s](CmdShowErrors) %s", _TRA("Errors"), _TRA("in document"));
+        TempStr msg = fmt("[%s](CmdShowErrors) %s", Tr("Errors"), Tr("in document"));
         NotificationCreateArgs nargs;
         nargs.hwndParent = win->hwndCanvas;
         nargs.warning = true;
@@ -2762,7 +2762,7 @@ static void ReplaceDocumentInCurrentTab(LoadArgs* args, DocController* ctrl, Fil
     // it does nothing (issue #4600)
     Str missingFont = EngineEbookFontUnavailable(engineErr);
     if (missingFont) {
-        Str s = _TRA("Font \"%s\" not found, using the default font");
+        Str s = Tr("Font \"%s\" not found, using the default font");
         TempStr msg = fmt(s.s, missingFont);
         NotificationCreateArgs nargs;
         nargs.hwndParent = win->hwndCanvas;
@@ -3138,9 +3138,9 @@ static void UpdateToolbarSidebarText(MainWindow* win) {
     UpdateToolbarFindText(win);
     UpdateToolbarButtonsToolTipsForWindow(win);
 
-    win->tocLabel->SetText(_TRA("Bookmarks"));
+    win->tocLabel->SetText(Tr("Bookmarks"));
     win->tocLabel->Invalidate();
-    win->favLabel->SetText(_TRA("Favorites"));
+    win->favLabel->SetText(Tr("Favorites"));
     win->favLabel->Invalidate();
 }
 
@@ -3711,25 +3711,25 @@ static void MarkFileOpenedOk(Str path) {
 // that opens but doesn't load is a format we don't handle or a damaged file.
 static TempStr FileLoadErrorReasonTemp(Str path) {
     if (!file::Exists(path)) {
-        return str::DupTemp(_TRA("The file does not exist"));
+        return str::DupTemp(Tr("The file does not exist"));
     }
     WCHAR* pathW = CWStrTemp(path);
     DWORD share = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
     HANDLE h = CreateFileW(pathW, GENERIC_READ, share, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
     if (h != INVALID_HANDLE_VALUE) {
         CloseHandle(h);
-        return str::DupTemp(_TRA("The file format is not supported or the file is damaged"));
+        return str::DupTemp(Tr("The file format is not supported or the file is damaged"));
     }
     DWORD err = GetLastError();
     switch (err) {
         case ERROR_FILE_NOT_FOUND:
         case ERROR_PATH_NOT_FOUND:
-            return str::DupTemp(_TRA("The file does not exist"));
+            return str::DupTemp(Tr("The file does not exist"));
         case ERROR_ACCESS_DENIED:
-            return str::DupTemp(_TRA("Access denied"));
+            return str::DupTemp(Tr("Access denied"));
         case ERROR_SHARING_VIOLATION:
         case ERROR_LOCK_VIOLATION:
-            return str::DupTemp(_TRA("The file is in use by another program"));
+            return str::DupTemp(Tr("The file is in use by another program"));
     }
     return GetLastErrorStrTemp(err);
 }
@@ -3754,7 +3754,7 @@ static void ShowFileNotFound(MainWindow* win, Str path, bool noSavePrefs, bool s
     NotificationCreateArgs nargs;
     nargs.hwndParent = win->hwndCanvas;
     nargs.warning = true;
-    nargs.msg = fmt(_TRA("File %s not found").s, path);
+    nargs.msg = fmt(Tr("File %s not found").s, path);
     nargs.plainText = true; // `path` is not ours, don't parse it as tip markup
     ShowNotification(nargs);
     LoadDocumentMarkNotExist(win, path, noSavePrefs, showWin);
@@ -3818,7 +3818,7 @@ void ShowErrorLoadingNotification(MainWindow* win, Str path, bool noSavePrefs, b
     // Same translation as Canvas OnPaintError ("Error loading %s").
     NotificationCreateArgs nargs;
     nargs.hwndParent = win->hwndCanvas;
-    nargs.msg = fmt("%s: %s", fmt(_TRA("Error loading %s").s, path), FileLoadErrorReasonTemp(path));
+    nargs.msg = fmt("%s: %s", fmt(Tr("Error loading %s").s, path), FileLoadErrorReasonTemp(path));
     // `path` is attacker-controlled, so the message must not be parsed as tip
     // markup: a "[x](CmdExec ...)" in it would become a clickable command link
     nargs.plainText = true;
@@ -4769,7 +4769,7 @@ void LoadModelIntoTab(WindowTab* tab) {
         tab->loadState == WindowTab::LoadState::None) {
         NotificationCreateArgs args;
         args.hwndParent = win->hwndCanvas;
-        args.msg = fmt(_TRA("Please wait - loading...").s);
+        args.msg = fmt(Tr("Please wait - loading...").s);
         args.warning = true;
         ShowNotification(args);
         // Use ShowMainWindow so SW_SHOW does not drop a pending maximize (#5529)
@@ -4982,9 +4982,9 @@ void UpdateCursorPositionHelper(MainWindow* win, Point pos, NotificationWnd* wnd
         selStr = FormatCursorPositionTemp(engine, pt, cursorPosUnit);
     }
 
-    TempStr posInfo = fmt("%s %s", _TRA("Cursor position:"), posStr);
+    TempStr posInfo = fmt("%s %s", Tr("Cursor position:"), posStr);
     if (selStr) {
-        posInfo = fmt("%s - %s %s", posInfo, _TRA("Selection:"), selStr);
+        posInfo = fmt("%s - %s %s", posInfo, Tr("Selection:"), selStr);
     }
     NotificationUpdateMessage(wnd, posInfo);
 }
@@ -5213,7 +5213,7 @@ static void CloseDocumentInCurrentTab(MainWindow* win, bool keepUIEnabled, bool 
         if (hadReading && win->hwndCanvas) {
             NotificationCreateArgs args;
             args.hwndParent = win->hwndCanvas;
-            args.msg = _TRA("Reading stopped");
+            args.msg = Tr("Reading stopped");
             args.timeoutMs = 2000;
             ShowNotification(args);
         }
@@ -5296,7 +5296,7 @@ static void CloseDocumentInCurrentTab(MainWindow* win, bool keepUIEnabled, bool 
 
 static void ShowSavedAnnotationsNotification(HWND hwndParent, Str path) {
     str::Builder msg;
-    msg.Append(fmt(_TRA("Saved annotations to '%s'").s, path));
+    msg.Append(fmt(Tr("Saved annotations to '%s'").s, path));
     NotificationCreateArgs nargs;
     nargs.hwndParent = hwndParent;
     nargs.font = GetDefaultGuiFont();
@@ -5308,7 +5308,7 @@ static void ShowSavedAnnotationsNotification(HWND hwndParent, Str path) {
 
 static void ShowSavedAnnotationsFailedNotification(HWND hwndParent, Str path, Str mupdfErr) {
     str::Builder msg;
-    msg.Append(fmt(_TRA("Failed to save '%s': %s").s, path, mupdfErr));
+    msg.Append(fmt(Tr("Failed to save '%s': %s").s, path, mupdfErr));
     // both `path` and the mupdf error come from the document, so no markup
     ShowPlainWarningNotification(hwndParent, ToStr(msg), 0);
 }
@@ -5448,7 +5448,7 @@ bool SaveAnnotationsToMaybeNewPdfFile(WindowTab* tab) {
     OPENFILENAME ofn{};
     str::Builder fileFilter;
     str::BuilderReserve(fileFilter, 256);
-    fileFilter.Append(_TRA("PDF documents"));
+    fileFilter.Append(Tr("PDF documents"));
     fileFilter.Append(StrL("\1*.pdf\1"));
     fileFilter.Append(StrL("\1*.*\1"));
     Str fileFilterStr = ToStr(fileFilter);
@@ -5470,7 +5470,7 @@ bool SaveAnnotationsToMaybeNewPdfFile(WindowTab* tab) {
     ofn.nMaxFile = dimof(dstFileName);
     ofn.lpstrFilter = fileFilterW;
     ofn.nFilterIndex = 1;
-    // ofn.lpstrTitle = _TRA("Rename To");
+    // ofn.lpstrTitle = Tr("Rename To");
     // ofn.lpstrInitialDir = initDir;
     ofn.lpstrDefExt = L".pdf";
     ofn.Flags = OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY;
@@ -5533,9 +5533,9 @@ enum class SaveChoice {
 
 static SaveChoice ShouldSaveAnnotationsDialog(HWND hwndParent, Str filePath) {
     TempStr fileName = path::GetBaseNameTemp(filePath);
-    TempStr mainInstrA = fmt(_TRA("Unsaved changes in '%s'").s, fileName);
+    TempStr mainInstrA = fmt(Tr("Unsaved changes in '%s'").s, fileName);
     WCHAR* mainInstr = CWStrTemp(mainInstrA);
-    auto content = _TRA("Save changes?");
+    auto content = Tr("Save changes?");
 
     constexpr int kBtnIdDiscard = 100;
     constexpr int kBtnIdSaveToExisting = 101;
@@ -5545,16 +5545,16 @@ static SaveChoice ShouldSaveAnnotationsDialog(HWND hwndParent, Str filePath) {
     TASKDIALOG_BUTTON buttons[4];
 
     buttons[0].nButtonID = kBtnIdSaveToExisting;
-    auto s = _TRA("&Save to existing PDF");
+    auto s = Tr("&Save to existing PDF");
     buttons[0].pszButtonText = CWStrTemp(s);
     buttons[1].nButtonID = kBtnIdSaveToNew;
-    s = _TRA("Save to &new PDF");
+    s = Tr("Save to &new PDF");
     buttons[1].pszButtonText = CWStrTemp(s);
     buttons[2].nButtonID = kBtnIdDiscard;
-    s = _TRA("&Discard changes");
+    s = Tr("&Discard changes");
     buttons[2].pszButtonText = CWStrTemp(s);
     buttons[3].nButtonID = IDCANCEL;
-    s = _TRA("&Cancel");
+    s = Tr("&Cancel");
     buttons[3].pszButtonText = CWStrTemp(s);
 
     DWORD flags =
@@ -5563,7 +5563,7 @@ static SaveChoice ShouldSaveAnnotationsDialog(HWND hwndParent, Str filePath) {
         flags |= TDF_RTL_LAYOUT;
     }
     dialogConfig.cbSize = sizeof(TASKDIALOGCONFIG);
-    s = _TRA("Unsaved changes");
+    s = Tr("Unsaved changes");
     dialogConfig.pszWindowTitle = CWStrTemp(s);
     dialogConfig.pszMainInstruction = mainInstr;
     dialogConfig.pszContent = CWStrTemp(content);
@@ -5832,8 +5832,8 @@ bool CanCloseWindow(MainWindow* win) {
 
     if (win->printThread && !win->printCanceled && WaitForSingleObject(win->printThread, 0) == WAIT_TIMEOUT) {
         UINT flags = MB_ICONEXCLAMATION | MB_YESNO | MbRtlReadingMaybe();
-        auto caption = _TRA("Printing in progress.");
-        auto msg = _TRA("Printing is still in progress. Abort and quit?");
+        auto caption = Tr("Printing in progress.");
+        auto msg = Tr("Printing is still in progress. Abort and quit?");
         int res = MsgBox(win->hwndFrame, msg, caption, flags);
         if (IDNO == res) {
             return false;
@@ -5981,38 +5981,38 @@ static bool AppendFileFilterForDoc(DocController* ctrl, str::Builder& fileFilter
     // fall back to engine kind for the rest.
     auto ext = ctrl->GetDefaultFileExt();
     if (str::EqI(ext, StrL(".xps"))) {
-        fileFilter.Append(_TRA("XPS documents"));
+        fileFilter.Append(Tr("XPS documents"));
     } else if (str::EqI(ext, StrL(".epub"))) { // NOLINT(bugprone-branch-clone): see kindEngineEpub below
         // .epub can be handled by kindEngineMupdf
-        fileFilter.Append(_TRA("EPUB ebooks"));
+        fileFilter.Append(Tr("EPUB ebooks"));
     } else if (type == kindEngineDjVu) {
-        fileFilter.Append(_TRA("DjVu documents"));
+        fileFilter.Append(Tr("DjVu documents"));
     } else if (type == kindEngineComicBooks) {
-        fileFilter.Append(_TRA("Comic books"));
+        fileFilter.Append(Tr("Comic books"));
     } else if (type == kindEngineImage) {
         Str imgDefExt = ctrl->GetDefaultFileExt();
         if (len(imgDefExt) > 0 && imgDefExt.s[0] == '.') {
             imgDefExt = Str(imgDefExt.s + 1, imgDefExt.len - 1);
         }
-        fileFilter.Append(fmt(_TRA("Image files (*.%s)").s, imgDefExt));
+        fileFilter.Append(fmt(Tr("Image files (*.%s)").s, imgDefExt));
     } else if (type == kindEngineImageDir) {
         return false; // only show "All files"
     } else if (type == kindEnginePostScript) {
-        fileFilter.Append(_TRA("PostScript documents"));
+        fileFilter.Append(Tr("PostScript documents"));
     } else if (type == kindEngineChm) {
-        fileFilter.Append(_TRA("CHM documents"));
+        fileFilter.Append(Tr("CHM documents"));
     } else if (type == kindEngineEpub) {
-        fileFilter.Append(_TRA("EPUB ebooks"));
+        fileFilter.Append(Tr("EPUB ebooks"));
     } else if (type == kindEngineMobi) {
-        fileFilter.Append(_TRA("Mobi documents"));
+        fileFilter.Append(Tr("Mobi documents"));
     } else if (type == kindEngineFb2) {
-        fileFilter.Append(_TRA("FictionBook documents"));
+        fileFilter.Append(Tr("FictionBook documents"));
     } else if (type == kindEnginePdb) {
-        fileFilter.Append(_TRA("PalmDoc documents"));
+        fileFilter.Append(Tr("PalmDoc documents"));
     } else if (type == kindEngineTxt) {
-        fileFilter.Append(_TRA("Text documents"));
+        fileFilter.Append(Tr("Text documents"));
     } else {
-        fileFilter.Append(_TRA("PDF documents"));
+        fileFilter.Append(Tr("PDF documents"));
     }
     return true;
 }
@@ -6037,7 +6037,7 @@ static void SaveCurrentFileAs(MainWindow* win) {
     }
 
     if (len(srcFileName) == 0) {
-        ShowTemporaryNotification(win->hwndCanvas, _TRA("File path not available"), kNotif5SecsTimeOut);
+        ShowTemporaryNotification(win->hwndCanvas, Tr("File path not available"), kNotif5SecsTimeOut);
         return;
     }
 
@@ -6057,7 +6057,7 @@ static void SaveCurrentFileAs(MainWindow* win) {
     if (AppendFileFilterForDoc(ctrl, fileFilter)) {
         fileFilter.Append(fmt("\1*%s\1", defExt));
     }
-    fileFilter.Append(_TRA("All files"));
+    fileFilter.Append(Tr("All files"));
     fileFilter.Append(StrL("\1*.*\1"));
     Str fileFilterStr = ToStr(fileFilter);
     str::TransCharsInPlace(fileFilterStr, StrL("\1"), StrL("\0"));
@@ -6111,7 +6111,7 @@ static void SaveCurrentFileAs(MainWindow* win) {
         DWORD cdErr = CommDlgExtendedError();
         if (cdErr != 0) {
             logf("GetSaveFileNameW() failed, CommDlgExtendedError() = 0x%x\n", (uint)cdErr);
-            MessageBoxWarning(win->hwndFrame, _TRA("Failed to save a file"));
+            MessageBoxWarning(win->hwndFrame, Tr("Failed to save a file"));
         }
         return;
     }
@@ -6133,7 +6133,7 @@ static void SaveCurrentFileAs(MainWindow* win) {
         }
     }
     if (len(srcFileName) == 0) {
-        ShowTemporaryNotification(win->hwndCanvas, _TRA("File path not available"), kNotif5SecsTimeOut);
+        ShowTemporaryNotification(win->hwndCanvas, Tr("File path not available"), kNotif5SecsTimeOut);
         return;
     }
     defExt = ctrl->GetDefaultFileExt();
@@ -6172,7 +6172,7 @@ static void SaveCurrentFileAs(MainWindow* win) {
             DWORD err = 0;
             TempStr s = GetLastErrorStrTemp(err);
             if (len(s) > 0) {
-                errorMsg = fmt("%s\n\n%s", _TRA("Failed to save a file"), s);
+                errorMsg = fmt("%s\n\n%s", Tr("Failed to save a file"), s);
             }
         }
     }
@@ -6184,7 +6184,7 @@ static void SaveCurrentFileAs(MainWindow* win) {
         ok = false;
     }
     if (!ok) {
-        TempStr msg = errorMsg ? errorMsg : Str(_TRA("Failed to save a file"));
+        TempStr msg = errorMsg ? errorMsg : Str(Tr("Failed to save a file"));
         logf("SaveCurrentFileAs() failed with '%s'\n", msg);
         MessageBoxWarning(win->hwndFrame, msg);
     }
@@ -6381,7 +6381,7 @@ static void RenameCurrentFile(MainWindow* win) {
     ofn.lpstrFilter = CWStrTemp(fileFilterStr);
     ofn.nFilterIndex = 1;
     // note: the other two dialogs are named "Open" and "Save As"
-    auto s = _TRA("Rename To");
+    auto s = Tr("Rename To");
     ofn.lpstrTitle = CWStrTemp(s);
     ofn.lpstrInitialDir = initDir.s;
     ofn.lpstrDefExt = defExtW.s + 1;
@@ -6411,7 +6411,7 @@ static void RenameCurrentFile(MainWindow* win) {
         LoadDocument(&args);
         NotificationCreateArgs nargs;
         nargs.hwndParent = win->hwndCanvas;
-        nargs.msg = _TRA("Failed to rename the file!");
+        nargs.msg = Tr("Failed to rename the file!");
         nargs.warning = true;
         nargs.timeoutMs = 0;
         ShowNotification(nargs);
@@ -6467,7 +6467,7 @@ static void CreateLnkShortcut(MainWindow* win) {
     // double-zero terminated string isn't cut by the string handling
     // methods too early on)
     str::Builder fileFilter;
-    fileFilter.Append(fmt("%s\1*.lnk\1", _TRA("Bookmark Shortcuts")));
+    fileFilter.Append(fmt("%s\1*.lnk\1", Tr("Bookmark Shortcuts")));
     Str fileFilterStr = ToStr(fileFilter);
     str::TransCharsInPlace(fileFilterStr, StrL("\1"), StrL("\0"));
     WCHAR* fileFilterW = CWStrTemp(fileFilterStr);
@@ -6510,7 +6510,7 @@ static void CreateLnkShortcut(MainWindow* win) {
     TempStr args = fmt("\"%s\" -page %d -view \"%s\" -zoom %s -scroll %d,%d", path, ss.page, viewMode, zoomVirtual,
                        (int)ss.x, (int)ss.y);
     TempStr label = ctrl->GetPageLabeTemp(ss.page);
-    TempStr desc = fmt(_TRA("Bookmark shortcut to page %s of %s").s, label, path);
+    TempStr desc = fmt(Tr("Bookmark shortcut to page %s of %s").s, label, path);
     auto exePath = GetSelfExePathTemp();
     CreateShortcut(fileName, exePath, args, desc, 1);
 }
@@ -6640,24 +6640,24 @@ static void BuildOpenFileFilters(OpenFileFilterList& out) {
         Str filter;
         bool available;
     } fileFormats[] = {
-        {_TRA("PDF documents"), StrL("*.pdf;*.p7m"), true},
-        {_TRA("XPS documents"), StrL("*.xps;*.oxps"), true},
-        {_TRA("DjVu documents"), StrL("*.djvu"), true},
-        {_TRA("PostScript documents"), StrL("*.ps;*.eps"), IsEnginePsAvailable()},
-        {_TRA("Comic books"), StrL("*.cbz;*.cbr;*.cb7;*.cbt"), true},
-        {_TRA("CHM documents"), StrL("*.chm"), true},
-        {_TRA("SVG documents"), StrL("*.svg"), true},
-        {_TRA("EPUB ebooks"), StrL("*.epub"), true},
-        {_TRA("Microsoft Reader ebooks"), StrL("*.lit"), true},
-        {_TRA("Markdown documents"), StrL("*.md;*.markdown"), true},
-        {_TRA("Mobi documents"), StrL("*.mobi"), true},
-        {_TRA("FictionBook documents"), StrL("*.fb2;*.fb2z;*.zfb2;*.fb2.zip"), true},
-        {_TRA("PalmDoc documents"), StrL("*.pdb;*.prc"), true},
-        {_TRA("Images"),
+        {Tr("PDF documents"), StrL("*.pdf;*.p7m"), true},
+        {Tr("XPS documents"), StrL("*.xps;*.oxps"), true},
+        {Tr("DjVu documents"), StrL("*.djvu"), true},
+        {Tr("PostScript documents"), StrL("*.ps;*.eps"), IsEnginePsAvailable()},
+        {Tr("Comic books"), StrL("*.cbz;*.cbr;*.cb7;*.cbt"), true},
+        {Tr("CHM documents"), StrL("*.chm"), true},
+        {Tr("SVG documents"), StrL("*.svg"), true},
+        {Tr("EPUB ebooks"), StrL("*.epub"), true},
+        {Tr("Microsoft Reader ebooks"), StrL("*.lit"), true},
+        {Tr("Markdown documents"), StrL("*.md;*.markdown"), true},
+        {Tr("Mobi documents"), StrL("*.mobi"), true},
+        {Tr("FictionBook documents"), StrL("*.fb2;*.fb2z;*.zfb2;*.fb2.zip"), true},
+        {Tr("PalmDoc documents"), StrL("*.pdb;*.prc"), true},
+        {Tr("Images"),
          StrL("*.bmp;*.dib;*.gif;*.jpg;*.jpeg;*.jfif;*.jxr;*.hdp;*.wdp;*.png;*.tga;*.tif;*.tiff;*.webp;*.heic;*.heif;"
               "*.avif;*.jxl;*.jp2;*.j2k;*.jpx;*.jpf;*.jpm;*.j2c;*.ico"),
          true},
-        {_TRA("Text documents"), StrL("*.txt;*.log;*.nfo;file_id.diz;read.me;*.tcr"), true},
+        {Tr("Text documents"), StrL("*.txt;*.log;*.nfo;file_id.diz;read.me;*.tcr"), true},
     };
 
     str::Builder allPat;
@@ -6670,13 +6670,13 @@ static void BuildOpenFileFilters(OpenFileFilterList& out) {
         }
         allPat.Append(ff.filter);
     }
-    out.Add(_TRA("All supported documents"), ToStr(allPat));
+    out.Add(Tr("All supported documents"), ToStr(allPat));
     for (const auto& ff : fileFormats) {
         if (ff.available && ff.name) {
             out.Add(ff.name, ff.filter);
         }
     }
-    out.Add(_TRA("All files"), StrL("*.*"));
+    out.Add(Tr("All files"), StrL("*.*"));
 }
 
 // Standard Windows IFileOpenDialog multi-select open.
@@ -7011,8 +7011,8 @@ static void ShowNoFileToOpenNotif(MainWindow* win, bool forward) {
     nargs.hwndParent = win->hwndCanvas;
     nargs.timeoutMs = kNotifDefaultTimeOut;
     nargs.corner = NotifCorner::BottomRight;
-    Str tip = forward ? _TRA("Last file in folder.") : _TRA("First file in folder.");
-    nargs.msg = fmt("%s [%s](CmdNavigateFilesInFolder)", tip, _TRA("Navigate"));
+    Str tip = forward ? Tr("Last file in folder.") : Tr("First file in folder.");
+    nargs.msg = fmt("%s [%s](CmdNavigateFilesInFolder)", tip, Tr("Navigate"));
     ShowNotification(nargs);
 }
 
@@ -7104,10 +7104,10 @@ static void MaybeShowNextFileScrollHint(MainWindow* win) {
     // GHSA-2wv2-qm2f-vmxh). Build the run instead: only our markup is parsed and
     // the name is added as plain words that happen to be a link.
     auto* rich = new VirtRichText();
-    ParseTipInto(rich, fmt("(Kbd/(Key/CmdOpenNextFileInFolder)) %s", _TRA("open")));
+    ParseTipInto(rich, fmt("(Kbd/(Key/CmdOpenNextFileInFolder)) %s", Tr("open")));
     rich->AddPlainLink(name, StrL("CmdOpenNextFileInFolder"));
     // leading space so the "·" doesn't abut the file name
-    ParseTipInto(rich, fmt(" · %d/%d · [%s](CmdNavigateFilesInFolder)", n, m, _TRA("browse")));
+    ParseTipInto(rich, fmt(" · %d/%d · [%s](CmdNavigateFilesInFolder)", n, m, Tr("browse")));
     NotificationCreateArgs args;
     args.hwndParent = win->hwndCanvas;
     args.groupId = kNotifNextFileHint;
@@ -7116,7 +7116,7 @@ static void MaybeShowNextFileScrollHint(MainWindow* win) {
     args.tab = win->CurrentTab();
     args.richMsg = rich;
     // what the window text (and thus NotificationGetMessageTemp) reports
-    args.msg = fmt("%s %s · %d/%d · %s", _TRA("open"), name, n, m, _TRA("browse"));
+    args.msg = fmt("%s %s · %d/%d · %s", Tr("open"), name, n, m, Tr("browse"));
     ShowNotification(args);
 }
 
@@ -8512,15 +8512,15 @@ static void ShowViewModeNotification(MainWindow* win, int cmdId) {
     }
     Str viewName;
     if (cmdId == CmdSinglePageView) {
-        viewName = _TRA("Single Page");
+        viewName = Tr("Single Page");
     } else if (cmdId == CmdFacingView) {
-        viewName = _TRA("Facing");
+        viewName = Tr("Facing");
     } else if (cmdId == CmdBookView) {
-        viewName = _TRA("Book View");
+        viewName = Tr("Book View");
     } else {
         return;
     }
-    TempStr msg = fmt("%s: %s", _TRA("View"), viewName);
+    TempStr msg = fmt("%s: %s", Tr("View"), viewName);
     NotificationCreateArgs args;
     args.groupId = kNotifZoomOrView;
     args.timeoutMs = 2000;
@@ -9818,7 +9818,7 @@ static void NotifyUrlSelectionTruncated(WindowTab* tab) {
     args.warning = true;
     args.timeoutMs = 5000;
     args.msg =
-        _TRA("Selection was too long for a URL and was shortened. Use a POST selection handler to send all of it.");
+        Tr("Selection was too long for a URL and was shortened. Use a POST selection handler to send all of it.");
     ShowNotification(args);
 }
 
@@ -9959,7 +9959,7 @@ static bool CopyOrCutAnnotationInTab(WindowTab* tab, LPARAM lp, bool cut) {
         // without this Ctrl+X looks like it did nothing
         NotificationCreateArgs args;
         args.hwndParent = tab->win->hwndCanvas;
-        args.msg = _TRA("Annotation cut. Paste to move it.");
+        args.msg = Tr("Annotation cut. Paste to move it.");
         args.timeoutMs = 3000;
         ShowNotification(args);
     }
@@ -9995,7 +9995,7 @@ static void CopySelectionInTabToClipboard(WindowTab* tab) {
     if (tab->AsFixed()) {
         NotificationCreateArgs args;
         args.hwndParent = tab->win->hwndCanvas;
-        args.msg = _TRA("Select content with Ctrl+left mouse button");
+        args.msg = Tr("Select content with Ctrl+left mouse button");
         args.timeoutMs = 2000;
         ShowNotification(args);
     }
@@ -10360,7 +10360,7 @@ static void ClearHistoryFinish(ClearHistoryData* d) {
     }
     RemoveNotificationsForGroup(win->hwndCanvas, kNotifClearHistory);
     HwndRepaintNow(win->hwndCanvas);
-    TempStr msg2 = fmt(_TRA("Cleared history of %d files, deleted thumbnails.").s, d->nFiles);
+    TempStr msg2 = fmt(Tr("Cleared history of %d files, deleted thumbnails.").s, d->nFiles);
     ShowTemporaryNotification(win->hwndCanvas, msg2, kNotif5SecsTimeOut);
 }
 
@@ -10396,7 +10396,7 @@ static void ClearHistory(MainWindow* win) {
     args.groupId = kNotifClearHistory;
     args.hwndParent = win->hwndCanvas;
     args.timeoutMs = kNotif5SecsTimeOut;
-    args.msg = _TRA("Clearing history...");
+    args.msg = Tr("Clearing history...");
     ShowNotification(args);
     auto* data = new ClearHistoryData;
     data->win = win;
@@ -10446,7 +10446,7 @@ static void RemoveDeletedFilesFromHistory(MainWindow* win) {
         SaveSettings();
         MaybeRedrawHomePage();
     }
-    TempStr msg = fmt(_TRA("Deleted files removed from history: %d").s, nRemoved);
+    TempStr msg = fmt(Tr("Deleted files removed from history: %d").s, nRemoved);
     ShowTemporaryNotification(win->hwndCanvas, msg, kNotif5SecsTimeOut);
 }
 
@@ -10486,11 +10486,11 @@ static void DeleteCachedFiles(MainWindow* win) {
     }
     TempStr msg;
     if (nDeleted == 0 && nFailed == 0) {
-        msg = fmt("%s", _TRA("No cached comic book files."));
+        msg = fmt("%s", Tr("No cached comic book files."));
     } else if (nFailed == 0) {
-        msg = fmt(_TRA("Deleted %d cached comic book files.").s, nDeleted);
+        msg = fmt(Tr("Deleted %d cached comic book files.").s, nDeleted);
     } else {
-        msg = fmt(_TRA("Deleted %d cached comic book files, %d failed.").s, nDeleted, nFailed);
+        msg = fmt(Tr("Deleted %d cached comic book files, %d failed.").s, nDeleted, nFailed);
     }
     ShowTemporaryNotification(win->hwndCanvas, msg, kNotif5SecsTimeOut);
 }
@@ -10513,7 +10513,7 @@ static void DownloadDebugSymbols() {
         ReportIfFast(!didInitializeDbgHelp);
     }
 ShowMessage:
-    MessageBoxWarning(nullptr, msg, _TRA("Downloading symbols"));
+    MessageBoxWarning(nullptr, msg, Tr("Downloading symbols"));
 }
 
 // CmdDebugCorruptMemory, the only caller, is behind #if IS_DEBUG, so
@@ -11163,9 +11163,9 @@ static TempStr PickImageFilePathTemp(HWND hwnd) {
     WCHAR pathW[MAX_PATH + 1]{};
     str::Builder fileFilter;
     str::BuilderReserve(fileFilter, 256);
-    fileFilter.Append(_TRA("Image files"));
+    fileFilter.Append(Tr("Image files"));
     fileFilter.Append(StrL("\1*.png;*.jpg;*.jpeg;*.jfif;*.bmp;*.gif;*.tif;*.tiff;*.webp;*.heic;*.heif;*.ico\1"));
-    fileFilter.Append(_TRA("All files"));
+    fileFilter.Append(Tr("All files"));
     fileFilter.Append(StrL("\1*.*\1"));
     Str fileFilterStr = ToStr(fileFilter);
     str::TransCharsInPlace(fileFilterStr, StrL("\1"), StrL("\0"));
@@ -11355,7 +11355,7 @@ static void UndoRedoInTab(WindowTab* tab, bool redo) {
     ToolbarUpdateStateForWindow(win, true);
     MainWindowRerender(win, true);
     if (!ok) {
-        ShowWarningNotification(win->hwndCanvas, redo ? _TRA("Nothing to redo") : _TRA("Nothing to undo"),
+        ShowWarningNotification(win->hwndCanvas, redo ? Tr("Nothing to redo") : Tr("Nothing to undo"),
                                 kNotif5SecsTimeOut);
     }
 }
@@ -11378,7 +11378,7 @@ static void ApplyRedactionsInTab(WindowTab* tab) {
     CancelDrag(win);
 
     if (!EngineHasRedactMarks(engine)) {
-        ShowTemporaryNotification(win->hwndCanvas, _TRA("No redaction marks to apply"));
+        ShowTemporaryNotification(win->hwndCanvas, Tr("No redaction marks to apply"));
         return;
     }
     if (gRenderCache) {
@@ -11395,11 +11395,11 @@ static void ApplyRedactionsInTab(WindowTab* tab) {
     RefreshAnnotationLists(tab);
     ToolbarUpdateStateForWindow(win, true);
     if (!ok) {
-        ShowWarningNotification(win->hwndCanvas, _TRA("Failed to apply redactions"), kNotif5SecsTimeOut);
+        ShowWarningNotification(win->hwndCanvas, Tr("Failed to apply redactions"), kNotif5SecsTimeOut);
         return;
     }
     MainWindowRerender(win);
-    ShowTemporaryNotification(win->hwndCanvas, _TRA("Redactions applied. Saving the file makes them permanent."),
+    ShowTemporaryNotification(win->hwndCanvas, Tr("Redactions applied. Saving the file makes them permanent."),
                               kNotif5SecsTimeOut);
 }
 
@@ -11771,7 +11771,7 @@ static LRESULT FrameOnCommand(MainWindow* win, HWND hwnd, UINT msg, WPARAM wp, L
         case CmdListPrinters: {
             NotificationCreateArgs nargs;
             nargs.hwndParent = win->hwndCanvas;
-            nargs.msg = _TRA("Collecting list of printers");
+            nargs.msg = Tr("Collecting list of printers");
             ShowNotification(nargs);
             auto* data = new HWND(win->hwndCanvas);
             RunAsync(MkFunc0<HWND>(ListPrintersThread, data), StrL("ListPrinters"));
@@ -13126,7 +13126,7 @@ static LRESULT FrameOnCommand(MainWindow* win, HWND hwnd, UINT msg, WPARAM wp, L
                 NotificationCreateArgs nargs;
                 nargs.hwndParent = win ? win->hwndCanvas : nullptr;
                 nargs.timeoutMs = 3000;
-                nargs.msg = _TRA("No image in the clipboard");
+                nargs.msg = Tr("No image in the clipboard");
                 ShowNotification(nargs);
                 return 0;
             }
@@ -13155,7 +13155,7 @@ static LRESULT FrameOnCommand(MainWindow* win, HWND hwnd, UINT msg, WPARAM wp, L
                 NotificationCreateArgs nargs;
                 nargs.hwndParent = win->hwndCanvas;
                 nargs.timeoutMs = 3000;
-                nargs.msg = fmt(_TRA("Couldn't load image '%s'").s, path::GetBaseNameTemp(path));
+                nargs.msg = fmt(Tr("Couldn't load image '%s'").s, path::GetBaseNameTemp(path));
                 ShowNotification(nargs);
                 return 0;
             }
@@ -13929,7 +13929,7 @@ static LRESULT CustomCaptionFrameProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp,
                 gMenuAccelPressed = (WCHAR)lp;
                 if (' ' == gMenuAccelPressed) {
                     Str after;
-                    if (str::CutChar(_TRA("&Window"), '&', nullptr, &after) && after.len > 0) {
+                    if (str::CutChar(Tr("&Window"), '&', nullptr, &after) && after.len > 0) {
                         char c = after.s[0];
                         gMenuAccelPressed = (WCHAR)c;
                     }
@@ -14644,7 +14644,7 @@ static void ReadAloudInTab(WindowTab* tab) {
 
     if (!HasPermission(Perm::CopySelection)) {
         logf("tts: InTab: CopySelection permission denied\n");
-        ReadAloudShowNotif(tab, _TRA("This document doesn't allow copying text."));
+        ReadAloudShowNotif(tab, Tr("This document doesn't allow copying text."));
         return;
     }
 
@@ -14654,11 +14654,11 @@ static void ReadAloudInTab(WindowTab* tab) {
     if (len(text) > 0 && isTextOnlySelection) {
         dbgtts("InTab: using selection path (len=%d)\n", len(text));
         tab->readAloudScope = WindowTab::ReadAloudScopeSmart;
-        ReadAloudStartFromSelection(tab, _TRA("No text available to read aloud"));
+        ReadAloudStartFromSelection(tab, Tr("No text available to read aloud"));
     } else {
         dbgtts("InTab: using viewport-top path (hasSelection=%d isTextOnly=%d)\n", len(text) > 0, isTextOnlySelection);
         tab->readAloudScope = WindowTab::ReadAloudScopeSmart;
-        ReadAloudStartFromViewportTop(tab, _TRA("No text available to read aloud"));
+        ReadAloudStartFromViewportTop(tab, Tr("No text available to read aloud"));
     }
 }
 
@@ -14698,12 +14698,12 @@ static void ReadAloudFromCursorInTab(WindowTab* tab, Point screenPt) {
 
     if (!HasPermission(Perm::CopySelection)) {
         logf("tts: FromCursorInTab: CopySelection permission denied\n");
-        ReadAloudShowNotif(tab, _TRA("This document doesn't allow copying text."));
+        ReadAloudShowNotif(tab, Tr("This document doesn't allow copying text."));
         return;
     }
 
     tab->readAloudScope = WindowTab::ReadAloudScopeCursor;
-    ReadAloudStartFromCursor(tab, screenPt, _TRA("No text available to read aloud"));
+    ReadAloudStartFromCursor(tab, screenPt, Tr("No text available to read aloud"));
 }
 
 static void ReadAloudFromViewportTopInTab(WindowTab* tab) {
@@ -14714,12 +14714,12 @@ static void ReadAloudFromViewportTopInTab(WindowTab* tab) {
 
     if (!HasPermission(Perm::CopySelection)) {
         logf("tts: FromViewportTopInTab: CopySelection permission denied\n");
-        ReadAloudShowNotif(tab, _TRA("This document doesn't allow copying text."));
+        ReadAloudShowNotif(tab, Tr("This document doesn't allow copying text."));
         return;
     }
 
     tab->readAloudScope = WindowTab::ReadAloudScopeViewport;
-    ReadAloudStartFromViewportTop(tab, _TRA("No text available to read aloud"));
+    ReadAloudStartFromViewportTop(tab, Tr("No text available to read aloud"));
 }
 
 static void ReadAloudSelectionInTab(WindowTab* tab) {
@@ -14729,12 +14729,12 @@ static void ReadAloudSelectionInTab(WindowTab* tab) {
 
     if (!HasPermission(Perm::CopySelection)) {
         logf("tts: SelectionInTab: CopySelection permission denied\n");
-        ReadAloudShowNotif(tab, _TRA("This document doesn't allow copying text."));
+        ReadAloudShowNotif(tab, Tr("This document doesn't allow copying text."));
         return;
     }
 
     tab->readAloudScope = WindowTab::ReadAloudScopeSelection;
-    ReadAloudStartFromSelection(tab, _TRA("No text available to read aloud"));
+    ReadAloudStartFromSelection(tab, Tr("No text available to read aloud"));
 }
 
 // true if read aloud was paused and can be resumed in this tab
@@ -14754,7 +14754,7 @@ static void ReadAloudContinueInTab(WindowTab* tab) {
 
     if (!HasPermission(Perm::CopySelection)) {
         logf("tts: ContinueInTab: CopySelection permission denied\n");
-        ReadAloudShowNotif(tab, _TRA("This document doesn't allow copying text."));
+        ReadAloudShowNotif(tab, Tr("This document doesn't allow copying text."));
         return;
     }
 
@@ -14767,7 +14767,7 @@ static void ReadAloudContinueInTab(WindowTab* tab) {
     ReadAloudSetSourceTab(tab);
     ReadAloudHighlightTimerStart(tab->win);
 
-    if (!ReadAloudSpeakChunk(tab, _TRA("No text available to read aloud"))) {
+    if (!ReadAloudSpeakChunk(tab, Tr("No text available to read aloud"))) {
         ReadAloudFinishSession(tab, tab->win);
         return;
     }
@@ -14861,30 +14861,30 @@ static void BuildReadAloudMenuItems(HMENU menu, MainWindow* win, bool includeCur
     bool hasSelection = currTab && win->showSelection && currTab->selectionOnPage && len(*currTab->selectionOnPage) > 0;
 
     if (isSpeaking) {
-        AppendMenuW(menu, MF_STRING, CmdTtsMenuPauseReading, CWStrTemp(_TRA("Pause Reading")));
+        AppendMenuW(menu, MF_STRING, CmdTtsMenuPauseReading, CWStrTemp(Tr("Pause Reading")));
     } else if (canContinue) {
-        AppendMenuW(menu, MF_STRING, CmdTtsMenuContinueReading, CWStrTemp(_TRA("Continue Reading")));
+        AppendMenuW(menu, MF_STRING, CmdTtsMenuContinueReading, CWStrTemp(Tr("Continue Reading")));
     }
     // always listed: the playback bar can be off-screen or lose z-order (issue #6053)
     UINT stopFlags = MF_STRING;
     if (!isSpeaking && !canContinue) {
         stopFlags |= MF_GRAYED;
     }
-    AppendMenuW(menu, stopFlags, CmdTtsMenuStopReading, CWStrTemp(_TRA("Stop Reading")));
+    AppendMenuW(menu, stopFlags, CmdTtsMenuStopReading, CWStrTemp(Tr("Stop Reading")));
     AppendMenuW(menu, MF_SEPARATOR, 0, nullptr);
-    AppendMenuW(menu, MF_STRING, CmdTtsMenuReadCurrentPage, CWStrTemp(_TRA("Start Reading From Top")));
+    AppendMenuW(menu, MF_STRING, CmdTtsMenuReadCurrentPage, CWStrTemp(Tr("Start Reading From Top")));
     if (includeCursorItem) {
         AppendMenuW(menu, canReadFromCursor ? MF_STRING : MF_STRING | MF_GRAYED, CmdTtsMenuReadFromCursor,
-                    CWStrTemp(_TRA("Start Reading From Cursor Position")));
+                    CWStrTemp(Tr("Start Reading From Cursor Position")));
     }
     AppendMenuW(menu, hasSelection ? MF_STRING : MF_STRING | MF_GRAYED, CmdTtsMenuReadSelection,
-                CWStrTemp(_TRA("Start Reading Selection")));
+                CWStrTemp(Tr("Start Reading Selection")));
     AppendMenuW(menu, MF_SEPARATOR, 0, nullptr);
 
     HMENU voiceMenu = CreatePopupMenu();
     if (voiceMenu) {
         BuildReadAloudVoiceMenuItems(voiceMenu);
-        AppendMenuW(menu, MF_POPUP | MF_STRING, (UINT_PTR)voiceMenu, CWStrTemp(_TRA("Voice")));
+        AppendMenuW(menu, MF_POPUP | MF_STRING, (UINT_PTR)voiceMenu, CWStrTemp(Tr("Voice")));
     }
 
     HMENU speedMenu = CreatePopupMenu();
@@ -14898,7 +14898,7 @@ static void BuildReadAloudMenuItems(HMENU menu, MainWindow* win, bool includeCur
             TempStr label = ReadAloudSpeedLabelTemp(kReadAloudSpeeds[i]);
             AppendMenuW(speedMenu, flags, CmdTtsSpeedFirst + (UINT)i, CWStrTemp(label));
         }
-        AppendMenuW(menu, MF_POPUP | MF_STRING, (UINT_PTR)speedMenu, CWStrTemp(_TRA("Speed")));
+        AppendMenuW(menu, MF_POPUP | MF_STRING, (UINT_PTR)speedMenu, CWStrTemp(Tr("Speed")));
     }
 
     AppendMenuW(menu, MF_SEPARATOR, 0, nullptr);
@@ -14906,7 +14906,7 @@ static void BuildReadAloudMenuItems(HMENU menu, MainWindow* win, bool includeCur
     if (gSettings->toolbarShowReadAloud) {
         showFlags |= MF_CHECKED;
     }
-    AppendMenuW(menu, showFlags, CmdToggleToolbarShowReadAloud, CWStrTemp(_TRA("Show In Toolbar")));
+    AppendMenuW(menu, showFlags, CmdToggleToolbarShowReadAloud, CWStrTemp(Tr("Show In Toolbar")));
 }
 
 void RebuildReadAloudMenu(MainWindow* win, HMENU menu, bool includeCursorItem, bool canReadFromCursor) {
@@ -15448,7 +15448,7 @@ LRESULT CALLBACK WndProcSumatraFrame(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) 
                 dbgtts("event idle hasMore=%d chunkEnd=%d textLen=%d\n", (int)ReadAloudHasMoreChunks(raTab),
                        raTab->readAloudChunkEnd, raTab->readAloudText.len);
                 if (ReadAloudHasMoreChunks(raTab)) {
-                    if (!ReadAloudSpeakChunk(raTab, _TRA("No text available to read aloud"))) {
+                    if (!ReadAloudSpeakChunk(raTab, Tr("No text available to read aloud"))) {
                         ReadAloudFinishSession(raTab, win);
                     }
                 } else {
@@ -15555,17 +15555,17 @@ void ShowCrashHandlerMessage() {
     }
 
 #if 0
-    int res = MsgBox(nullptr, _TRA("Sorry, that shouldn't have happened!\n\nPlease press 'Cancel', if you want to help us fix the cause of this crash."), _TRA("SumatraPDF crashed"), MB_ICONERROR | MB_OKCANCEL | MbRtlReadingMaybe());
+    int res = MsgBox(nullptr, Tr("Sorry, that shouldn't have happened!\n\nPlease press 'Cancel', if you want to help us fix the cause of this crash."), Tr("SumatraPDF crashed"), MB_ICONERROR | MB_OKCANCEL | MbRtlReadingMaybe());
     if (IDCANCEL == res) {
         LaunchBrowser(kCrashReportUrl);
     }
 #endif
 
-    Str msg = _TRA("We're sorry, SumatraPDF crashed.\n\nPress 'Cancel' to see crash report.");
+    Str msg = Tr("We're sorry, SumatraPDF crashed.\n\nPress 'Cancel' to see crash report.");
     uint flags = MB_ICONERROR | MB_OK | MB_OKCANCEL | MbRtlReadingMaybe();
     flags |= MB_SETFOREGROUND | MB_TOPMOST;
 
-    int res = MsgBox(nullptr, msg, _TRA("SumatraPDF crashed"), flags);
+    int res = MsgBox(nullptr, msg, Tr("SumatraPDF crashed"), flags);
     if (IDCANCEL != res) {
         log(StrL("ShowCrashHandlerMessage: res != IDCANCEL\n"));
         return;

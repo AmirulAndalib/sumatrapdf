@@ -1472,22 +1472,22 @@ void CommandPaletteWnd::FillSwitchRow() {
         t->onClick = MkFunc1Void(OnPaletteSwitchClicked);
         switchRow->AddChild(t);
     };
-    addSwitch(_TRA("> Commands"), Str(kPalettePrefixCommands));
-    addSwitch(_TRA("@ Tabs"), Str(kPalettePrefixTabs));
-    addSwitch(_TRA("# History"), Str(kPalettePrefixFileHistory));
+    addSwitch(Tr("> Commands"), Str(kPalettePrefixCommands));
+    addSwitch(Tr("@ Tabs"), Str(kPalettePrefixTabs));
+    addSwitch(Tr("# History"), Str(kPalettePrefixFileHistory));
     if (len(favorites) > 0) {
-        addSwitch(_TRA("$ Favorites"), Str(kPalettePrefixFavorites));
+        addSwitch(Tr("$ Favorites"), Str(kPalettePrefixFavorites));
     }
     if (len(toc) > 0) {
-        addSwitch(_TRA("% TOC"), Str(kPalettePrefixTOC));
+        addSwitch(Tr("% TOC"), Str(kPalettePrefixTOC));
     }
     if (win && win->AsFixed()) {
-        addSwitch(_TRA("& Thumbnails"), Str(kPalettePrefixThumbnails));
+        addSwitch(Tr("& Thumbnails"), Str(kPalettePrefixThumbnails));
     }
     if (len(annotations) > 0) {
-        addSwitch(_TRA("* Annotations"), Str(kPalettePrefixAnnotations));
+        addSwitch(Tr("* Annotations"), Str(kPalettePrefixAnnotations));
     }
-    addSwitch(_TRA("= Settings"), Str(kPalettePrefixBoolSettings));
+    addSwitch(Tr("= Settings"), Str(kPalettePrefixBoolSettings));
     if (layout) {
         DoLayout();
     }
@@ -1575,49 +1575,49 @@ void CommandPaletteWnd::UpdateHelpRow() {
     int nHelp = 0;
     switch (kind) {
         case kHelpSmartTab:
-            strings[nHelp++] = _TRA("Ctrl+Tab navigate");
-            strings[nHelp++] = _TRA("Release Ctrl select");
-            strings[nHelp++] = _TRA("Space for sticky mode");
-            strings[nHelp++] = _TRA("Del close tab");
+            strings[nHelp++] = Tr("Ctrl+Tab navigate");
+            strings[nHelp++] = Tr("Release Ctrl select");
+            strings[nHelp++] = Tr("Space for sticky mode");
+            strings[nHelp++] = Tr("Del close tab");
             break;
         case kHelpHistory:
-            strings[nHelp++] = _TRA("Enter open file");
-            strings[nHelp++] = _TRA("Del remove from history");
-            strings[nHelp++] = _TRA("Esc close");
+            strings[nHelp++] = Tr("Enter open file");
+            strings[nHelp++] = Tr("Del remove from history");
+            strings[nHelp++] = Tr("Esc close");
             break;
         case kHelpTabs:
-            strings[nHelp++] = _TRA("Enter switch to tab");
-            strings[nHelp++] = _TRA("Del close tab");
-            strings[nHelp++] = _TRA("Esc close");
+            strings[nHelp++] = Tr("Enter switch to tab");
+            strings[nHelp++] = Tr("Del close tab");
+            strings[nHelp++] = Tr("Esc close");
             break;
         case kHelpFavorites:
-            strings[nHelp++] = _TRA("Enter go to favorite");
-            strings[nHelp++] = _TRA("Del remove favorite");
-            strings[nHelp++] = _TRA("Esc close");
+            strings[nHelp++] = Tr("Enter go to favorite");
+            strings[nHelp++] = Tr("Del remove favorite");
+            strings[nHelp++] = Tr("Esc close");
             break;
         case kHelpAnnotations:
-            strings[nHelp++] = _TRA("Enter go to");
-            strings[nHelp++] = _TRA("Esc close");
+            strings[nHelp++] = Tr("Enter go to");
+            strings[nHelp++] = Tr("Esc close");
             break;
         case kHelpSettings:
-            strings[nHelp++] = _TRA("Enter change");
-            strings[nHelp++] = _TRA("Esc close");
+            strings[nHelp++] = Tr("Enter change");
+            strings[nHelp++] = Tr("Esc close");
             break;
         case kHelpThumbnails:
-            strings[nHelp++] = _TRA("Enter go to");
-            strings[nHelp++] = _TRA("Esc close");
+            strings[nHelp++] = Tr("Enter go to");
+            strings[nHelp++] = Tr("Esc close");
             break;
         case kHelpToc:
-            strings[nHelp++] = _TRA("Enter go to");
-            strings[nHelp++] = _TRA("Esc close");
+            strings[nHelp++] = Tr("Enter go to");
+            strings[nHelp++] = Tr("Esc close");
             break;
         case kHelpEverything:
-            strings[nHelp++] = _TRA("Enter select");
-            strings[nHelp++] = _TRA("Esc close");
+            strings[nHelp++] = Tr("Enter select");
+            strings[nHelp++] = Tr("Esc close");
             break;
         default:
-            strings[nHelp++] = _TRA("Enter run command");
-            strings[nHelp++] = _TRA("Esc close");
+            strings[nHelp++] = Tr("Enter run command");
+            strings[nHelp++] = Tr("Esc close");
             break;
     }
     auto colBg = ThemeWindowControlBackgroundColor();
@@ -2080,29 +2080,29 @@ static TempStr UpdateCommandNameTemp(MainWindow* win, int cmdId, Str s) {
 
     if (cmdId == CmdToggleWindowsPreviewer) {
         if (IsPreviewInstalled()) {
-            return _TRA("Unregister Windows Previewer");
+            return Tr("Unregister Windows Previewer");
         }
-        return _TRA("Register Windows Previewer");
+        return Tr("Register Windows Previewer");
     }
 
     if (cmdId == CmdToggleWindowsSearchFilter) {
         if (IsSearchFilterInstalled()) {
-            return _TRA("Unregister Windows Search Filter");
+            return Tr("Unregister Windows Search Filter");
         }
-        return _TRA("Register Windows Search Filter");
+        return Tr("Register Windows Search Filter");
     }
 
     if (cmdId == CmdAIChatWithClaudeCode) {
-        return _TRA("AI Claude chat with document");
+        return Tr("AI Claude chat with document");
     }
     if (cmdId == CmdAIChatWithGrokBuild) {
-        return _TRA("AI Grok chat with document");
+        return Tr("AI Grok chat with document");
     }
     if (cmdId == CmdAIChatWithOpenAICodex) {
-        return _TRA("AI Codex chat with document");
+        return Tr("AI Codex chat with document");
     }
     if (cmdId == CmdAIChatWithAntiGravity) {
-        return _TRA("AI Antigravity chat with document");
+        return Tr("AI Antigravity chat with document");
     }
 
     return s;
@@ -2112,7 +2112,7 @@ static void AppendTab(StrVecCP& tabs, WindowTab* tab, WindowTab* currTab, int& c
     ItemDataCP data;
     data.tab = tab;
     if (tab->IsAboutTab()) {
-        tabs.Append(_TRA("Home"), data);
+        tabs.Append(Tr("Home"), data);
     } else {
         auto name = path::GetBaseNameTemp(tab->filePath);
         if (len(name) == 0) {

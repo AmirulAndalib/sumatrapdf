@@ -181,7 +181,7 @@ static void ShowSignaturePlacementNotif(MainWindow* win) {
     }
     NotificationCreateArgs args;
     args.hwndParent = win->hwndCanvas;
-    args.msg = _TRA("Click or drag on the page to place the signature. Esc to cancel.");
+    args.msg = Tr("Click or drag on the page to place the signature. Esc to cancel.");
     args.timeoutMs = kNotifNoTimeout;
     args.groupId = kNotifSignPlacement;
     args.corner = NotifCorner::BottomBar;
@@ -339,7 +339,7 @@ void SignDocumentWnd::FillCertificates() {
     for (int i = 0; i < len(labels); i++) {
         items.Append(labels[i]);
     }
-    items.Append(_TRA("Certificate file..."));
+    items.Append(Tr("Certificate file..."));
     ddCert->SetItems(items);
     // a store cert if we have one; otherwise the file picker
     CbSetCurrentSelection(ddCert, len(certThumbs) > 0 ? 0 : len(items) - 1);
@@ -418,11 +418,11 @@ void SignDocumentWnd::FillPlacement() {
     for (int i = 0; i < len(fieldNames); i++) {
         Str name = fieldNames[i];
         if (str::IsEmptyOrWhiteSpace(name)) {
-            name = _TRA("Signature");
+            name = Tr("Signature");
         }
-        items.Append(fmt(_TRA("Empty signature field: %s (page %d)").s, name, fieldPages[i]));
+        items.Append(fmt(Tr("Empty signature field: %s (page %d)").s, name, fieldPages[i]));
     }
-    items.Append(fmt(_TRA("New signature on page %d").s, currPageNo));
+    items.Append(fmt(Tr("New signature on page %d").s, currPageNo));
     ddPlacement->SetItems(items);
     int sel = 0;
     if (hasPreselect) {
@@ -443,11 +443,11 @@ bool SignDocumentWnd::BuildSignArgs(PdfSignArgs& args) {
         TempStr certPath = editCert ? editCert->GetTextTemp() : Str{};
         str::TrimWSInPlace(certPath, str::TrimOpt::Both);
         if (len(certPath) == 0) {
-            MessageBoxWarning(hwnd, _TRA("Please choose the certificate file to sign with."), _TRA("Sign Document"));
+            MessageBoxWarning(hwnd, Tr("Please choose the certificate file to sign with."), Tr("Sign Document"));
             return false;
         }
         if (!file::Exists(certPath)) {
-            MessageBoxWarning(hwnd, fmt(_TRA("Certificate file %s doesn't exist.").s, certPath), _TRA("Sign Document"));
+            MessageBoxWarning(hwnd, fmt(Tr("Certificate file %s doesn't exist.").s, certPath), Tr("Sign Document"));
             return false;
         }
         args.certPath = certPath;
@@ -473,7 +473,7 @@ bool SignDocumentWnd::BuildSignArgs(PdfSignArgs& args) {
     str::TrimWSInPlace(imagePath, str::TrimOpt::Both);
     if (len(imagePath) > 0) {
         if (!file::Exists(imagePath)) {
-            MessageBoxWarning(hwnd, fmt(_TRA("Image file %s doesn't exist.").s, imagePath), _TRA("Sign Document"));
+            MessageBoxWarning(hwnd, fmt(Tr("Image file %s doesn't exist.").s, imagePath), Tr("Sign Document"));
             return false;
         }
         args.imagePath = imagePath;
@@ -529,9 +529,9 @@ void SignDocumentWnd::OnBrowse(VirtMouseEvent*) {
 
     str::Builder fileFilter;
     str::BuilderReserve(fileFilter, 256);
-    fileFilter.Append(_TRA("Certificate files"));
+    fileFilter.Append(Tr("Certificate files"));
     fileFilter.Append(StrL("\1*.pfx;*.p12\1"));
-    fileFilter.Append(_TRA("All files"));
+    fileFilter.Append(Tr("All files"));
     fileFilter.Append(StrL("\1*.*\1"));
     Str fileFilterStr = ToStr(fileFilter);
     str::TransCharsInPlace(fileFilterStr, StrL("\1"), StrL("\0"));
@@ -562,9 +562,9 @@ void SignDocumentWnd::OnBrowseImage(VirtMouseEvent*) {
 
     str::Builder fileFilter;
     str::BuilderReserve(fileFilter, 256);
-    fileFilter.Append(_TRA("Image files"));
+    fileFilter.Append(Tr("Image files"));
     fileFilter.Append(StrL("\1*.png;*.jpg;*.jpeg\1"));
-    fileFilter.Append(_TRA("All files"));
+    fileFilter.Append(Tr("All files"));
     fileFilter.Append(StrL("\1*.*\1"));
     Str fileFilterStr = ToStr(fileFilter);
     str::TransCharsInPlace(fileFilterStr, StrL("\1"), StrL("\0"));
@@ -597,21 +597,21 @@ void SignDocumentWnd::OnCancel(VirtMouseEvent*) {
 // most likely cause of gle=86 (ERROR_INVALID_PASSWORD), so say that instead.
 static TempStr SignErrorMessageTemp(Str err) {
     if (len(err) == 0) {
-        return _TRA("Could not sign the document.");
+        return Tr("Could not sign the document.");
     }
     if (str::Contains(err, StrL("PFXImportCertStore"))) {
         if (str::Contains(err, StrL("gle=86"))) {
-            return _TRA("Wrong password for the certificate file.");
+            return Tr("Wrong password for the certificate file.");
         }
-        return fmt(_TRA("Could not read the certificate file: %s").s, err);
+        return fmt(Tr("Could not read the certificate file: %s").s, err);
     }
     if (str::Contains(err, StrL("not found in the Windows certificate store")) ||
         str::Contains(err, StrL("invalid certificate thumbprint"))) {
-        return _TRA("Could not use that certificate from the Windows certificate store.");
+        return Tr("Could not use that certificate from the Windows certificate store.");
     }
     if (str::Contains(err, StrL("could not read signature image")) || str::Contains(err, StrL("cannot create image")) ||
         str::Contains(err, StrL("unknown image format"))) {
-        return _TRA("Could not read the signature image.");
+        return Tr("Could not read the signature image.");
     }
     return str::DupTemp(err);
 }
@@ -628,7 +628,7 @@ void SignDocumentWnd::DoSign(const PdfSignArgs& args) {
     if (!ok) {
         SetIsVisible(true);
         HwndSetFocus(hwnd);
-        MessageBoxWarning(hwnd, SignErrorMessageTemp(err), _TRA("Sign Document"));
+        MessageBoxWarning(hwnd, SignErrorMessageTemp(err), Tr("Sign Document"));
         str::Free(err);
         return;
     }
@@ -723,7 +723,7 @@ bool SignDocumentWnd::Create(MainWindow* mainWin) {
     {
         CreateCustomArgs args;
         args.owner = hwndOwner;
-        args.title = _TRA("Sign Document");
+        args.title = Tr("Sign Document");
         args.visible = false;
         args.style = WS_POPUPWINDOW | WS_CAPTION;
         args.font = GetFont();
@@ -740,7 +740,7 @@ bool SignDocumentWnd::Create(MainWindow* mainWin) {
     vbox->alignMain = MainAxisAlign::MainStart;
     vbox->alignCross = CrossAxisAlign::Stretch;
 
-    AddLabel(vbox, _TRA("&Certificate:"), f, isRtl, 0);
+    AddLabel(vbox, Tr("&Certificate:"), f, isRtl, 0);
     {
         DropDown::CreateArgs args;
         args.parent = hwnd;
@@ -770,24 +770,24 @@ bool SignDocumentWnd::Create(MainWindow* mainWin) {
         editCert = e;
         row->AddChild(e);
 
-        btnBrowse = NewThemedButton(hwnd, _TRA("&Browse..."), f, false);
+        btnBrowse = NewThemedButton(hwnd, Tr("&Browse..."), f, false);
         btnBrowse->onClick = MkMethod1<SignDocumentWnd, VirtMouseEvent*, &SignDocumentWnd::OnBrowse>(this);
         row->AddChild(btnBrowse);
         vbox->AddChild(row);
         UpdateCertFileEnabled();
     }
 
-    AddLabel(vbox, _TRA("&Password:"), f, isRtl, 8);
+    AddLabel(vbox, Tr("&Password:"), f, isRtl, 8);
     editPassword = AddEdit(vbox, hwnd, f, isRtl, true);
     UpdateCertFileEnabled();
 
-    AddLabel(vbox, _TRA("&Reason (optional):"), f, isRtl, 8);
+    AddLabel(vbox, Tr("&Reason (optional):"), f, isRtl, 8);
     editReason = AddEdit(vbox, hwnd, f, isRtl, false);
 
-    AddLabel(vbox, _TRA("&Location (optional):"), f, isRtl, 8);
+    AddLabel(vbox, Tr("&Location (optional):"), f, isRtl, 8);
     editLocation = AddEdit(vbox, hwnd, f, isRtl, false);
 
-    AddLabel(vbox, _TRA("&Where to sign:"), f, isRtl, 8);
+    AddLabel(vbox, Tr("&Where to sign:"), f, isRtl, 8);
     {
         DropDown::CreateArgs args;
         args.parent = hwnd;
@@ -800,13 +800,13 @@ bool SignDocumentWnd::Create(MainWindow* mainWin) {
         FillPlacement();
     }
 
-    AddLabel(vbox, _TRA("Appearance:"), f, isRtl, 8);
-    cbShowLabels = AddCheckbox(vbox, hwnd, _TRA("Show &labels"), isRtl, 2);
-    cbShowName = AddCheckbox(vbox, hwnd, _TRA("Show &name"), isRtl, 2);
-    cbShowDN = AddCheckbox(vbox, hwnd, _TRA("Show &DN"), isRtl, 2);
-    cbShowDate = AddCheckbox(vbox, hwnd, _TRA("Show da&te"), isRtl, 2);
-    cbShowGraphicName = AddCheckbox(vbox, hwnd, _TRA("Show name as &graphic"), isRtl, 2);
-    AddLabel(vbox, _TRA("&Image (optional):"), f, isRtl, 8);
+    AddLabel(vbox, Tr("Appearance:"), f, isRtl, 8);
+    cbShowLabels = AddCheckbox(vbox, hwnd, Tr("Show &labels"), isRtl, 2);
+    cbShowName = AddCheckbox(vbox, hwnd, Tr("Show &name"), isRtl, 2);
+    cbShowDN = AddCheckbox(vbox, hwnd, Tr("Show &DN"), isRtl, 2);
+    cbShowDate = AddCheckbox(vbox, hwnd, Tr("Show da&te"), isRtl, 2);
+    cbShowGraphicName = AddCheckbox(vbox, hwnd, Tr("Show name as &graphic"), isRtl, 2);
+    AddLabel(vbox, Tr("&Image (optional):"), f, isRtl, 8);
     {
         auto* row = new HBox();
         row->alignMain = MainAxisAlign::MainStart;
@@ -825,7 +825,7 @@ bool SignDocumentWnd::Create(MainWindow* mainWin) {
         e->onTextChanged = MkMethod0<SignDocumentWnd, &SignDocumentWnd::OnImageChanged>(this);
         row->AddChild(e);
 
-        btnBrowseImage = NewThemedButton(hwnd, _TRA("C&hoose..."), f, false);
+        btnBrowseImage = NewThemedButton(hwnd, Tr("C&hoose..."), f, false);
         btnBrowseImage->onClick = MkMethod1<SignDocumentWnd, VirtMouseEvent*, &SignDocumentWnd::OnBrowseImage>(this);
         row->AddChild(btnBrowseImage);
         vbox->AddChild(row);
@@ -839,10 +839,10 @@ bool SignDocumentWnd::Create(MainWindow* mainWin) {
         hbox->gap = f->averageCharWidth;
         auto pad = Insets{12, 0, 4, 0};
 
-        btnCancel = NewThemedButton(hwnd, _TRA("Cancel"), f, false);
+        btnCancel = NewThemedButton(hwnd, Tr("Cancel"), f, false);
         btnCancel->onClick = MkMethod1<SignDocumentWnd, VirtMouseEvent*, &SignDocumentWnd::OnCancel>(this);
         hbox->AddChild(new Padding(btnCancel, pad));
-        btnSign = NewThemedButton(hwnd, _TRA("Sign"), f, true);
+        btnSign = NewThemedButton(hwnd, Tr("Sign"), f, true);
         btnSign->onClick = MkMethod1<SignDocumentWnd, VirtMouseEvent*, &SignDocumentWnd::OnSign>(this);
         hbox->AddChild(new Padding(btnSign, pad));
         vbox->AddChild(hbox);

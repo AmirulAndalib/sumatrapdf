@@ -290,10 +290,10 @@ struct AntiGravityProvider : AIChatProvider {
         terminateOnFinish = true;
     }
 
-    TempStr TitleTemp() override { return str::DupTemp(_TRA("Antigravity chat")); }
+    TempStr TitleTemp() override { return str::DupTemp(Tr("Antigravity chat")); }
 
     TempStr NotInstalledInstructionTemp() override {
-        return str::DupTemp(_TRA("Install Antigravity CLI to use this feature."));
+        return str::DupTemp(Tr("Install Antigravity CLI to use this feature."));
     }
 
     TempStr FindExecutableTemp() override { return FindAntiGravityExecutableTemp(); }

@@ -874,7 +874,7 @@ class Win11PrintSession {
         ComPtr<OptDetails::IPrintOptionDetails> centerOption;
         if (SUCCEEDED(hr)) {
             ScopedHStr id(kOptCenterHorizontally);
-            ScopedHStr name(OptionLabelTemp(_TRA("Center page hori&zontally on the paper")).s);
+            ScopedHStr name(OptionLabelTemp(Tr("Center page hori&zontally on the paper")).s);
             hr = details2->CreateToggleOption(id.h, name.h, &centerOption);
         }
         if (SUCCEEDED(hr)) {
@@ -884,7 +884,7 @@ class Win11PrintSession {
         ComPtr<OptDetails::IPrintOptionDetails> rotateOption;
         if (SUCCEEDED(hr)) {
             ScopedHStr id(kOptExtraRotation);
-            ScopedHStr name(OptionLabelTemp(_TRA("&Rotate printout:")).s);
+            ScopedHStr name(OptionLabelTemp(Tr("&Rotate printout:")).s);
             hr = details->CreateItemListOption(id.h, name.h, &rotateOption);
         }
         if (SUCCEEDED(hr)) {
@@ -893,7 +893,7 @@ class Win11PrintSession {
             for (int i = 0; SUCCEEDED(hr) && i < dimofi(kRotationItems); i++) {
                 ScopedHStr itemId(kRotationItems[i]);
                 // "None", then the degrees, matching the Advanced page
-                ScopedHStr name(i == 0 ? ToWStrTemp(_TRA("None")).s : ToWStrTemp(fmt("%d°", i * 90)).s);
+                ScopedHStr name(i == 0 ? ToWStrTemp(Tr("None")).s : ToWStrTemp(fmt("%d°", i * 90)).s);
                 hr = items->AddItem(itemId.h, name.h);
             }
         }

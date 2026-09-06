@@ -58,9 +58,9 @@ static void ClearAddFavoriteWnd() {
 static TempStr FavoritePromptTemp(Str pageLabel) {
     int chapter = 0, page = 0;
     if (str::Parse(pageLabel, "%d/%d%$", &chapter, &page)) {
-        return fmt(_TRA("Add chapter %d page %d to favorites with (optional) name:").s, chapter, page);
+        return fmt(Tr("Add chapter %d page %d to favorites with (optional) name:").s, chapter, page);
     }
-    return fmt(_TRA("Add page %s to favorites with (optional) name:").s, pageLabel);
+    return fmt(Tr("Add page %s to favorites with (optional) name:").s, pageLabel);
 }
 
 void AddFavoriteWnd::SetTarget(MainWindow* win, Str path, int page, Str labelIn, Str name) {
@@ -109,7 +109,7 @@ bool AddFavoriteWnd::Create(MainWindow* win, Str path, int page, Str labelIn, St
     {
         CreateCustomArgs args;
         args.owner = win ? win->hwndFrame : nullptr;
-        args.title = _TRA("Add Favorite");
+        args.title = Tr("Add Favorite");
         args.visible = false;
         args.style = WS_POPUPWINDOW | WS_CAPTION;
         args.font = GetFont();
@@ -157,10 +157,10 @@ bool AddFavoriteWnd::Create(MainWindow* win, Str path, int page, Str labelIn, St
         hbox->gap = font->averageCharWidth;
         auto pad = Insets{.top = 4, .right = 0, .bottom = 4, .left = 0};
 
-        btnCancel = NewThemedButton(hwnd, _TRA("Cancel"), font, false);
+        btnCancel = NewThemedButton(hwnd, Tr("Cancel"), font, false);
         btnCancel->onClick = MkMethod1<AddFavoriteWnd, VirtMouseEvent*, &AddFavoriteWnd::OnCancel>(this);
         hbox->AddChild(new Padding(btnCancel, pad));
-        btnOk = NewThemedButton(hwnd, _TRA("OK"), font, true);
+        btnOk = NewThemedButton(hwnd, Tr("OK"), font, true);
         btnOk->onClick = MkMethod1<AddFavoriteWnd, VirtMouseEvent*, &AddFavoriteWnd::OnOk>(this);
         hbox->AddChild(new Padding(btnOk, pad));
         vbox->AddChild(hbox);

@@ -2142,7 +2142,7 @@ bool OnInverseSearch(MainWindow* win, int x, int y) {
         if (err != PDFSYNCERR_SUCCESS) {
             NotificationCreateArgs args;
             args.hwndParent = win->hwndCanvas;
-            args.msg = _TRA("Synchronization file cannot be opened");
+            args.msg = Tr("Synchronization file cannot be opened");
             ShowNotification(args);
             return true;
         }
@@ -2161,7 +2161,7 @@ bool OnInverseSearch(MainWindow* win, int x, int y) {
     if (err != PDFSYNCERR_SUCCESS) {
         NotificationCreateArgs args;
         args.hwndParent = win->hwndCanvas;
-        args.msg = _TRA("No synchronization info at this position");
+        args.msg = Tr("No synchronization info at this position");
         ShowNotification(args);
         return true;
     }
@@ -2183,7 +2183,7 @@ bool OnInverseSearch(MainWindow* win, int x, int y) {
 
     NotificationCreateArgs args;
     args.hwndParent = win->hwndCanvas;
-    args.msg = _TRA("Cannot start inverse search command. Please check the command line in the settings.");
+    args.msg = Tr("Cannot start inverse search command. Please check the command line in the settings.");
     if (len(cmdLine) > 0) {
         // resolve relative paths with relation to SumatraPDF.exe's directory
         TempStr appDir = GetSelfExeDirTemp();
@@ -2332,19 +2332,19 @@ void ShowForwardSearchResult(MainWindow* win, Str fileName, int line, int /* col
     // several of these embed a file name read from the .synctex / .pdfsync file
     args.plainText = true;
     if (ret == PDFSYNCERR_SYNCFILE_NOTFOUND) {
-        args.msg = _TRA("No synchronization file found");
+        args.msg = Tr("No synchronization file found");
     } else if (ret == PDFSYNCERR_SYNCFILE_CANNOT_BE_OPENED) {
-        args.msg = _TRA("Synchronization file cannot be opened");
+        args.msg = Tr("Synchronization file cannot be opened");
     } else if (ret == PDFSYNCERR_INVALID_PAGE_NUMBER) {
-        buf = fmt(_TRA("Page %u does not exist").s, page);
+        buf = fmt(Tr("Page %u does not exist").s, page);
     } else if (ret == PDFSYNCERR_NO_SYNC_AT_LOCATION) {
-        args.msg = _TRA("No synchronization info at this position");
+        args.msg = Tr("No synchronization info at this position");
     } else if (ret == PDFSYNCERR_UNKNOWN_SOURCEFILE) {
-        buf = fmt(_TRA("Unknown source file (%s)").s, fileName);
+        buf = fmt(Tr("Unknown source file (%s)").s, fileName);
     } else if (ret == PDFSYNCERR_NORECORD_IN_SOURCEFILE) {
-        buf = fmt(_TRA("Source file %s has no synchronization point").s, fileName);
+        buf = fmt(Tr("Source file %s has no synchronization point").s, fileName);
     } else if (ret == PDFSYNCERR_NORECORD_FOR_THATLINE || ret == PDFSYNCERR_NOSYNCPOINT_FOR_LINERECORD) {
-        buf = fmt(_TRA("No result found around line %u in file %s").s, line, fileName);
+        buf = fmt(Tr("No result found around line %u in file %s").s, line, fileName);
     }
     if (buf) {
         args.msg = buf;

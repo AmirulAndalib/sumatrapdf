@@ -641,7 +641,7 @@ bool RunWithExe(WindowTab* tab, Str cmdLine, Str filter) {
     if (!file::Exists(exePath)) {
         TempStr msg =
             fmt("External viewer executable not found: %s. Fix ExternalViewers in advanced settings.", exePath);
-        auto caption = _TRA("Error");
+        auto caption = Tr("Error");
         MsgBox(nullptr, msg, caption, MB_OK | MB_ICONERROR);
         return false;
     }

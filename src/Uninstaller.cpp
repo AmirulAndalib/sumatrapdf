@@ -143,7 +143,7 @@ static void UninstallerThread() {
 
     if (!ok) {
         log(StrL("RemoveUninstallerRegistryInfo failed\n"));
-        NotifyFailed(_TRA("Failed to delete uninstaller registry keys"));
+        NotifyFailed(Tr("Failed to delete uninstaller registry keys"));
     }
 
     // mark them as uninstalled
@@ -175,7 +175,7 @@ static void OnButtonUninstall() {
 
     // disable the button during uninstallation
     gButtonUninstaller->SetIsEnabled(false);
-    SetMsg(_TRA("Uninstallation in progress..."), kColorMsgInstallation);
+    SetMsg(Tr("Uninstallation in progress..."), kColorMsgInstallation);
     HwndRepaintNow(gHwndFrame);
 
     auto fn = MkFunc0Void(UninstallerThread);
@@ -190,9 +190,9 @@ static void OnUninstallationFinished() {
     auto isRtl = IsUIRtl();
     delete gButtonUninstaller;
     gButtonUninstaller = nullptr;
-    gButtonExit = CreateDefaultButton(gHwndFrame, _TRA("Close"), isRtl);
+    gButtonExit = CreateDefaultButton(gHwndFrame, Tr("Close"), isRtl);
     gButtonExit->onClick = MkFunc0Void(OnButtonExit);
-    SetMsg(_TRA("SumatraPDF has been uninstalled."), gMsgError ? kColorMsgFailed : kColorMsgOk);
+    SetMsg(Tr("SumatraPDF has been uninstalled."), gMsgError ? kColorMsgFailed : kColorMsgOk);
     gMsgError = gFirstError;
     HwndRepaintNow(gHwndFrame);
 
@@ -214,7 +214,7 @@ static bool UninstallerOnWmCommand(WPARAM wp) {
 constexpr const WCHAR* kInstallerWindowClassName = L"SUMATRA_PDF_INSTALLER_FRAME";
 
 static void CreateUninstallerWindow() {
-    TempStr title = fmt(_TRA("SumatraPDF %s Uninstaller").s, StrL(CURR_VERSION_STRA));
+    TempStr title = fmt(Tr("SumatraPDF %s Uninstaller").s, StrL(CURR_VERSION_STRA));
     int x = CW_USEDEFAULT;
     int y = CW_USEDEFAULT;
     int dx = GetInstallerWinDx();
@@ -229,7 +229,7 @@ static void CreateUninstallerWindow() {
     HwndResizeClientSize(gHwndFrame, dx, dy);
 
     auto isRtl = IsUIRtl();
-    gButtonUninstaller = CreateDefaultButton(gHwndFrame, _TRA("Uninstall SumatraPDF"), isRtl);
+    gButtonUninstaller = CreateDefaultButton(gHwndFrame, Tr("Uninstall SumatraPDF"), isRtl);
     gButtonUninstaller->onClick = MkFunc0Void(OnButtonUninstall);
 }
 
@@ -572,8 +572,8 @@ int RunUninstaller() {
     auto installerExists = file::Exists(exePath);
     if (!installerExists) {
         log(StrL("Uninstaller executable doesn't exist\n"));
-        auto caption = _TRA("Uninstallation failed");
-        auto msg = _TRA("SumatraPDF installation not found.");
+        auto caption = Tr("Uninstallation failed");
+        auto msg = Tr("SumatraPDF installation not found.");
         MsgBox(nullptr, msg, caption, MB_ICONEXCLAMATION | MB_OK);
         goto Exit;
     }
@@ -595,7 +595,7 @@ int RunUninstaller() {
         log(StrL("Previewer is installed\n"));
     }
 
-    gDefaultMsg = _TRA("Are you sure you want to uninstall SumatraPDF?");
+    gDefaultMsg = Tr("Are you sure you want to uninstall SumatraPDF?");
 
     // unregister search filter and previewer to reduce
     // possibility of blocking

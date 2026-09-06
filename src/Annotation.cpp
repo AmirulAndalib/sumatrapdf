@@ -69,7 +69,7 @@ AnnotationType AnnotationTypeFromName(Str name) {
 // Translate an English annotation type label for the UI.
 // When menuKey is set (e.g. "&Highlight"), use that key — those strings are
 // already translated for context menus. Otherwise use english (already in
-// translations.txt for Circle/Line/…). _TRN at the call site marks bare names
+// translations.txt for Circle/Line/…). TrN at the call site marks bare names
 // for future extraction. Strip '&' access-key markers for non-menu display.
 static Str TranslateAnnotTypeNameTemp(Str english, Str menuKey = {}) {
     Str key = menuKey ? menuKey : english;
@@ -83,69 +83,69 @@ static Str TranslateAnnotTypeNameTemp(Str english, Str menuKey = {}) {
 }
 
 // Human-readable annotation type names for UI (list box, hover tip, menus).
-// _TRN marks strings for extraction; TranslateAnnotTypeNameTemp localizes.
+// TrN marks strings for extraction; TranslateAnnotTypeNameTemp localizes.
 // Order matches AnnotationType / pdf_annot_type.
 Str AnnotationReadableNameTemp(AnnotationType tp) {
     switch (tp) {
         case AnnotationType::Text:
-            return TranslateAnnotTypeNameTemp(_TRN("Text"), StrL("&Text"));
+            return TranslateAnnotTypeNameTemp(TrN("Text"), StrL("&Text"));
         case AnnotationType::Link:
-            return TranslateAnnotTypeNameTemp(_TRN("Link"));
+            return TranslateAnnotTypeNameTemp(TrN("Link"));
         case AnnotationType::FreeText:
-            return TranslateAnnotTypeNameTemp(_TRN("Free Text"), StrL("&Free Text"));
+            return TranslateAnnotTypeNameTemp(TrN("Free Text"), StrL("&Free Text"));
         case AnnotationType::Line:
-            return TranslateAnnotTypeNameTemp(_TRN("Line"));
+            return TranslateAnnotTypeNameTemp(TrN("Line"));
         case AnnotationType::Square:
-            return TranslateAnnotTypeNameTemp(_TRN("Square"));
+            return TranslateAnnotTypeNameTemp(TrN("Square"));
         case AnnotationType::Circle:
-            return TranslateAnnotTypeNameTemp(_TRN("Circle"));
+            return TranslateAnnotTypeNameTemp(TrN("Circle"));
         case AnnotationType::Polygon:
-            return TranslateAnnotTypeNameTemp(_TRN("Polygon"));
+            return TranslateAnnotTypeNameTemp(TrN("Polygon"));
         case AnnotationType::PolyLine:
-            return TranslateAnnotTypeNameTemp(_TRN("Polyline"));
+            return TranslateAnnotTypeNameTemp(TrN("Polyline"));
         case AnnotationType::Highlight:
-            return TranslateAnnotTypeNameTemp(_TRN("Highlight"), StrL("&Highlight"));
+            return TranslateAnnotTypeNameTemp(TrN("Highlight"), StrL("&Highlight"));
         case AnnotationType::Underline:
-            return TranslateAnnotTypeNameTemp(_TRN("Underline"), StrL("&Underline"));
+            return TranslateAnnotTypeNameTemp(TrN("Underline"), StrL("&Underline"));
         case AnnotationType::Squiggly:
-            return TranslateAnnotTypeNameTemp(_TRN("Squiggly"), StrL("S&quiggly"));
+            return TranslateAnnotTypeNameTemp(TrN("Squiggly"), StrL("S&quiggly"));
         case AnnotationType::StrikeOut:
-            return TranslateAnnotTypeNameTemp(_TRN("Strike Out"), StrL("&Strike Out"));
+            return TranslateAnnotTypeNameTemp(TrN("Strike Out"), StrL("&Strike Out"));
         case AnnotationType::Redact:
-            return TranslateAnnotTypeNameTemp(_TRN("Redact"));
+            return TranslateAnnotTypeNameTemp(TrN("Redact"));
         case AnnotationType::Stamp:
-            return TranslateAnnotTypeNameTemp(_TRN("Stamp"), StrL("&Stamp"));
+            return TranslateAnnotTypeNameTemp(TrN("Stamp"), StrL("&Stamp"));
         case AnnotationType::Caret:
-            return TranslateAnnotTypeNameTemp(_TRN("Caret"), StrL("&Caret"));
+            return TranslateAnnotTypeNameTemp(TrN("Caret"), StrL("&Caret"));
         case AnnotationType::Ink:
-            return TranslateAnnotTypeNameTemp(_TRN("Ink"));
+            return TranslateAnnotTypeNameTemp(TrN("Ink"));
         case AnnotationType::Popup:
-            return TranslateAnnotTypeNameTemp(_TRN("Popup"));
+            return TranslateAnnotTypeNameTemp(TrN("Popup"));
         case AnnotationType::FileAttachment:
-            return TranslateAnnotTypeNameTemp(_TRN("File Attachment"));
+            return TranslateAnnotTypeNameTemp(TrN("File Attachment"));
         case AnnotationType::Sound:
-            return TranslateAnnotTypeNameTemp(_TRN("Sound"));
+            return TranslateAnnotTypeNameTemp(TrN("Sound"));
         case AnnotationType::Movie:
-            return TranslateAnnotTypeNameTemp(_TRN("Movie"));
+            return TranslateAnnotTypeNameTemp(TrN("Movie"));
         case AnnotationType::RichMedia:
-            return TranslateAnnotTypeNameTemp(_TRN("RichMedia"));
+            return TranslateAnnotTypeNameTemp(TrN("RichMedia"));
         case AnnotationType::Widget:
-            return TranslateAnnotTypeNameTemp(_TRN("Widget"));
+            return TranslateAnnotTypeNameTemp(TrN("Widget"));
         case AnnotationType::Screen:
-            return TranslateAnnotTypeNameTemp(_TRN("Screen"));
+            return TranslateAnnotTypeNameTemp(TrN("Screen"));
         case AnnotationType::PrinterMark:
-            return TranslateAnnotTypeNameTemp(_TRN("Printer Mark"));
+            return TranslateAnnotTypeNameTemp(TrN("Printer Mark"));
         case AnnotationType::TrapNet:
-            return TranslateAnnotTypeNameTemp(_TRN("Trap Net"));
+            return TranslateAnnotTypeNameTemp(TrN("Trap Net"));
         case AnnotationType::Watermark:
-            return TranslateAnnotTypeNameTemp(_TRN("Watermark"));
+            return TranslateAnnotTypeNameTemp(TrN("Watermark"));
         case AnnotationType::ThreeD:
-            return TranslateAnnotTypeNameTemp(_TRN("3D"));
+            return TranslateAnnotTypeNameTemp(TrN("3D"));
         case AnnotationType::Projection:
-            return TranslateAnnotTypeNameTemp(_TRN("Projection"));
+            return TranslateAnnotTypeNameTemp(TrN("Projection"));
         case AnnotationType::Unknown:
         default:
-            return TranslateAnnotTypeNameTemp(_TRN("Unknown"));
+            return TranslateAnnotTypeNameTemp(TrN("Unknown"));
     }
 }
 

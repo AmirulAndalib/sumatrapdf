@@ -233,7 +233,7 @@ bool CustomZoomWnd::Create(MainWindow* mainWin) {
     {
         CreateCustomArgs args;
         args.owner = win ? win->hwndFrame : nullptr;
-        args.title = _TRA("Zoom");
+        args.title = Tr("Zoom");
         args.visible = false;
         args.style = WS_POPUPWINDOW | WS_CAPTION;
         args.font = GetFont();
@@ -251,7 +251,7 @@ bool CustomZoomWnd::Create(MainWindow* mainWin) {
 
     {
         auto* c = NewVirtText({
-            .s = _TRA("&Magnification:"),
+            .s = Tr("&Magnification:"),
             .font = font,
             .isRtl = isRtl,
             .prefix = true,
@@ -294,10 +294,10 @@ bool CustomZoomWnd::Create(MainWindow* mainWin) {
         hbox->gap = font->averageCharWidth;
         auto pad = Insets{4, 0, 4, 0};
 
-        btnCancel = NewThemedButton(hwnd, _TRA("Cancel"), font, false);
+        btnCancel = NewThemedButton(hwnd, Tr("Cancel"), font, false);
         btnCancel->onClick = MkMethod1<CustomZoomWnd, VirtMouseEvent*, &CustomZoomWnd::OnCancel>(this);
         hbox->AddChild(new Padding(btnCancel, pad));
-        btnZoom = NewThemedButton(hwnd, _TRA("Zoom"), font, true);
+        btnZoom = NewThemedButton(hwnd, Tr("Zoom"), font, true);
         btnZoom->onClick = MkMethod1<CustomZoomWnd, VirtMouseEvent*, &CustomZoomWnd::OnOk>(this);
         hbox->AddChild(new Padding(btnZoom, pad));
         vbox->AddChild(hbox);

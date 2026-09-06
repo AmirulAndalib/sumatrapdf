@@ -377,7 +377,7 @@ bool SetHotkeyWnd::Create(HWND owner) {
     {
         CreateCustomArgs args;
         args.owner = owner;
-        args.title = _TRA("Set Screenshot Hotkey");
+        args.title = Tr("Set Screenshot Hotkey");
         args.visible = false;
         args.style = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;
         args.exStyle = WS_EX_DLGMODALFRAME;
@@ -394,7 +394,7 @@ bool SetHotkeyWnd::Create(HWND owner) {
     vbox->alignCross = CrossAxisAlign::Stretch;
 
     prompt = NewVirtText({
-        .s = _TRA("Press a key combination:"),
+        .s = Tr("Press a key combination:"),
         .font = font,
         .isRtl = isRtl,
     });
@@ -414,13 +414,13 @@ bool SetHotkeyWnd::Create(HWND owner) {
         hbox->alignCross = CrossAxisAlign::CrossCenter;
         hbox->gap = font->averageCharWidth;
 
-        btnCancel = NewButton(_TRA("Cancel"), false);
+        btnCancel = NewButton(Tr("Cancel"), false);
         btnCancel->onClick = MkMethod1<SetHotkeyWnd, VirtMouseEvent*, &SetHotkeyWnd::OnCancel>(this);
         hbox->AddChild(btnCancel);
-        btnRemove = NewButton(_TRA("Remove"), false);
+        btnRemove = NewButton(Tr("Remove"), false);
         btnRemove->onClick = MkMethod1<SetHotkeyWnd, VirtMouseEvent*, &SetHotkeyWnd::DoRemove>(this);
         hbox->AddChild(btnRemove);
-        btnSet = NewButton(_TRA("Set"), true);
+        btnSet = NewButton(Tr("Set"), true);
         btnSet->onClick = MkMethod1<SetHotkeyWnd, VirtMouseEvent*, &SetHotkeyWnd::DoSet>(this);
         hbox->AddChild(btnSet);
 

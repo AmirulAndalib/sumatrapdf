@@ -131,7 +131,7 @@ static void UpdateCue(AnnotFilterToolbar* f) {
     if (!f->floatWnd) {
         return;
     }
-    EditSetCueText(f->floatWnd->edit, fmt(_TRA("filter %d annotations").s, len(f->annotations)));
+    EditSetCueText(f->floatWnd->edit, fmt(Tr("filter %d annotations").s, len(f->annotations)));
 }
 
 static void LoadAnnotations(AnnotFilterToolbar* f) {
@@ -694,9 +694,9 @@ static void UpdateFloatButtons(AnnotFilterToolbar* f) {
     if (w->btnDelete) {
         w->btnDelete->SetIsEnabled(nSel > 0);
         if (nSel > 1) {
-            w->btnDelete->SetText(fmt(_TRA("Delete %d annotations").s, nSel));
+            w->btnDelete->SetText(fmt(Tr("Delete %d annotations").s, nSel));
         } else {
-            w->btnDelete->SetText(_TRA("Delete Annotation"));
+            w->btnDelete->SetText(Tr("Delete Annotation"));
         }
         w->btnDelete->RequestLayout();
     }
@@ -711,9 +711,9 @@ static void UpdateFloatButtons(AnnotFilterToolbar* f) {
         w->btnSave->SetIsEnabled(dirty);
         TempStr base = tab ? path::GetBaseNameTemp(tab->filePath) : TempStr{};
         if (len(base) > 0) {
-            w->btnSave->SetText(fmt(_TRA("Save changes to %s").s, base));
+            w->btnSave->SetText(fmt(Tr("Save changes to %s").s, base));
         } else {
-            w->btnSave->SetText(_TRA("Save changes to existing PDF"));
+            w->btnSave->SetText(Tr("Save changes to existing PDF"));
         }
         w->btnSave->RequestLayout();
     }
@@ -730,9 +730,9 @@ static ILayout* NewFilterHelp(int gap) {
         Str what;
     };
     HelpRow rows[] = {
-        {StrL(":a=name  :a!=name"), _TRA("author is / is not")},
-        {StrL(":t=text  :t!=line"), _TRA("type is / is not")},
-        {StrL(":c+  :c-"), _TRA("has / has no contents")},
+        {StrL(":a=name  :a!=name"), Tr("author is / is not")},
+        {StrL(":t=text  :t!=line"), Tr("type is / is not")},
+        {StrL(":c+  :c-"), Tr("has / has no contents")},
     };
     PlatformFont* font = GetAppFont();
     Color col = EnsureContrast(ThemeWindowTextDisabledColor(), ThemeWindowControlBackgroundColor());
@@ -748,7 +748,7 @@ static ILayout* NewFilterHelp(int gap) {
 
     auto* box = new VBox();
     box->alignCross = CrossAxisAlign::Stretch;
-    box->AddChild(mkText(_TRA("Search syntax:")));
+    box->AddChild(mkText(Tr("Search syntax:")));
     box->AddChild(new Spacer(0, gap / 2));
     int nRows = (int)dimof(rows);
     auto* table = new Table();
@@ -806,7 +806,7 @@ bool AnnotFilterWindow::Create(MainWindow* mainWin) {
     {
         CreateCustomArgs args;
         args.visible = false;
-        args.title = _TRA("Annotations");
+        args.title = Tr("Annotations");
         args.className = WStr(kAnnotFilterFloatClassName);
         args.style = WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_CLIPCHILDREN;
         args.exStyle = WS_EX_TOOLWINDOW;
@@ -837,8 +837,8 @@ bool AnnotFilterWindow::Create(MainWindow* mainWin) {
         edit = new Edit();
         edit->SetColors(colTxt, colBg);
         edit->Create(args);
-        edit->SetIdealWidthFromText(fmt(_TRA("filter %d annotations").s, 999), DpiScale(8));
-        EditSetCueText(edit, fmt(_TRA("filter %d annotations").s, 0));
+        edit->SetIdealWidthFromText(fmt(Tr("filter %d annotations").s, 999), DpiScale(8));
+        EditSetCueText(edit, fmt(Tr("filter %d annotations").s, 0));
         WireFilterEdit(f, edit);
     }
 
@@ -849,13 +849,13 @@ bool AnnotFilterWindow::Create(MainWindow* mainWin) {
         listBox->SetFlag(vwfFocusable, true);
     }
 
-    btnDelete = NewFloatActionButton(hwnd, _TRA("Delete Annotation"), false);
+    btnDelete = NewFloatActionButton(hwnd, Tr("Delete Annotation"), false);
     btnDelete->onClick = MkFunc1(OnFloatDelete, this);
-    btnDiscard = NewFloatActionButton(hwnd, _TRA("Discard changes"), false);
+    btnDiscard = NewFloatActionButton(hwnd, Tr("Discard changes"), false);
     btnDiscard->onClick = MkFunc1(OnFloatDiscard, this);
-    btnSave = NewFloatActionButton(hwnd, _TRA("Save changes to existing PDF"), false);
+    btnSave = NewFloatActionButton(hwnd, Tr("Save changes to existing PDF"), false);
     btnSave->onClick = MkFunc1(OnFloatSave, this);
-    btnSaveNew = NewFloatActionButton(hwnd, _TRA("Save changes to a new PDF"), false);
+    btnSaveNew = NewFloatActionButton(hwnd, Tr("Save changes to a new PDF"), false);
     btnSaveNew->onClick = MkFunc1(OnFloatSaveNew, this);
 
     BuildLayout();

@@ -684,7 +684,7 @@ static AboutCtrl* UpdateAboutLayout(VirtRoot** rootPtr, HWND hwnd, Rect clientRc
     if (showCopy) {
         if (!about->copyInfoBtn) {
             about->copyInfoBtn =
-                NewThemedButton(hwnd, _TRA("Copy program and machine info to clipboard"), GetAppFont(), false);
+                NewThemedButton(hwnd, Tr("Copy program and machine info to clipboard"), GetAppFont(), false);
             about->copyInfoBtn->onClick = MkFunc1Void(OnCopyProgramInfo);
             about->AddChild(about->copyInfoBtn);
         }
@@ -855,7 +855,7 @@ void ShowAboutWindow(MainWindow* win) {
         ReportIf(!gAtomAbout);
     }
 
-    WCHAR* title = CWStrTemp(_TRA("About SumatraPDF"));
+    WCHAR* title = CWStrTemp(Tr("About SumatraPDF"));
     DWORD style = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;
     int x = CW_USEDEFAULT;
     int y = CW_USEDEFAULT;
@@ -900,7 +900,7 @@ void DrawAboutPage(MainWindow* win, Gfx* gfx) {
 
     bool showLink = HasPermission(Perm::SavePreferences | Perm::DiskAccess) && SettingsRememberOpenedFiles();
     if (showLink && !about->showFreqRead) {
-        auto* link = new VirtLink(_TRA("Show frequently read"));
+        auto* link = new VirtLink(Tr("Show frequently read"));
         link->withUnderline = true;
         link->isRtl = IsUIRtl();
         link->userData = (uintptr_t)win;
@@ -1258,8 +1258,8 @@ static void UpdateHomeSearchCueBanner(MainWindow* win) {
     if (!win || !win->homeSearch) {
         return;
     }
-    // _TRA returns Str; pass .s into type-safe fmt for the format string.
-    TempStr cue = fmt(_TRA("Search %d files (Ctrl + F)").s, CountHomePageFiles());
+    // Tr returns Str; pass .s into type-safe fmt for the format string.
+    TempStr cue = fmt(Tr("Search %d files (Ctrl + F)").s, CountHomePageFiles());
     EditSetCueText(win->homeSearch, cue);
 }
 
@@ -1619,9 +1619,9 @@ static void ApplyHomeLayoutCache(HomePageLayout& l, int scrollY) {
     PlatformFont* hdrFont = HomePageFont(24);
     PlatformFont* fontText = HomePageFont(14);
 
-    Str txt = _TRA("Recently Opened");
+    Str txt = Tr("Recently Opened");
     if (gSettings->homePageSortByFrequentlyRead) {
-        txt = _TRA("Frequently Read");
+        txt = Tr("Frequently Read");
     }
     HomeChromeCtrl* chrome = EnsureHomeChrome(win);
     VirtText* hdr = chrome->hdr;
@@ -1631,7 +1631,7 @@ static void ApplyHomeLayoutCache(HomePageLayout& l, int scrollY) {
     hdr->SetBounds(c.rcFreqRead);
     l.freqRead = hdr;
 
-    TempStr openTxt = str::DupTemp(_TRA("&Open..."));
+    TempStr openTxt = str::DupTemp(Tr("&Open..."));
     str::RemoveCharsInPlace(openTxt, StrL("&"));
     VirtText* openDoc = chrome->openDoc->text;
     openDoc->SetText(openTxt);
@@ -1733,7 +1733,7 @@ static void LayoutHomePage(HomePageLayout& l) {
     Rect rcIconOpen(0, 0, 0, 0);
     rcIconOpen.dx = rcIconOpen.dy = HomePageIconSize();
 
-    TempStr openTxt = str::DupTemp(_TRA("&Open..."));
+    TempStr openTxt = str::DupTemp(Tr("&Open..."));
     str::RemoveCharsInPlace(openTxt, StrL("&"));
     VirtText* openDoc = chrome->openDoc->text;
     openDoc->SetText(openTxt);
@@ -2526,7 +2526,7 @@ void HomeListIconCtrl::OnGetTooltip(VirtTooltipEvent* ev) {
     auto* entry = (HomeEntryCtrl*)parent;
     FileState* fs = FileHistoryFindByPath(entry->filePath);
     bool pinned = fs && fs->isPinned;
-    ev->tip = str::DupTemp(pinned ? _TRA("Unpin") : _TRA("Pin"));
+    ev->tip = str::DupTemp(pinned ? Tr("Unpin") : Tr("Pin"));
 }
 
 HomeEntryCtrl::~HomeEntryCtrl() {
@@ -2596,7 +2596,7 @@ void HomeEntriesCtrl::SetEntryCount(int n) {
         e->AddChild(e->closeBtn);
 
         e->removeBtn = new VirtCloseButton();
-        e->removeBtn->SetTooltip(_TRA("Remove from Frequently Read"));
+        e->removeBtn->SetTooltip(Tr("Remove from Frequently Read"));
         e->removeBtn->onClick = MkFunc1(HomeForgetEntryClicked, win);
         e->removeBtn->visibility = Visibility::Collapse;
         e->AddChild(e->removeBtn);
@@ -2851,13 +2851,13 @@ static HomeChromeCtrl* EnsureHomeChrome(MainWindow* win) {
 
     chrome->thumbView = new HomeViewIconCtrl();
     chrome->thumbView->listView = false;
-    chrome->thumbView->SetTooltip(_TRA("Show as thumbnails"));
+    chrome->thumbView->SetTooltip(Tr("Show as thumbnails"));
     chrome->thumbView->onClick = MkFunc1(HomeViewModeClicked, win);
     chrome->AddChild(chrome->thumbView);
 
     chrome->listView = new HomeViewIconCtrl();
     chrome->listView->listView = true;
-    chrome->listView->SetTooltip(_TRA("Show as list"));
+    chrome->listView->SetTooltip(Tr("Show as list"));
     chrome->listView->onClick = MkFunc1(HomeViewModeClicked, win);
     chrome->AddChild(chrome->listView);
 
@@ -2869,7 +2869,7 @@ static HomeChromeCtrl* EnsureHomeChrome(MainWindow* win) {
     chrome->logoRow = new HomeLogoRow();
     chrome->paletteBtn = new HomeCircleBtnCtrl();
     chrome->paletteBtn->glyph = StrL(">");
-    chrome->paletteBtn->SetTooltip(AppendCmdAccel(_TRA("Command Palette"), CmdCommandPalette));
+    chrome->paletteBtn->SetTooltip(AppendCmdAccel(Tr("Command Palette"), CmdCommandPalette));
     chrome->paletteBtn->onClick = MkFunc1(HomePaletteClicked, win);
     chrome->logo = new SumatraLogo();
     chrome->logo->SetFlag(vwfNoHitTest, false);
@@ -2877,7 +2877,7 @@ static HomeChromeCtrl* EnsureHomeChrome(MainWindow* win) {
     chrome->logo->onMouseLeave = MkFunc0(OnHomeLogoLeave, win);
     chrome->helpBtn = new HomeCircleBtnCtrl();
     chrome->helpBtn->glyph = StrL("?");
-    chrome->helpBtn->SetTooltip(AppendCmdAccel(_TRA("Keyboard Shortcuts"), CmdToggleKeyboardHelp));
+    chrome->helpBtn->SetTooltip(AppendCmdAccel(Tr("Keyboard Shortcuts"), CmdToggleKeyboardHelp));
     chrome->helpBtn->onClick = MkFunc1(HomeHelpClicked, win);
     chrome->logoRow->AddItem(chrome->paletteBtn);
     chrome->logoRow->AddItem(chrome->logo);

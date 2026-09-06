@@ -127,9 +127,9 @@ the temp arena and returns a `TempStr`, so call sites read `fmt("page %d", n)`.
 `fmt()` is **type-safe**, not a raw `vsnprintf` wrapper:
 
 - The **format string** is a plain `const char*` (almost always a string
-  literal). When it's a `Str` instead — most commonly a `_TRA("...")`
+  literal). When it's a `Str` instead — most commonly a `Tr("...")`
   translation, which returns a `Str` — pass its `.s`, e.g.
-  `fmt(_TRA("page %d").s, n)`.
+  `fmt(Tr("page %d").s, n)`.
 - Each **variadic arg** is wrapped in a `str::FmtArg`, which has explicit
   constructors for `Str`, `WStr`, `char`, the integer/float types, and
   `const void*`. Raw `char*` / `const char*` / `wchar_t*` constructors are

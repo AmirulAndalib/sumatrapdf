@@ -1081,7 +1081,7 @@ struct UpdatePrintProgressData {
 
 static void UpdatePrintProgress(UpdatePrintProgressData* d) {
     int perc = CalcPerc(d->current, d->total);
-    TempStr msg = fmt(_TRA("Printing page %d of %d...").s, d->current, d->total);
+    TempStr msg = fmt(Tr("Printing page %d of %d...").s, d->current, d->total);
     UpdateNotificationProgress(d->wnd, msg, perc);
     delete d;
 }
@@ -1366,8 +1366,8 @@ void PrintCurrentFile(MainWindow* win, bool waitForCompletion) {
 
     if (win->printThread) {
         uint type = MB_ICONEXCLAMATION | MB_YESNO | MbRtlReadingMaybe();
-        Str title = _TRA("Printing in progress.");
-        Str msg = _TRA("Printing is still in progress. Abort and start over?");
+        Str title = Tr("Printing in progress.");
+        Str msg = Tr("Printing is still in progress. Abort and start over?");
         int res = MsgBox(win->hwndFrame, msg, title, type);
         if (res == IDNO) {
             return;
@@ -1458,7 +1458,7 @@ void PrintCurrentFile(MainWindow* win, bool waitForCompletion) {
 
     if (res != S_OK) {
         logf("PrintCurrentFile: PrintDlgEx failed\n");
-        MessageBoxWarning(win->hwndFrame, _TRA("Couldn't initialize printer"), _TRA("Printing problem."));
+        MessageBoxWarning(win->hwndFrame, Tr("Couldn't initialize printer"), Tr("Printing problem."));
     }
     auto action = pdex.dwResultAction;
     if (action != PD_RESULT_PRINT) {
@@ -1483,7 +1483,7 @@ void PrintCurrentFile(MainWindow* win, bool waitForCompletion) {
     nPages = dm->PageCount();
 
     if (!pdex.hDevNames) {
-        MessageBoxWarning(win->hwndFrame, _TRA("Couldn't get printer name"), _TRA("Printing problem."));
+        MessageBoxWarning(win->hwndFrame, Tr("Couldn't get printer name"), Tr("Printing problem."));
         goto Exit;
     }
 
@@ -1500,7 +1500,7 @@ void PrintCurrentFile(MainWindow* win, bool waitForCompletion) {
     }
 
     if (!printer) {
-        MessageBoxWarning(win->hwndFrame, _TRA("Couldn't initialize printer"), _TRA("Printing problem."));
+        MessageBoxWarning(win->hwndFrame, Tr("Couldn't initialize printer"), Tr("Printing problem."));
         goto Exit;
     }
 
@@ -2076,14 +2076,14 @@ PrintResult PrintFile2(EngineBase* engine, Str printerName, bool displayErrors, 
 
 #ifndef DISABLE_DOCUMENT_RESTRICTIONS
     if (engine && !engine->AllowsPrinting()) {
-        MessageBoxWarningCond(displayErrors, _TRA("Cannot print this file"), _TRA("Printing problem."));
+        MessageBoxWarningCond(displayErrors, Tr("Cannot print this file"), Tr("Printing problem."));
         logf("PrintFile2: printing not allowed by the document\n");
         return PrintResult::PrintingNotAllowed;
     }
 #endif
 
     if (!engine) {
-        MessageBoxWarningCond(displayErrors, _TRA("Cannot print this file"), _TRA("Printing problem."));
+        MessageBoxWarningCond(displayErrors, Tr("Cannot print this file"), Tr("Printing problem."));
         logf("PrintFile2: engine is null\n");
         return PrintResult::CannotLoadFile;
     }
@@ -2102,8 +2102,8 @@ PrintResult PrintFile2(EngineBase* engine, Str printerName, bool displayErrors, 
     }
 
     if (!printer) {
-        TempStr msg = fmt(_TRA("Printer '%s' doesn't exist").s, printerName);
-        MessageBoxWarningCond(displayErrors, msg, _TRA("Printing problem."));
+        TempStr msg = fmt(Tr("Printer '%s' doesn't exist").s, printerName);
+        MessageBoxWarningCond(displayErrors, msg, Tr("Printing problem."));
         return PrintResult::PrinterNotFound;
     }
 
@@ -2145,7 +2145,7 @@ PrintResult PrintFile2(EngineBase* engine, Str printerName, bool displayErrors, 
         ok = PrintToDevice(pd);
         if (!ok) {
             logf("PrintToDevice: failed\n");
-            MessageBoxWarningCond(displayErrors, _TRA("Couldn't initialize printer"), _TRA("Printing problem."));
+            MessageBoxWarningCond(displayErrors, Tr("Couldn't initialize printer"), Tr("Printing problem."));
         }
     }
     if (!ok) {
@@ -2161,7 +2161,7 @@ PrintResult PrintFile(Str fileName, Str printerName, bool displayErrors, Str set
     EngineBase* engine = CreateEngineFromFile(fileName, nullptr, true);
     if (!engine) {
         TempStr msg = fmt("Couldn't open file '%s' for printing", fileName);
-        MessageBoxWarningCond(displayErrors, msg, _TRA("Error"));
+        MessageBoxWarningCond(displayErrors, msg, Tr("Error"));
         return PrintResult::CannotLoadFile;
     }
     PrintResult res = PrintFile2(engine, printerName, displayErrors, settings);

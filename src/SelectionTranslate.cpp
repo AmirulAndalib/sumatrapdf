@@ -395,31 +395,31 @@ static bool TranslationLooksLikeError(Str text) {
 
 static TempStr FormatTranslationErrorForDisplayTemp(AIChatBackend backend, Str raw) {
     if (str::IsEmptyOrWhiteSpace(raw)) {
-        return str::DupTemp(_TRA("Translation failed."));
+        return str::DupTemp(Tr("Translation failed."));
     }
     if (str::ContainsI(raw, StrL("failed to authenticate")) || str::ContainsI(raw, StrL("authentication_failed")) ||
         str::ContainsI(raw, StrL("invalid authentication credentials"))) {
         if (backend == AIChatBackend::Claude) {
             return str::DupTemp(
-                _TRA("Claude Code is not signed in. Open a terminal, run \"claude auth login\", "
-                     "then try again."));
+                Tr("Claude Code is not signed in. Open a terminal, run \"claude auth login\", "
+                   "then try again."));
         }
         if (backend == AIChatBackend::Grok) {
-            return str::DupTemp(_TRA("Grok Build is not signed in. Sign in to Grok Build, then try again."));
+            return str::DupTemp(Tr("Grok Build is not signed in. Sign in to Grok Build, then try again."));
         }
         if (backend == AIChatBackend::Codex) {
-            return str::DupTemp(_TRA("OpenAI Codex is not signed in. Sign in to Codex, then try again."));
+            return str::DupTemp(Tr("OpenAI Codex is not signed in. Sign in to Codex, then try again."));
         }
         if (backend == AIChatBackend::AntiGravity) {
-            return str::DupTemp(_TRA(
+            return str::DupTemp(Tr(
                 "Antigravity CLI is not signed in. Open a terminal, run \"antigravity auth login\", then try again."));
         }
     }
     if (str::ContainsI(raw, StrL("model is not supported"))) {
-        return str::DupTemp(_TRA("The configured AI model is not available for your account."));
+        return str::DupTemp(Tr("The configured AI model is not available for your account."));
     }
     if (str::ContainsI(raw, StrL("did not contain text"))) {
-        return str::DupTemp(_TRA("Translation response did not contain text."));
+        return str::DupTemp(Tr("Translation response did not contain text."));
     }
     return str::DupTemp(raw);
 }
@@ -834,7 +834,7 @@ static TempStr BuildTranslateUrlTemp(TranslateEngine engine, Str srcLang, Str ds
 static bool RunTranslation(AIChatBackend backend, Str srcLang, Str dstLang, Str text, Str& msgOut) {
     TempStr exePath = FindBackendExecutableTemp(backend);
     if (len(exePath) == 0) {
-        msgOut = str::Dup(_TRA("The selected AI CLI is not installed."));
+        msgOut = str::Dup(Tr("The selected AI CLI is not installed."));
         return false;
     }
 
@@ -859,7 +859,7 @@ static bool RunTranslation(AIChatBackend backend, Str srcLang, Str dstLang, Str 
 
     AIChatProcessLaunchResult launch;
     if (!AIChatLaunchProcessWithStdoutPipe(cmdLine, cwd, &launch)) {
-        msgOut = str::Dup(_TRA("Failed to launch the AI CLI."));
+        msgOut = str::Dup(Tr("Failed to launch the AI CLI."));
         LogTranslation(backend, StrL("<<< error"), msgOut);
         return false;
     }
@@ -874,7 +874,7 @@ static bool RunTranslation(AIChatBackend backend, Str srcLang, Str dstLang, Str 
     if (waitRes == WAIT_TIMEOUT) {
         TerminateProcess(launch.hProcess, 1);
         AIChatCloseProcess(&launch.hProcess, false);
-        msgOut = str::Dup(_TRA("Translation timed out."));
+        msgOut = str::Dup(Tr("Translation timed out."));
         LogTranslation(backend, StrL("<<< error"), msgOut);
         return false;
     }
@@ -887,7 +887,7 @@ static bool RunTranslation(AIChatBackend backend, Str srcLang, Str dstLang, Str 
     ParseTranslationOutput(backend, ToStr(output), translation);
     LogTranslation(backend, StrL("<<< parsed"), ToStr(translation));
     if (len(translation) == 0) {
-        msgOut = str::Dup(_TRA("Translation response did not contain text."));
+        msgOut = str::Dup(Tr("Translation response did not contain text."));
         LogTranslation(backend, StrL("<<< error"), msgOut);
         return false;
     }
@@ -1013,7 +1013,7 @@ void SelectionTranslateWnd::ShowTranslationResult(Str text, bool isError) {
     if (!hwnd) {
         return;
     }
-    Str label = isError ? Str(_TRA("Error:")) : Str(_TRA("Translation:"));
+    Str label = isError ? Str(Tr("Error:")) : Str(Tr("Translation:"));
     if (!resultVisible) {
         if (staticResultLabel) {
             staticResultLabel->SetVisibility(Visibility::Visible);
@@ -1069,7 +1069,7 @@ void SelectionTranslateWnd::StartTranslation(VirtMouseEvent*) {
     }
     if (btnTranslate) {
         btnTranslate->SetIsEnabled(false);
-        SetTranslateButtonText(_TRA("Translating..."));
+        SetTranslateButtonText(Tr("Translating..."));
     }
     if (resultVisible) {
         if (staticResultLabel) {
@@ -1103,7 +1103,7 @@ void SelectionTranslateWnd::OnTranslationFinished(bool ok, Str msg) {
         dropDstLang->SetIsEnabled(true);
     }
     if (btnTranslate) {
-        SetTranslateButtonText(_TRA("Translate"));
+        SetTranslateButtonText(Tr("Translate"));
     }
     TempStr display = ok ? msg : FormatTranslationErrorForDisplayTemp(backend, msg);
     ShowTranslationResult(display, !ok);
@@ -1128,7 +1128,7 @@ static void SelectionTranslateThread(SelectionTranslateTaskData* data) {
     Str result;
     bool ok = RunTranslation(data->backend, data->srcLang, data->dstLang, data->text, result);
     if (!ok && len(result) == 0) {
-        result = str::Dup(_TRA("Translation failed."));
+        result = str::Dup(Tr("Translation failed."));
     }
 
     auto* done = new SelectionTranslateDoneData();
@@ -1211,7 +1211,7 @@ bool SelectionTranslateWnd::Create(HWND owner, Str selText, Str title) {
 
     {
         staticResultLabel = NewVirtText({
-            .s = _TRA("Translation:"),
+            .s = Tr("Translation:"),
             .font = font,
             .isRtl = isRtl,
             .padding = DpiScaledInsets(8, 0, 0, 0),
@@ -1241,7 +1241,7 @@ bool SelectionTranslateWnd::Create(HWND owner, Str selText, Str title) {
         auto* engineRow = new HBox();
         engineRow->alignMain = MainAxisAlign::MainStart;
         engineRow->alignCross = CrossAxisAlign::CrossCenter;
-        staticPrompt = NewVirtText({.s = _TRA("Translate with"), .font = font, .isRtl = isRtl});
+        staticPrompt = NewVirtText({.s = Tr("Translate with"), .font = font, .isRtl = isRtl});
         engineRow->AddChild(staticPrompt);
         {
             DropDown::CreateArgs args;
@@ -1264,7 +1264,7 @@ bool SelectionTranslateWnd::Create(HWND owner, Str selText, Str title) {
         langRow->alignMain = MainAxisAlign::MainStart;
         langRow->alignCross = CrossAxisAlign::CrossCenter;
 
-        staticFromLabel = NewVirtText({.s = _TRA("From:"), .font = font, .isRtl = isRtl});
+        staticFromLabel = NewVirtText({.s = Tr("From:"), .font = font, .isRtl = isRtl});
         langRow->AddChild(staticFromLabel);
         {
             DropDown::CreateArgs args;
@@ -1283,7 +1283,7 @@ bool SelectionTranslateWnd::Create(HWND owner, Str selText, Str title) {
             langRow->AddChild(dropSrcLang, 1);
         }
         staticToLabel = NewVirtText({
-            .s = _TRA("To:"),
+            .s = Tr("To:"),
             .font = font,
             .isRtl = isRtl,
             .padding = DpiScaledInsets(0, 0, 0, 4),
@@ -1313,12 +1313,12 @@ bool SelectionTranslateWnd::Create(HWND owner, Str selText, Str title) {
         btnRow->alignCross = CrossAxisAlign::CrossCenter;
         btnRow->gap = font->averageCharWidth;
 
-        btnClose = NewButton(_TRA("Close"), false);
+        btnClose = NewButton(Tr("Close"), false);
         btnClose->onClick =
             MkMethod1<SelectionTranslateWnd, VirtMouseEvent*, &SelectionTranslateWnd::OnCloseClicked>(this);
         btnRow->AddChild(btnClose);
 
-        btnTranslate = NewButton(_TRA("Translate"), true);
+        btnTranslate = NewButton(Tr("Translate"), true);
         btnTranslate->onClick =
             MkMethod1<SelectionTranslateWnd, VirtMouseEvent*, &SelectionTranslateWnd::StartTranslation>(this);
         btnTranslate->padding = DpiScaledInsets(0, 4, 0, 4);
@@ -1372,7 +1372,7 @@ void ShowSelectionTranslateDialog(WindowTab* tab, TranslateEngine engineIn) {
         MkMethod1<SelectionTranslateWnd, WindowBase::GetMinMaxInfoEvent*, &SelectionTranslateWnd::OnGetMinMaxInfo>(wnd);
     wnd->onDpiChanged =
         MkMethod1<SelectionTranslateWnd, WindowBase::DpiChangedEvent*, &SelectionTranslateWnd::OnDpiChanged>(wnd);
-    Str title = _TRA("Translate");
+    Str title = Tr("Translate");
     if (!wnd->Create(hwndOwner, selText, title)) {
         EnableWindow(hwndOwner, TRUE);
         delete wnd;

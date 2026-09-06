@@ -117,7 +117,7 @@ function parseTranslations(s: string): Map<string, Translation[]> {
   return res;
 }
 
-const translationPattern = /\b_TR[AN]?\("(.*?)"\)/g;
+const translationPattern = /\b(?:TrN|Tr)\("(.*?)"\)/g;
 
 function extractTranslationStrings(s: string): string[] {
   const res: string[] = [];

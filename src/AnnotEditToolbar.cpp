@@ -306,13 +306,13 @@ static void CollectItems(Annotation* annot, Vec<AnnotEditItem>& out) {
         {
             AnnotEditItem it;
             it.kind = AnnotEditKind::AttachFile;
-            it.tooltip = hasFile ? fmt(_TRA("Replace %s with...").s, fileName) : _TRA("Attach File");
+            it.tooltip = hasFile ? fmt(Tr("Replace %s with...").s, fileName) : Tr("Attach File");
             VecAppend(out, it);
         }
         if (hasFile) {
             AnnotEditItem it;
             it.kind = AnnotEditKind::SaveAttachment;
-            it.tooltip = fmt(_TRA("Save %s to disk").s, fileName);
+            it.tooltip = fmt(Tr("Save %s to disk").s, fileName);
             VecAppend(out, it);
         }
     }
@@ -322,21 +322,21 @@ static void CollectItems(Annotation* annot, Vec<AnnotEditItem>& out) {
         AnnotEditItem it;
         it.kind = AnnotEditKind::TextColor;
         it.color = DefaultAppearanceTextColor(annot);
-        it.tooltip = _TRA("Text Color");
+        it.tooltip = Tr("Text Color");
         VecAppend(out, it);
     }
     if (AnnotationSupportsColor(type)) {
         AnnotEditItem it;
         it.kind = AnnotEditKind::Color;
         it.color = GetColor(annot);
-        it.tooltip = AnnotationColorIsBackground(type) ? _TRA("Background Color") : _TRA("Color");
+        it.tooltip = AnnotationColorIsBackground(type) ? Tr("Background Color") : Tr("Color");
         VecAppend(out, it);
     }
     if (AnnotationSupportsInteriorColor(type)) {
         AnnotEditItem it;
         it.kind = AnnotEditKind::InteriorColor;
         it.color = InteriorColor(annot);
-        it.tooltip = _TRA("Interior Color");
+        it.tooltip = Tr("Interior Color");
         VecAppend(out, it);
     }
     if (AnnotationSupportsOpacity(type)) {
@@ -344,14 +344,14 @@ static void CollectItems(Annotation* annot, Vec<AnnotEditItem>& out) {
         it.kind = AnnotEditKind::Opacity;
         it.number = Opacity(annot);
         // for free text the whole appearance is the text, background aside
-        it.tooltip = isFreeText ? _TRA("Text Opacity") : _TRA("Opacity");
+        it.tooltip = isFreeText ? Tr("Text Opacity") : Tr("Opacity");
         VecAppend(out, it);
     }
     if (AnnotationSupportsBorder(type)) {
         AnnotEditItem it;
         it.kind = AnnotEditKind::Border;
         it.number = BorderWidth(annot);
-        it.tooltip = _TRA("Border Width");
+        it.tooltip = Tr("Border Width");
         VecAppend(out, it);
     }
     if (isFreeText) {
@@ -362,21 +362,21 @@ static void CollectItems(Annotation* annot, Vec<AnnotEditItem>& out) {
             int idx = SeqStrIndex(AnnotEditorFontNames(), pdfName);
             it.number = idx;
             it.text = idx >= 0 ? SeqStrByIndex(AnnotEditorFontReadableNames(), idx) : pdfName;
-            it.tooltip = _TRA("Font");
+            it.tooltip = Tr("Font");
             VecAppend(out, it);
         }
         {
             AnnotEditItem it;
             it.kind = AnnotEditKind::TextSize;
             it.number = DefaultAppearanceTextSize(annot);
-            it.tooltip = _TRA("Text Size");
+            it.tooltip = Tr("Text Size");
             VecAppend(out, it);
         }
         {
             AnnotEditItem it;
             it.kind = AnnotEditKind::Alignment;
             it.number = Quadding(annot);
-            it.tooltip = _TRA("Text Alignment");
+            it.tooltip = Tr("Text Alignment");
             VecAppend(out, it);
         }
     }
@@ -386,7 +386,7 @@ static void CollectItems(Annotation* annot, Vec<AnnotEditItem>& out) {
         it.kind = AnnotEditKind::Icon;
         it.iconName = ResolvedAnnotIconName(annot);
         it.mupdfIcon = type != AnnotationType::Stamp;
-        it.tooltip = _TRA("Icon");
+        it.tooltip = Tr("Icon");
         VecAppend(out, it);
     }
     if (type == AnnotationType::Line) {
@@ -398,7 +398,7 @@ static void CollectItems(Annotation* annot, Vec<AnnotEditItem>& out) {
             it.kind = AnnotEditKind::LineStart;
             it.lineEnding = start;
             it.lineIsStart = true;
-            it.tooltip = _TRA("Line Start");
+            it.tooltip = Tr("Line Start");
             VecAppend(out, it);
         }
         {
@@ -406,21 +406,21 @@ static void CollectItems(Annotation* annot, Vec<AnnotEditItem>& out) {
             it.kind = AnnotEditKind::LineEnd;
             it.lineEnding = end;
             it.lineIsStart = false;
-            it.tooltip = _TRA("Line End");
+            it.tooltip = Tr("Line End");
             VecAppend(out, it);
         }
     }
     if (type != AnnotationType::Widget) {
         AnnotEditItem it;
         it.kind = AnnotEditKind::Contents;
-        it.tooltip = isFreeText ? _TRA("Edit text") : _TRA("Edit Note");
+        it.tooltip = isFreeText ? Tr("Edit text") : Tr("Edit Note");
         VecAppend(out, it);
     }
     if (type != AnnotationType::Widget) {
         // last, so a mis-aimed click lands on a harmless chip, not on delete
         AnnotEditItem it;
         it.kind = AnnotEditKind::Delete;
-        it.tooltip = _TRA("Delete");
+        it.tooltip = Tr("Delete");
         VecAppend(out, it);
     }
 }
@@ -1428,7 +1428,7 @@ static void OnChipClick(AnnotEditChip* chip, VirtMouseEvent*) {
             WCHAR pathW[MAX_PATH + 1]{};
             str::Builder fileFilter;
             str::BuilderReserve(fileFilter, 256);
-            fileFilter.Append(_TRA("All files"));
+            fileFilter.Append(Tr("All files"));
             fileFilter.Append(StrL("\1*.*\1"));
             Str fileFilterStr = ToStr(fileFilter);
             str::TransCharsInPlace(fileFilterStr, StrL("\1"), StrL("\0"));
@@ -1895,9 +1895,9 @@ static void LayoutContentsEditor(AnnotEditToolbar* tb) {
     buttons->alignMain = MainAxisAlign::MainStart;
     buttons->alignCross = CrossAxisAlign::CrossCenter;
     buttons->gap = gap;
-    auto* btnAccept = NewButtonWithKbd(tb->host->native, _TRA("Accept"), StrL("Ctrl + Enter"), tb->font, true);
+    auto* btnAccept = NewButtonWithKbd(tb->host->native, Tr("Accept"), StrL("Ctrl + Enter"), tb->font, true);
     btnAccept->onClick = MkFunc1(OnAcceptContentsClick, tb);
-    auto* btnCancel = NewButtonWithKbd(tb->host->native, _TRA("Cancel"), StrL("Esc"), tb->font, false);
+    auto* btnCancel = NewButtonWithKbd(tb->host->native, Tr("Cancel"), StrL("Esc"), tb->font, false);
     btnCancel->onClick = MkFunc1(OnCancelContentsClick, tb);
     buttons->AddChild(btnAccept);
     buttons->AddChild(btnCancel);
@@ -2856,67 +2856,67 @@ static TempStr ShortAnnotationContentsTemp(Str value) {
 static void CollectAnnotationHoverRows(Annotation* annot, AnnotationHoverRows& rows) {
     Str contents = Contents(annot);
     if (len(contents) > 0) {
-        rows.Add(StrL("contents"), _TRA("Contents:"), ShortAnnotationContentsTemp(contents));
+        rows.Add(StrL("contents"), Tr("Contents:"), ShortAnnotationContentsTemp(contents));
     }
 
     AnnotationType type = Type(annot);
     if (type == AnnotationType::FreeText) {
         int quadding = Quadding(annot);
-        rows.Add(StrL("textAlignment"), _TRA("Text Alignment:"), SeqStrByIndex(gQuaddingNames, quadding));
+        rows.Add(StrL("textAlignment"), Tr("Text Alignment:"), SeqStrByIndex(gQuaddingNames, quadding));
 
         int fontIdx = SeqStrIndex(gFontNames, DefaultAppearanceTextFont(annot));
         if (fontIdx >= 0) {
-            rows.Add(StrL("textFont"), _TRA("Text Font:"), SeqStrByIndex(gFontReadableNames, fontIdx));
+            rows.Add(StrL("textFont"), Tr("Text Font:"), SeqStrByIndex(gFontReadableNames, fontIdx));
         }
-        rows.Add(StrL("textSize"), _TRA("Text Size:"), fmt("%d", DefaultAppearanceTextSize(annot)));
-        rows.Add(StrL("textColor"), _TRA("Text Color:"), AnnotationColorNameTemp(DefaultAppearanceTextColor(annot)));
+        rows.Add(StrL("textSize"), Tr("Text Size:"), fmt("%d", DefaultAppearanceTextSize(annot)));
+        rows.Add(StrL("textColor"), Tr("Text Color:"), AnnotationColorNameTemp(DefaultAppearanceTextColor(annot)));
     }
 
     if (type == AnnotationType::Line) {
         int start = 0;
         int end = 0;
         GetLineEndingStyles(annot, &start, &end);
-        rows.Add(StrL("lineStart"), _TRA("Line Start:"), SeqStrByIndex(gLineEndingStyles, start));
-        rows.Add(StrL("lineEnd"), _TRA("Line End:"), SeqStrByIndex(gLineEndingStyles, end));
+        rows.Add(StrL("lineStart"), Tr("Line Start:"), SeqStrByIndex(gLineEndingStyles, start));
+        rows.Add(StrL("lineEnd"), Tr("Line End:"), SeqStrByIndex(gLineEndingStyles, end));
     }
 
     Str icon = IconName(annot);
     if (AnnotationIconNames(annot) && icon) {
-        rows.Add(StrL("icon"), _TRA("Icon:"), ShortAnnotationHoverValueTemp(icon));
+        rows.Add(StrL("icon"), Tr("Icon:"), ShortAnnotationHoverValueTemp(icon));
     }
     if (type == AnnotationType::FileAttachment) {
         Str attached = EmbeddedFileNameTemp(annot);
         if (attached) {
-            rows.Add(StrL("attachedFile"), _TRA("Attached File:"), ShortAnnotationHoverValueTemp(attached));
+            rows.Add(StrL("attachedFile"), Tr("Attached File:"), ShortAnnotationHoverValueTemp(attached));
         }
     }
     if (AnnotationSupportsBorder(type)) {
-        rows.Add(StrL("border"), _TRA("Border:"), fmt("%d", BorderWidth(annot)));
+        rows.Add(StrL("border"), Tr("Border:"), fmt("%d", BorderWidth(annot)));
     }
     if (AnnotationSupportsColor(type)) {
-        Str label = AnnotationColorIsBackground(type) ? _TRA("Background Color:") : _TRA("Color:");
+        Str label = AnnotationColorIsBackground(type) ? Tr("Background Color:") : Tr("Color:");
         rows.Add(StrL("color"), label, AnnotationColorNameTemp(GetColor(annot)));
     }
     if (AnnotationSupportsInteriorColor(type)) {
-        rows.Add(StrL("interiorColor"), _TRA("Interior Color:"), AnnotationColorNameTemp(InteriorColor(annot)));
+        rows.Add(StrL("interiorColor"), Tr("Interior Color:"), AnnotationColorNameTemp(InteriorColor(annot)));
     }
     if (AnnotationSupportsOpacity(type)) {
-        rows.Add(StrL("opacity"), _TRA("Opacity:"), fmt("%d", Opacity(annot)));
+        rows.Add(StrL("opacity"), Tr("Opacity:"), fmt("%d", Opacity(annot)));
     }
 
-    rows.Add(StrL("author"), _TRA("Author:"), ShortAnnotationHoverValueTemp(Author(annot)));
+    rows.Add(StrL("author"), Tr("Author:"), ShortAnnotationHoverValueTemp(Author(annot)));
     str::Builder date;
     if (ModificationDate(annot) != 0) {
         AppendPdfDate(date, ModificationDate(annot));
     }
-    rows.Add(StrL("date"), _TRA("Date:"), ToStr(date));
+    rows.Add(StrL("date"), Tr("Date:"), ToStr(date));
     int popupId = PopupId(annot);
     if (popupId >= 0) {
-        rows.Add(StrL("popup"), _TRA("Popup:"), fmt("%d 0 R", popupId));
+        rows.Add(StrL("popup"), Tr("Popup:"), fmt("%d 0 R", popupId));
     }
     if (gShowRect) {
         RectF rect = GetBounds(annot);
-        rows.Add(StrL("rect"), _TRA("Rect:"), fmt("%d-%d@%d-%d", (int)rect.dx, (int)rect.dy, (int)rect.x, (int)rect.y));
+        rows.Add(StrL("rect"), Tr("Rect:"), fmt("%d-%d@%d-%d", (int)rect.dx, (int)rect.dy, (int)rect.x, (int)rect.y));
     }
 }
 

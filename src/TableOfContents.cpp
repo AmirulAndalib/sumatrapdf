@@ -91,7 +91,7 @@ static void TocCustomizeTooltip(TreeView::GetTooltipEvent* ev) {
     }
 
     if (kindDestinationLaunchEmbedded == k || kindDestinationAttachment == k) {
-        TempStr tmp = fmt(_TRA("Attachment: %s").s, path);
+        TempStr tmp = fmt(Tr("Attachment: %s").s, path);
         infotip.Append(tmp);
     } else {
         infotip.Append(path);
@@ -936,31 +936,31 @@ static void TocCollapseSameLevel(TreeView* tv, TreeItem ti) {
 // clang-format off
 static MenuDef menuDefContextToc[] = {
     {
-        _TRN("Expand All"),
+        TrN("Expand All"),
         CmdExpandAll,
     },
     {
-        _TRN("Collapse All"),
+        TrN("Collapse All"),
         CmdCollapseAll,
     },
     {
-        _TRN("Expand to Level 1"),
+        TrN("Expand to Level 1"),
         CmdTocExpandToLevel1,
     },
     {
-        _TRN("Expand to Level 2"),
+        TrN("Expand to Level 2"),
         CmdTocExpandToLevel2,
     },
     {
-        _TRN("Expand to Level 3"),
+        TrN("Expand to Level 3"),
         CmdTocExpandToLevel3,
     },
     {
-        _TRN("Collapse Same Level"),
+        TrN("Collapse Same Level"),
         CmdTocCollapseSameLevel,
     },
     {
-        _TRN("Expand to Current Page"),
+        TrN("Expand to Current Page"),
         CmdExpandToCurrentPage,
     },
     {
@@ -968,19 +968,19 @@ static MenuDef menuDefContextToc[] = {
         0,
     },
     {
-        _TRN("Open Embedded PDF"),
+        TrN("Open Embedded PDF"),
         CmdOpenEmbeddedPDF,
     },
     {
-        _TRN("Save Embedded File..."),
+        TrN("Save Embedded File..."),
         CmdSaveEmbeddedFile,
     },
     {
-        _TRN("Open Attachment"),
+        TrN("Open Attachment"),
         CmdOpenAttachment,
     },
     {
-        _TRN("Save Attachment..."),
+        TrN("Save Attachment..."),
         CmdSaveAttachment,
     },
     // note: strings cannot be "" or else items are not there
@@ -1069,12 +1069,12 @@ static void TocContextMenu(ContextMenuEvent* ev) {
         TempStr delText;
         if (win->ctrl->HasChapters()) {
             Location loc = win->ctrl->LocationFromPageNo(pageNo);
-            addText = fmt(_TRA("Add chapter %d page %d to favorites").s, loc.chapter, loc.page);
-            delText = fmt(_TRA("Remove chapter %d page %d from favorites").s, loc.chapter, loc.page);
+            addText = fmt(Tr("Add chapter %d page %d to favorites").s, loc.chapter, loc.page);
+            delText = fmt(Tr("Remove chapter %d page %d from favorites").s, loc.chapter, loc.page);
         } else {
             TempStr pageLabel = win->ctrl->GetPageLabeTemp(pageNo);
-            addText = fmt(_TRA("Add page %s to favorites").s, pageLabel);
-            delText = fmt(_TRA("Remove page %s from favorites").s, pageLabel);
+            addText = fmt(Tr("Add page %s to favorites").s, pageLabel);
+            delText = fmt(Tr("Remove page %s from favorites").s, pageLabel);
         }
 
         if (isBookmarked) {
@@ -1876,7 +1876,7 @@ void CreateToc(MainWindow* win) {
         Edit::CreateArgs eargs;
         eargs.parent = win->hwndTocBox;
         eargs.withBorder = true;
-        eargs.cueText = _TRA("Search Bookmarks");
+        eargs.cueText = Tr("Search Bookmarks");
         eargs.font = GetAppFont();
         filterEdit->Create(eargs);
     }

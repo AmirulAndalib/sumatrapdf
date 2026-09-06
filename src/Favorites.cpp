@@ -646,23 +646,23 @@ TempStr FavReadableNameTemp(Favorite* fn) {
     if (fn->name) {
         TempStr loc;
         if (isChaptered) {
-            loc = fmt(_TRA("(chapter %d page %d)").s, chapter, page);
+            loc = fmt(Tr("(chapter %d page %d)").s, chapter, page);
         } else {
-            loc = fmt(_TRA("(page %s)").s, label);
+            loc = fmt(Tr("(page %s)").s, label);
         }
         return str::JoinTemp(fn->name, StrL(" "), loc);
     }
     if (isChaptered) {
-        return fmt(_TRA("Chapter %d Page %d").s, chapter, page);
+        return fmt(Tr("Chapter %d Page %d").s, chapter, page);
     }
-    return fmt(_TRA("Page %s").s, label);
+    return fmt(Tr("Page %s").s, label);
 }
 
 // caller has to free() the result
 static TempStr FavCompactReadableNameTemp(FileState* fav, Favorite* fn, bool isCurrent = false) {
     TempStr rn = FavReadableNameTemp(fn);
     if (isCurrent) {
-        return fmt("%s : %s", _TRA("Current file"), rn);
+        return fmt("%s : %s", Tr("Current file"), rn);
     }
     TempStr fp = path::GetBaseNameTemp(fav->filePath);
     // Keep the favorite's name first in compact menu entries so a long file
@@ -782,7 +782,7 @@ static void AppendFavMenus(HMENU m, Str currFilePath) {
         }
         AppendFavMenuItems(sub, f, menuId, combined, f == currFileFav);
         if (!combined) {
-            Str s = _TRA("Current file");
+            Str s = Tr("Current file");
             if (f != currFileFav) {
                 s = MenuToSafeStringTemp(path::GetBaseNameTemp(filePath));
             }
@@ -812,12 +812,12 @@ void RebuildFavMenu(MainWindow* win, HMENU menu) {
         TempStr delText;
         if (ctrl->HasChapters()) {
             Location loc = ctrl->LocationFromPageNo(pageNo);
-            addText = fmt(_TRA("Add chapter %d page %d to favorites").s, loc.chapter, loc.page);
-            delText = fmt(_TRA("Remove chapter %d page %d from favorites").s, loc.chapter, loc.page);
+            addText = fmt(Tr("Add chapter %d page %d to favorites").s, loc.chapter, loc.page);
+            delText = fmt(Tr("Remove chapter %d page %d from favorites").s, loc.chapter, loc.page);
         } else {
             TempStr label = ctrl->GetPageLabeTemp(pageNo);
-            addText = fmt(_TRA("Add page %s to favorites").s, label);
-            delText = fmt(_TRA("Remove page %s from favorites").s, label);
+            addText = fmt(Tr("Add page %s to favorites").s, label);
+            delText = fmt(Tr("Remove page %s from favorites").s, label);
         }
 
         if (isBookmarked) {
@@ -1571,7 +1571,7 @@ static void FavTreeKeyDown(TreeView::KeyDownEvent* ev) {
 // clang-format off
 static MenuDef menuDefContextFav[] = {
     {
-        _TRN("Sort By Name"),
+        TrN("Sort By Name"),
         CmdToggleFavoritesSort,
     },
     {
@@ -1579,7 +1579,7 @@ static MenuDef menuDefContextFav[] = {
         0,
     },
     {
-        _TRN("Remove from favorites"),
+        TrN("Remove from favorites"),
         CmdFavoriteDel,
     },
     {
@@ -1705,7 +1705,7 @@ void CreateFavorites(MainWindow* win) {
         Edit::CreateArgs eargs;
         eargs.parent = win->hwndFavBox;
         eargs.withBorder = true;
-        eargs.cueText = _TRA("Search Favorites");
+        eargs.cueText = Tr("Search Favorites");
         eargs.font = GetAppFont();
         filterEdit->Create(eargs);
     }

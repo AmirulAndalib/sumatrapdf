@@ -58,7 +58,7 @@ static Str ButtonLabel(const SelectionToolbarButton& b) {
     if (b.userLabel) {
         return b.userLabel;
     }
-    return _TRA(b.label);
+    return Tr(b.label);
 }
 
 struct SelectionToolbar {
@@ -78,14 +78,14 @@ struct SelectionToolbar {
 // candidate buttons; per-window visibility/enabled state comes from
 // GetCommandVisibility (hidden buttons are dropped, disabled ones grayed)
 static const SelectionToolbarButton gCandidateButtons[] = {
-    {CmdCopySelection, _TRN("Copy to clipboard"), {}, Str(gIconCopy)},
+    {CmdCopySelection, TrN("Copy to clipboard"), {}, Str(gIconCopy)},
     {CmdTranslateSelection, StrL("Translate"), {}, Str(gIconTranslate)},
     {CmdReadAloudSelection, StrL("Read Aloud"), {}, Str(gIconSpeak)},
     {CmdCreateAnnotHighlight, StrL("Highlight"), {}, Str(gIconAnnotHighlight)},
     {CmdCreateAnnotUnderline, StrL("Underline"), {}, Str(gIconAnnotUnderline)},
     {CmdCreateAnnotSquiggly, StrL("Squiggly"), {}, Str(gIconAnnotSquiggly)},
     {CmdCreateAnnotStrikeOut, StrL("Strike Out"), {}, Str(gIconAnnotStrikeOut)},
-    {CmdCreateAnnotText, _TRN("Add text annotation"), {}, Str(gIconAnnotText)},
+    {CmdCreateAnnotText, TrN("Add text annotation"), {}, Str(gIconAnnotText)},
 };
 
 static const SelectionToolbarButton* FindCandidateButton(int cmdId) {

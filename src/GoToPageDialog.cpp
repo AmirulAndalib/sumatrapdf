@@ -80,7 +80,7 @@ void GoToPageWnd::SetTarget(MainWindow* mainWin) {
         }
     }
     if (labelOf) {
-        labelOf->SetText(fmt(_TRA("(of %d)").s, pageCount));
+        labelOf->SetText(fmt(Tr("(of %d)").s, pageCount));
     }
     if (editPage) {
         EditSetNumbersOnly(editPage, onlyNumeric);
@@ -88,7 +88,7 @@ void GoToPageWnd::SetTarget(MainWindow* mainWin) {
         EditSelectAll(editPage);
     }
     if (chapterLabelOf) {
-        chapterLabelOf->SetText(fmt(_TRA("(of %d)").s, chapterCount));
+        chapterLabelOf->SetText(fmt(Tr("(of %d)").s, chapterCount));
     }
     if (editChapter) {
         editChapter->SetText(fmt("%d", chapterCur));
@@ -156,7 +156,7 @@ bool GoToPageWnd::Create(MainWindow* mainWin) {
     {
         CreateCustomArgs args;
         args.owner = win ? win->hwndFrame : nullptr;
-        args.title = _TRA("Go to page");
+        args.title = Tr("Go to page");
         args.visible = false;
         args.style = WS_POPUPWINDOW | WS_CAPTION;
         args.font = GetFont();
@@ -178,7 +178,7 @@ bool GoToPageWnd::Create(MainWindow* mainWin) {
         hbox->alignCross = CrossAxisAlign::CrossCenter;
 
         auto* lab = NewVirtText({
-            .s = _TRA("&Chapter:"),
+            .s = Tr("&Chapter:"),
             .font = font,
             .isRtl = isRtl,
             .prefix = true,
@@ -203,7 +203,7 @@ bool GoToPageWnd::Create(MainWindow* mainWin) {
         hbox->AddChild(ce);
 
         auto* of = NewVirtText({
-            .s = fmt(_TRA("(of %d)").s, chapterCount),
+            .s = fmt(Tr("(of %d)").s, chapterCount),
             .font = font,
             .isRtl = isRtl,
         });
@@ -218,7 +218,7 @@ bool GoToPageWnd::Create(MainWindow* mainWin) {
         hbox->alignCross = CrossAxisAlign::CrossCenter;
 
         auto* lab = NewVirtText({
-            .s = hasChapters ? _TRA("&Page:") : _TRA("&Go to page:"),
+            .s = hasChapters ? Tr("&Page:") : Tr("&Go to page:"),
             .font = font,
             .isRtl = isRtl,
             .prefix = true,
@@ -243,7 +243,7 @@ bool GoToPageWnd::Create(MainWindow* mainWin) {
         hbox->AddChild(e);
 
         auto* of = NewVirtText({
-            .s = fmt(_TRA("(of %d)").s, pageCount),
+            .s = fmt(Tr("(of %d)").s, pageCount),
             .font = font,
             .isRtl = isRtl,
         });
@@ -259,10 +259,10 @@ bool GoToPageWnd::Create(MainWindow* mainWin) {
         hbox->gap = font->averageCharWidth;
         auto pad = Insets{4, 0, 4, 0};
 
-        btnCancel = NewThemedButton(hwnd, _TRA("Cancel"), font, false);
+        btnCancel = NewThemedButton(hwnd, Tr("Cancel"), font, false);
         btnCancel->onClick = MkMethod1<GoToPageWnd, VirtMouseEvent*, &GoToPageWnd::OnCancel>(this);
         hbox->AddChild(new Padding(btnCancel, pad));
-        btnGo = NewThemedButton(hwnd, _TRA("Go to page"), font, true);
+        btnGo = NewThemedButton(hwnd, Tr("Go to page"), font, true);
         btnGo->onClick = MkMethod1<GoToPageWnd, VirtMouseEvent*, &GoToPageWnd::OnOk>(this);
         hbox->AddChild(new Padding(btnGo, pad));
         vbox->AddChild(hbox);

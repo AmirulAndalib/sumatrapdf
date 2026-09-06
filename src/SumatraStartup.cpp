@@ -1604,7 +1604,7 @@ static void supressThrowFromNew() {
 }
 
 static void ShowNotValidInstallerError() {
-    MsgBox(nullptr, _TRA("Not a valid installer"), _TRA("Error"), MB_OK | MB_ICONERROR);
+    MsgBox(nullptr, Tr("Not a valid installer"), Tr("Error"), MB_OK | MB_ICONERROR);
 }
 
 // delete locally cached copies of cbx files that haven't been opened in a

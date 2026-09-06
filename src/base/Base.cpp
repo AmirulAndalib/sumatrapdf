@@ -5197,7 +5197,7 @@ static int parseArgDefBrace(Fmt& fmt, int off) {
     int n = 0;
     bool positional = false;
     // a '{' with no closing '}' must not walk past the end of the format string.
-    // Reachable via a translated format string (fmt(_TRA("...").s, ...)).
+    // Reachable via a translated format string (fmt(Tr("...").s, ...)).
     while (off < fmt.format.len && fmt.format.s[off] != '}') {
         if (!str::IsDigit(fmt.format.s[off])) {
             fmt.isOk = false;

@@ -68,14 +68,14 @@ static Str ReadAloudScopeLabel(WindowTab* tab) {
     }
     switch (tab->readAloudScope) {
         case WindowTab::ReadAloudScopeSelection:
-            return _TRA("Selection");
+            return Tr("Selection");
         case WindowTab::ReadAloudScopeViewport:
-            return _TRA("Top of view");
+            return Tr("Top of view");
         case WindowTab::ReadAloudScopeCursor:
-            return _TRA("From cursor");
+            return Tr("From cursor");
         case WindowTab::ReadAloudScopeSmart:
         default:
-            return _TRA("Smart start");
+            return Tr("Smart start");
     }
 }
 
@@ -86,7 +86,7 @@ static TempStr ReadAloudPlaybackBarTextTemp(WindowTab* tab) {
 
     Str docName = tab->GetTabTitle();
     if (len(docName) == 0) {
-        docName = _TRA("document");
+        docName = Tr("document");
     }
 
     int pageNo = 0;
@@ -96,12 +96,11 @@ static TempStr ReadAloudPlaybackBarTextTemp(WindowTab* tab) {
 
     bool isPaused = CanContinueReadAloud(tab) && !TtsIsSpeaking();
     if (hasPage && pageCount > 0) {
-        const char* pattern = isPaused ? _TRA("Paused \xC2\xB7 %s \xC2\xB7 page %d of %d \xC2\xB7 %s").s
-                                       : _TRA("Reading \xC2\xB7 %s \xC2\xB7 page %d of %d \xC2\xB7 %s").s;
+        const char* pattern = isPaused ? Tr("Paused \xC2\xB7 %s \xC2\xB7 page %d of %d \xC2\xB7 %s").s
+                                       : Tr("Reading \xC2\xB7 %s \xC2\xB7 page %d of %d \xC2\xB7 %s").s;
         return fmt(pattern, docName, pageNo, pageCount, scope);
     }
-    const char* pattern =
-        isPaused ? _TRA("Paused \xC2\xB7 %s \xC2\xB7 %s").s : _TRA("Reading \xC2\xB7 %s \xC2\xB7 %s").s;
+    const char* pattern = isPaused ? Tr("Paused \xC2\xB7 %s \xC2\xB7 %s").s : Tr("Reading \xC2\xB7 %s \xC2\xB7 %s").s;
     return fmt(pattern, docName, scope);
 }
 
@@ -186,7 +185,7 @@ void ReadAloudPlaybackBar::BuildLayout() {
     btnPause->flags |= vwfCapturesMouse;
     btnPause->onClick = MkFunc1(OnPauseClicked, this);
 
-    btnStop = new VirtButton(_TRA("Stop"), pf);
+    btnStop = new VirtButton(Tr("Stop"), pf);
     btnStop->textPadding = btnPad;
     btnStop->flags &= ~vwfFocusable;
     btnStop->flags |= vwfCapturesMouse;
@@ -228,7 +227,7 @@ void ReadAloudPlaybackBar::BuildLayout() {
 
 void ReadAloudPlaybackBar::SyncLabels() {
     showResume = sessionTab && CanContinueReadAloud(sessionTab) && !TtsIsSpeaking();
-    btnPause->SetText(showResume ? _TRA("Resume") : _TRA("Pause"));
+    btnPause->SetText(showResume ? Tr("Resume") : Tr("Pause"));
     if (!speedSlider->IsAdjusting()) {
         speedSlider->SetValue(ReadAloudClosestSpeedIdx(), false);
         SyncSpeedLabel(this);

@@ -354,10 +354,10 @@ static TempStr FormatPermissionsTemp(DocController* ctrl) {
 
     EngineBase* engine = ctrl->AsFixed()->GetEngine();
     if (!engine->AllowsPrinting()) {
-        denials.Append(_TRA("printing document"));
+        denials.Append(Tr("printing document"));
     }
     if (!engine->AllowsCopyingText()) {
-        denials.Append(_TRA("copying text"));
+        denials.Append(Tr("copying text"));
     }
 
     return JoinTemp(&denials, StrL(", "));
@@ -377,54 +377,54 @@ struct PropLabel {
 };
 
 static const PropLabel propToName[] = {
-    {DocProp::Title, _TRN("Title:")},
-    {DocProp::Subject, _TRN("Subject:")},
-    {DocProp::Author, _TRN("Author:")},
-    {DocProp::Copyright, _TRN("Copyright:")},
-    {DocProp::CreatorApp, _TRN("Application:")},
-    {DocProp::PdfProducer, _TRN("PDF Producer:")},
-    {DocProp::PdfVersion, _TRN("PDF Version:")},
-    {DocProp::Files, _TRN("Files:")},
-    {DocProp::Keywords, _TRN("Keywords:")},
-    {DocProp::Encryption, _TRN("Encryption:")},
-    {DocProp::Signatures, _TRN("Signatures:")},
-    {DocProp::ImageSize, _TRN("Image Size:")},
-    {DocProp::Dpi, _TRN("DPI:")},
-    {DocProp::Comment, _TRN("Comment:")},
-    {DocProp::CameraMake, _TRN("Camera Make:")},
-    {DocProp::CameraModel, _TRN("Camera Model:")},
-    {DocProp::DateOriginal, _TRN("Date Original:")},
-    {DocProp::ExposureTime, _TRN("Exposure Time:")},
-    {DocProp::FNumber, _TRN("F-Number:")},
-    {DocProp::IsoSpeed, _TRN("ISO Speed:")},
-    {DocProp::FocalLength, _TRN("Focal Length:")},
-    {DocProp::FocalLength35mm, _TRN("Focal Length (35mm):")},
-    {DocProp::Flash, _TRN("Flash:")},
-    {DocProp::Orientation, _TRN("Orientation:")},
-    {DocProp::ExposureProgram, _TRN("Exposure Program:")},
-    {DocProp::MeteringMode, _TRN("Metering Mode:")},
-    {DocProp::WhiteBalance, _TRN("White Balance:")},
-    {DocProp::ExposureBias, _TRN("Exposure Bias:")},
-    {DocProp::BitsPerSample, _TRN("Bits Per Sample:")},
-    {DocProp::ResolutionUnit, _TRN("Resolution Unit:")},
-    {DocProp::Software, _TRN("Software:")},
-    {DocProp::DateTime, _TRN("Date/Time:")},
-    {DocProp::YCbCrPositioning, _TRN("YCbCr Positioning:")},
-    {DocProp::ExifVersion, _TRN("Exif Version:")},
-    {DocProp::DateTimeDigitized, _TRN("Date/Time Digitized:")},
-    {DocProp::ComponentsConfig, _TRN("Components Configuration:")},
-    {DocProp::CompressedBpp, _TRN("Compressed Bits/Pixel:")},
-    {DocProp::MaxAperture, _TRN("Max Aperture:")},
-    {DocProp::LightSource, _TRN("Light Source:")},
-    {DocProp::UserComment, _TRN("User Comment:")},
-    {DocProp::FlashpixVersion, _TRN("Flashpix Version:")},
-    {DocProp::ColorSpace, _TRN("Color Space:")},
-    {DocProp::PixelXDimension, _TRN("Pixel X Dimension:")},
-    {DocProp::PixelYDimension, _TRN("Pixel Y Dimension:")},
-    {DocProp::FileSource, _TRN("File Source:")},
-    {DocProp::SceneType, _TRN("Scene Type:")},
-    {DocProp::ImageFileSize, _TRN("Image File Size:")},
-    {DocProp::ImagePath, _TRN("Path:")},
+    {DocProp::Title, TrN("Title:")},
+    {DocProp::Subject, TrN("Subject:")},
+    {DocProp::Author, TrN("Author:")},
+    {DocProp::Copyright, TrN("Copyright:")},
+    {DocProp::CreatorApp, TrN("Application:")},
+    {DocProp::PdfProducer, TrN("PDF Producer:")},
+    {DocProp::PdfVersion, TrN("PDF Version:")},
+    {DocProp::Files, TrN("Files:")},
+    {DocProp::Keywords, TrN("Keywords:")},
+    {DocProp::Encryption, TrN("Encryption:")},
+    {DocProp::Signatures, TrN("Signatures:")},
+    {DocProp::ImageSize, TrN("Image Size:")},
+    {DocProp::Dpi, TrN("DPI:")},
+    {DocProp::Comment, TrN("Comment:")},
+    {DocProp::CameraMake, TrN("Camera Make:")},
+    {DocProp::CameraModel, TrN("Camera Model:")},
+    {DocProp::DateOriginal, TrN("Date Original:")},
+    {DocProp::ExposureTime, TrN("Exposure Time:")},
+    {DocProp::FNumber, TrN("F-Number:")},
+    {DocProp::IsoSpeed, TrN("ISO Speed:")},
+    {DocProp::FocalLength, TrN("Focal Length:")},
+    {DocProp::FocalLength35mm, TrN("Focal Length (35mm):")},
+    {DocProp::Flash, TrN("Flash:")},
+    {DocProp::Orientation, TrN("Orientation:")},
+    {DocProp::ExposureProgram, TrN("Exposure Program:")},
+    {DocProp::MeteringMode, TrN("Metering Mode:")},
+    {DocProp::WhiteBalance, TrN("White Balance:")},
+    {DocProp::ExposureBias, TrN("Exposure Bias:")},
+    {DocProp::BitsPerSample, TrN("Bits Per Sample:")},
+    {DocProp::ResolutionUnit, TrN("Resolution Unit:")},
+    {DocProp::Software, TrN("Software:")},
+    {DocProp::DateTime, TrN("Date/Time:")},
+    {DocProp::YCbCrPositioning, TrN("YCbCr Positioning:")},
+    {DocProp::ExifVersion, TrN("Exif Version:")},
+    {DocProp::DateTimeDigitized, TrN("Date/Time Digitized:")},
+    {DocProp::ComponentsConfig, TrN("Components Configuration:")},
+    {DocProp::CompressedBpp, TrN("Compressed Bits/Pixel:")},
+    {DocProp::MaxAperture, TrN("Max Aperture:")},
+    {DocProp::LightSource, TrN("Light Source:")},
+    {DocProp::UserComment, TrN("User Comment:")},
+    {DocProp::FlashpixVersion, TrN("Flashpix Version:")},
+    {DocProp::ColorSpace, TrN("Color Space:")},
+    {DocProp::PixelXDimension, TrN("Pixel X Dimension:")},
+    {DocProp::PixelYDimension, TrN("Pixel Y Dimension:")},
+    {DocProp::FileSource, TrN("File Source:")},
+    {DocProp::SceneType, TrN("Scene Type:")},
+    {DocProp::ImageFileSize, TrN("Image File Size:")},
+    {DocProp::ImagePath, TrN("Path:")},
     {DocProp::None, {}},
 };
 // clang-format on
@@ -433,7 +433,7 @@ static void AppendPropTranslated(str::Builder& out, DocProp prop, Str val) {
     if (prop == DocProp::None || len(val) == 0) return;
     if (prop == DocProp::ImageFileSize) {
         TempStr valFormatted = FormatFileSizeTransTemp(ParseInt64(val));
-        AppendProp(out, _TRA("File Size:"), valFormatted);
+        AppendProp(out, Tr("File Size:"), valFormatted);
         return;
     }
     Str s;
@@ -459,7 +459,7 @@ static void AppendPdfFileStructure(str::Builder& out, Str fstruct, Str filePath)
     if (len(fstruct) == 0) {
         bool isPDF = str::EndsWithI(filePath, StrL(".pdf"));
         if (isPDF) {
-            AppendProp(out, str::JoinTemp(_TRA("Fast Web View"), StrL(":")), _TRA("No"));
+            AppendProp(out, str::JoinTemp(Tr("Fast Web View"), StrL(":")), Tr("No"));
         }
         return;
     }
@@ -468,14 +468,14 @@ static void AppendPdfFileStructure(str::Builder& out, Str fstruct, Str filePath)
 
     StrVec props;
 
-    Str linearized = _TRA("No");
+    Str linearized = Tr("No");
     if (parts.Contains(StrL("linearized"))) {
-        linearized = _TRA("Yes");
+        linearized = Tr("Yes");
     }
-    AppendProp(out, str::JoinTemp(_TRA("Fast Web View"), StrL(":")), linearized);
+    AppendProp(out, str::JoinTemp(Tr("Fast Web View"), StrL(":")), linearized);
 
     if (parts.Contains(StrL("tagged"))) {
-        props.Append(_TRA("Tagged PDF"));
+        props.Append(Tr("Tagged PDF"));
     }
     if (parts.Contains(StrL("PDFX"))) {
         props.Append(StrL("PDF/X (ISO 15930)"));
@@ -488,7 +488,7 @@ static void AppendPdfFileStructure(str::Builder& out, Str fstruct, Str filePath)
     }
 
     TempStr val = JoinTemp(&props, StrL(", "));
-    AppendProp(out, _TRA("PDF Optimizations:"), val);
+    AppendProp(out, Tr("PDF Optimizations:"), val);
 }
 
 static void GetAllProps(DocController* ctrl, Props& propsOut) {
@@ -530,7 +530,7 @@ static void AddImageProperties(EngineBase* engine, int pageNo, str::Builder& out
     int nImageProps = PropsCount(imageProps);
     if (nImageProps == 0) return;
     out.AppendChar('\n');
-    TempStr header = fmt(_TRA("Current Image (%d):").s, pageNo);
+    TempStr header = fmt(Tr("Current Image (%d):").s, pageNo);
     out.Append(header);
     out.AppendChar('\n');
     for (int i = 0; i < nImageProps; i++) {
@@ -574,7 +574,7 @@ static void AppendFileType(str::Builder& out, Str path) {
         str::ToUpperInPlace(fromExt);
         name = fromExt;
     }
-    AppendProp(out, _TRA("File Type:"), name);
+    AppendProp(out, Tr("File Type:"), name);
 }
 
 // Which way the pages run, and where that came from. A PDF can state it with
@@ -606,23 +606,23 @@ static void AppendReadingDirection(str::Builder& out, DisplayModel* dm) {
         return;
     }
     bool r2l = dm->GetDisplayR2L();
-    Str dir = r2l ? _TRA("Right to left") : _TRA("Left to right");
+    Str dir = r2l ? Tr("Right to left") : Tr("Left to right");
     Str src;
     const PageLayout& layout = dm->GetEngine()->preferredLayout;
     if (layout.r2lDeclared && r2l == layout.r2l) {
-        src = _TRA("from the document");
+        src = Tr("from the document");
     } else if (r2l != layout.r2l) {
-        src = _TRA("changed by you");
+        src = Tr("changed by you");
     }
     TempStr val = src ? str::JoinTemp(dir, StrL(" ("), src, StrL(")")) : TempStr(dir);
-    AppendProp(out, _TRA("Reading Direction:"), val);
+    AppendProp(out, Tr("Reading Direction:"), val);
 }
 
 static void GetPropsText(DocController* ctrl, str::Builder& out) {
     ReportIf(!ctrl);
 
     Str path = gPluginMode ? gPluginURL : Str(ctrl->GetFilePath());
-    AppendProp(out, _TRA("File:"), len(path) == 0 ? StrL("(not available)") : path);
+    AppendProp(out, Tr("File:"), len(path) == 0 ? StrL("(not available)") : path);
 
     DisplayModel* dm = ctrl->AsFixed();
     i64 fileSize = file::GetSize(path); // can be gPluginURL
@@ -637,7 +637,7 @@ static void GetPropsText(DocController* ctrl, str::Builder& out) {
     TempStr strTemp;
     if (-1 != fileSize) {
         strTemp = FormatFileSizeTransTemp(fileSize);
-        AppendProp(out, _TRA("File Size:"), strTemp);
+        AppendProp(out, Tr("File Size:"), strTemp);
     }
     AppendFileType(out, path);
     AppendReadingDirection(out, dm);
@@ -652,15 +652,15 @@ static void GetPropsText(DocController* ctrl, str::Builder& out) {
 
     bool isPdfDate = dm && kindEngineMupdf == dm->engineType;
     Str val = GetPropValueTemp(props, DocProp::CreationDate);
-    AppendDateProp(out, _TRA("Created:"), val, isPdfDate);
+    AppendDateProp(out, Tr("Created:"), val, isPdfDate);
     val = GetPropValueTemp(props, DocProp::ModificationDate);
-    AppendDateProp(out, _TRA("Modified:"), val, isPdfDate);
+    AppendDateProp(out, Tr("Modified:"), val, isPdfDate);
 
     AppendPropTranslated(out, DocProp::CreatorApp, GetPropValueTemp(props, DocProp::CreatorApp));
     AppendPropTranslated(out, DocProp::PdfProducer, GetPropValueTemp(props, DocProp::PdfProducer));
     AppendPropTranslated(out, DocProp::PdfVersion, GetPropValueTemp(props, DocProp::PdfVersion));
     strTemp = FormatPermissionsTemp(ctrl);
-    AppendProp(out, _TRA("Denied Permissions:"), strTemp);
+    AppendProp(out, Tr("Denied Permissions:"), strTemp);
 
     AppendPdfFileStructure(out, GetPropValueTemp(props, DocProp::PdfFileStructure), ctrl->GetFilePath());
 
@@ -673,14 +673,14 @@ static void GetPropsText(DocController* ctrl, str::Builder& out) {
 
     strTemp = fmt("%d", ctrl->PageCount());
     if (isImages) {
-        AppendProp(out, _TRA("Number of Images:"), strTemp);
+        AppendProp(out, Tr("Number of Images:"), strTemp);
     } else {
-        AppendProp(out, _TRA("Number of Pages:"), strTemp);
+        AppendProp(out, Tr("Number of Pages:"), strTemp);
     }
 
     if (dm && !isImages) { // we show image size below
         strTemp = FormatPageSizeTemp(dm->GetEngine(), pageNo, dm->GetRotation());
-        TempStr s = fmt(_TRA("Current Page (%d) Size:").s, pageNo);
+        TempStr s = fmt(Tr("Current Page (%d) Size:").s, pageNo);
         AppendProp(out, s, strTemp);
     }
     if (isImages) AddImageProperties(dm->GetEngine(), pageNo, out);
@@ -866,22 +866,22 @@ static void AppendOneCert(str::Builder& out, PdfSigCert* c) {
     if (!cert) {
         return;
     }
-    AppendProp(out, _TRA("Subject:"), CertNameTemp(cert, 0));
-    AppendProp(out, _TRA("Issuer:"), CertNameTemp(cert, CERT_NAME_ISSUER_FLAG));
+    AppendProp(out, Tr("Subject:"), CertNameTemp(cert, 0));
+    AppendProp(out, Tr("Issuer:"), CertNameTemp(cert, CERT_NAME_ISSUER_FLAG));
     if (cert->pCertInfo) {
-        AppendProp(out, _TRA("Serial Number:"),
+        AppendProp(out, Tr("Serial Number:"),
                    HexBytesTemp(cert->pCertInfo->SerialNumber.pbData, (int)cert->pCertInfo->SerialNumber.cbData, true));
-        AppendProp(out, _TRA("Valid From:"), FileTimeLocalTemp(cert->pCertInfo->NotBefore));
-        AppendProp(out, _TRA("Valid To:"), FileTimeLocalTemp(cert->pCertInfo->NotAfter));
+        AppendProp(out, Tr("Valid From:"), FileTimeLocalTemp(cert->pCertInfo->NotBefore));
+        AppendProp(out, Tr("Valid To:"), FileTimeLocalTemp(cert->pCertInfo->NotAfter));
     }
     BYTE hash[20];
     DWORD hashLen = sizeof(hash);
     if (CertGetCertificateContextProperty(cert, CERT_HASH_PROP_ID, hash, &hashLen) && hashLen > 0) {
-        AppendProp(out, _TRA("SHA-1:"), HexBytesTemp(hash, (int)hashLen, false));
+        AppendProp(out, Tr("SHA-1:"), HexBytesTemp(hash, (int)hashLen, false));
     }
     Str trust = EutlCertIsEuTrusted((const u8*)c->der.s, len(c->der)) ? StrL("European Union Trusted List (EUTL)")
                                                                       : StrL("Windows Certificate Store");
-    AppendProp(out, _TRA("Trust:"), trust);
+    AppendProp(out, Tr("Trust:"), trust);
     CertFreeCertificateContext(cert);
 }
 
@@ -890,7 +890,7 @@ static void AppendCertsText(str::Builder& out, PdfSigCert* certs) {
         return;
     }
     out.AppendChar('\n');
-    out.Append(_TRA("Certificates:"));
+    out.Append(Tr("Certificates:"));
     out.AppendChar('\n');
     for (PdfSigCert* c = certs; c; c = c->next) {
         AppendOneCert(out, c);
@@ -1097,7 +1097,7 @@ bool PropertiesWnd::Create(HWND parent) {
 
     {
         CreateCustomArgs args;
-        args.title = _TRA("Document Properties");
+        args.title = Tr("Document Properties");
         args.visible = false;
         args.style = WS_OVERLAPPEDWINDOW;
         args.font = GetAppFont();
@@ -1139,15 +1139,15 @@ bool PropertiesWnd::Create(HWND parent) {
         btnRow->alignMain = MainAxisAlign::MainEnd;
         btnRow->alignCross = CrossAxisAlign::CrossCenter;
         btnRow->gap = GetAppFont()->averageCharWidth;
-        btnCopyToClipboard = NewThemedButton(hwnd, _TRA("Copy To Clipboard"), GetAppFont(), true);
+        btnCopyToClipboard = NewThemedButton(hwnd, Tr("Copy To Clipboard"), GetAppFont(), true);
         btnCopyToClipboard->onClick = MkMethod1<PropertiesWnd, VirtMouseEvent*, &PropertiesWnd::CopyToClipboard>(this);
         btnRow->AddChild(new Padding(btnCopyToClipboard, DpiScaledInsets(kButtonPadding, 0, 0, 0)));
 #if OS_WIN
         if (certs) {
-            btnViewCert = NewThemedButton(hwnd, _TRA("View Certificate..."), GetAppFont(), true);
+            btnViewCert = NewThemedButton(hwnd, Tr("View Certificate..."), GetAppFont(), true);
             btnViewCert->onClick = MkMethod1<PropertiesWnd, VirtMouseEvent*, &PropertiesWnd::ViewCertificate>(this);
             btnRow->AddChild(new Padding(btnViewCert, DpiScaledInsets(kButtonPadding, 0, 0, 0)));
-            btnUpdateEutl = NewThemedButton(hwnd, _TRA("Update EU Trusted List"), GetAppFont(), true);
+            btnUpdateEutl = NewThemedButton(hwnd, Tr("Update EU Trusted List"), GetAppFont(), true);
             btnUpdateEutl->onClick = MkMethod1<PropertiesWnd, VirtMouseEvent*, &PropertiesWnd::UpdateEutl>(this);
             btnRow->AddChild(new Padding(btnUpdateEutl, DpiScaledInsets(kButtonPadding, 0, 0, 0)));
         }
@@ -1172,7 +1172,7 @@ struct GetFontsResult {
 static void OnGetFontsFinished(GetFontsResult* result) {
     PropertiesWnd* w = FindPropertyWindowByHwnd(result->hwnd);
     if (w) {
-        Str marker = _TRA("Getting font information...");
+        Str marker = Tr("Getting font information...");
         Str props = ToStr(w->propsText);
         int pos = str::IndexOf(props, marker);
         if (pos >= 0) {
@@ -1198,7 +1198,7 @@ static void GetFontsThread(GetFontsData* data) {
     result->hwnd = data->hwnd;
     if (val) {
         result->fontsText.Append(StrL("\n"));
-        result->fontsText.Append(_TRA("Fonts:"));
+        result->fontsText.Append(Tr("Fonts:"));
         result->fontsText.Append(StrL("\n"));
         result->fontsText.Append(val);
     }
@@ -1237,7 +1237,7 @@ void ShowProperties(HWND parent, DocController* ctrl) {
     AlignPropertiesText(wnd->propsText);
     EndWithSingleNewline(wnd->propsText);
     wnd->propsText.Append(StrL("\n"));
-    wnd->propsText.Append(_TRA("Getting font information..."));
+    wnd->propsText.Append(Tr("Getting font information..."));
 
     wnd->closeOnEsc = true;
     wnd->onClose = MkFunc1Void<WindowBase::CloseEvent*>(OnPropertiesClose);

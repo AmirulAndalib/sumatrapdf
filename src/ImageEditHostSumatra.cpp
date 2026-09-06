@@ -101,7 +101,7 @@ static void OpenSavedFile(HWND parent, Str path) {
 }
 
 static Str TranslateStr(Str s) {
-    return _TRA(s);
+    return Tr(s);
 }
 
 static void ApplyDarkMode(HWND hwnd) {

@@ -351,10 +351,10 @@ struct GrokBuildProvider : AIChatProvider {
         checkboxLabel = StrL("Always Approve");
     }
 
-    TempStr TitleTemp() override { return str::DupTemp(_TRA("Grok chat")); }
+    TempStr TitleTemp() override { return str::DupTemp(Tr("Grok chat")); }
 
     TempStr NotInstalledInstructionTemp() override {
-        return str::DupTemp(_TRA("Install Grok Build to use this feature."));
+        return str::DupTemp(Tr("Install Grok Build to use this feature."));
     }
 
     TempStr FindExecutableTemp() override { return FindGrokExecutableTemp(); }

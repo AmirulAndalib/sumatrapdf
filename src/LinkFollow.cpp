@@ -236,7 +236,7 @@ void ToggleKeyboardLinkFollowing(MainWindow* win) {
         win->linkFollowActive = false;
         NotificationCreateArgs args;
         args.hwndParent = win->hwndCanvas;
-        args.msg = _TRA("No links on this page");
+        args.msg = Tr("No links on this page");
         args.timeoutMs = 2000;
         args.groupId = kNotifLinkFollow;
         ShowNotification(args);

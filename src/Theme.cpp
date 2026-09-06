@@ -41,9 +41,9 @@ VirtButton* NewThemedButton(HWND hwndForDpi, Str text, PlatformFont* font, bool 
 
 /*
 preserve those translations:
-_TRN("Dark")
-_TRN("Light")
-_TRN("Charcoal")
+TrN("Dark")
+TrN("Light")
+TrN("Charcoal")
 */
 
 // Optional colors (DisabledTextColor … NotificationHighlightTextColor) fix
@@ -583,7 +583,7 @@ void CreateThemeCommands() {
         Theme* theme = (*gThemes)[i];
         Str themeName = theme->name;
         auto* args = NewStringArg(kCmdArgTheme, themeName);
-        cmd = CreateCustomCommand(themeName, CmdSetTheme, args, fmt(_TRA("Set theme '%s'").s, themeName));
+        cmd = CreateCustomCommand(themeName, CmdSetTheme, args, fmt(Tr("Set theme '%s'").s, themeName));
         if (i == 0) {
             gFirstSetThemeCmdId = cmd->id;
         } else if (i == gThemeCount - 1) {

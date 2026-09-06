@@ -352,7 +352,7 @@ void RegisterSearchFilter(bool allUsers, Str installDir) {
         return;
     }
     log(StrL("  failed to register\n"));
-    NotifyFailed(_TRA("Couldn't install PDF search filter"));
+    NotifyFailed(Tr("Couldn't install PDF search filter"));
 }
 
 void UnRegisterSearchFilter() {
@@ -364,7 +364,7 @@ void UnRegisterSearchFilter() {
         return;
     }
     log(StrL("  failed to unregister\n"));
-    NotifyFailed(_TRA("Couldn't uninstall Sumatra search filter"));
+    NotifyFailed(Tr("Couldn't uninstall Sumatra search filter"));
 }
 
 constexpr const char* kPreviewDllName = "PdfPreview.dll";
@@ -378,7 +378,7 @@ void RegisterPreviewer(bool allUsers, Str installDir) {
         return;
     }
     log(StrL("  failed to register\n"));
-    NotifyFailed(_TRA("Couldn't install PDF previewer"));
+    NotifyFailed(Tr("Couldn't install PDF previewer"));
 }
 
 void UnRegisterPreviewer() {
@@ -390,7 +390,7 @@ void UnRegisterPreviewer() {
         return;
     }
     log(StrL(" failed to unregister\n"));
-    NotifyFailed(_TRA("Couldn't uninstall PDF previewer"));
+    NotifyFailed(Tr("Couldn't uninstall PDF previewer"));
 }
 
 static bool IsProcWithModule(DWORD processId, Str modulePath) {
@@ -683,7 +683,7 @@ static void SetCloseProcessMsg() {
             procNames = str::JoinTemp(procNames, StrL(" and "), name);
         }
     }
-    TempStr s = fmt(_TRA("Please close %s to proceed!").s, procNames);
+    TempStr s = fmt(Tr("Please close %s to proceed!").s, procNames);
     SetMsg(s, kColorMsgFailed);
 }
 

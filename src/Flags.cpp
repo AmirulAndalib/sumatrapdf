@@ -97,7 +97,7 @@ void ShowPrintersDialog(bool consoleOnly) {
         }
     }
     if (!consoleOnly) {
-        ShowTextInWindowDialog(_TRA("SumatraPDF - Show Printers"), ToStr(out));
+        ShowTextInWindowDialog(Tr("SumatraPDF - Show Printers"), ToStr(out));
     }
 #else
     (void)consoleOnly;
@@ -598,7 +598,7 @@ void ParseFlags(Arena* a, WStr cmdLine, Flags& i, Str toolNames) {
             continue;
         }
         if ((arg == Arg::ArgEnumPrinters) || (arg == Arg::ListPrinters)) {
-            // defer UI until after SetCurrentLang() so _TRA resolves (issue #5697).
+            // defer UI until after SetCurrentLang() so Tr resolves (issue #5697).
             // Do not return early: later flags like -console / -silent must still apply.
             i.showPrintersDialog = true;
             i.exitImmediately = true;

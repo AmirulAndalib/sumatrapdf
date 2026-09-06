@@ -460,10 +460,10 @@ struct CodexBuildProvider : AIChatProvider {
         checkboxLabel = StrL("Skip Sandbox");
     }
 
-    TempStr TitleTemp() override { return str::DupTemp(_TRA("Codex chat")); }
+    TempStr TitleTemp() override { return str::DupTemp(Tr("Codex chat")); }
 
     TempStr NotInstalledInstructionTemp() override {
-        return str::DupTemp(_TRA("OpenAI Codex CLI must be installed for this functionality"));
+        return str::DupTemp(Tr("OpenAI Codex CLI must be installed for this functionality"));
     }
 
     TempStr FindExecutableTemp() override { return FindCodexExecutableTemp(); }

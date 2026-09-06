@@ -680,13 +680,13 @@ void ChangeColorWnd::RelayoutRadios() {
         radioAllFiles->SetVisibility(vis);
     }
     if (show && radioAllFiles) {
-        Str label = _TRA("For all &PDF files");
+        Str label = Tr("For all &PDF files");
         if (isCbx) {
-            label = _TRA("For all &comic books");
+            label = Tr("For all &comic books");
         } else if (isImage) {
-            label = _TRA("For all &images");
+            label = Tr("For all &images");
         } else if (isEbook) {
-            label = _TRA("For all &ebooks");
+            label = Tr("For all &ebooks");
         }
         radioAllFiles->SetText(label);
         radioThisFile->SetIsChecked(true);
@@ -705,7 +705,7 @@ void ChangeColorWnd::SetTargetBackground(MainWindow* mainWin) {
     selectedCustomIdx = -1;
     previewSelected = true;
     if (hwnd) {
-        HwndSetText(hwnd, _TRA("Change Background Color"));
+        HwndSetText(hwnd, Tr("Change Background Color"));
         RelayoutRadios();
         UpdateEditFromColor();
         int dx = DpiScale(400);
@@ -725,7 +725,7 @@ void ChangeColorWnd::SetTargetTab(MainWindow* mainWin, WindowTab* colorTab) {
     selectedCustomIdx = -1;
     previewSelected = true;
     if (hwnd) {
-        HwndSetText(hwnd, _TRA("Change Tab Color"));
+        HwndSetText(hwnd, Tr("Change Tab Color"));
         RelayoutRadios();
         UpdateEditFromColor();
         int dx = DpiScale(400);
@@ -768,7 +768,7 @@ bool ChangeColorWnd::Create(MainWindow* mainWin) {
 
     {
         CreateCustomArgs args;
-        args.title = forTabColor ? _TRA("Change Tab Color") : _TRA("Change Background Color");
+        args.title = forTabColor ? Tr("Change Tab Color") : Tr("Change Background Color");
         args.visible = false;
         args.style = WS_POPUPWINDOW | WS_CAPTION;
         args.font = GetFont();
@@ -802,7 +802,7 @@ bool ChangeColorWnd::Create(MainWindow* mainWin) {
         row->alignMain = MainAxisAlign::MainStart;
         row->alignCross = CrossAxisAlign::CrossCenter;
         auto* lab = NewVirtText({
-            .s = _TRA("RGB:"),
+            .s = Tr("RGB:"),
             .font = font,
             .isRtl = isRtl,
             .padding = DpiScaledInsets(0, 8, 0, 0),
@@ -858,7 +858,7 @@ bool ChangeColorWnd::Create(MainWindow* mainWin) {
 
         Checkbox::CreateArgs args;
         args.parent = hwnd;
-        args.text = _TRA("&This file");
+        args.text = Tr("&This file");
         args.isRtl = isRtl;
         args.isRadio = true;
         args.isGroupStart = true;
@@ -869,7 +869,7 @@ bool ChangeColorWnd::Create(MainWindow* mainWin) {
         radioThisFile = r1;
         row->AddChild(r1);
 
-        args.text = _TRA("For all &PDF files");
+        args.text = Tr("For all &PDF files");
         args.isGroupStart = false;
         args.initialState = Checkbox::State::Unchecked;
         auto* r2 = new Checkbox();
@@ -887,10 +887,10 @@ bool ChangeColorWnd::Create(MainWindow* mainWin) {
         hbox->gap = font->averageCharWidth;
         auto pad = Insets{4, 0, 4, 0};
 
-        btnCancel = NewThemedButton(hwnd, _TRA("Cancel"), font, false);
+        btnCancel = NewThemedButton(hwnd, Tr("Cancel"), font, false);
         btnCancel->onClick = MkMethod1<ChangeColorWnd, VirtMouseEvent*, &ChangeColorWnd::OnCancel>(this);
         hbox->AddChild(new Padding(btnCancel, pad));
-        btnOk = NewThemedButton(hwnd, _TRA("OK"), font, true);
+        btnOk = NewThemedButton(hwnd, Tr("OK"), font, true);
         btnOk->onClick = MkMethod1<ChangeColorWnd, VirtMouseEvent*, &ChangeColorWnd::OnOk>(this);
         hbox->AddChild(new Padding(btnOk, pad));
         vbox->AddChild(hbox);

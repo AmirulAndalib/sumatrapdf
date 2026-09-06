@@ -236,7 +236,7 @@ bool ChangeThemeWnd::Create(MainWindow* mainWin) {
 
     {
         CreateCustomArgs args;
-        args.title = documentColorsFollowThemeOnly ? _TRA("Make Document Colors Follow Theme") : _TRA("Change Theme");
+        args.title = documentColorsFollowThemeOnly ? Tr("Make Document Colors Follow Theme") : Tr("Change Theme");
         args.visible = false;
         args.style = WS_POPUPWINDOW | WS_CAPTION;
         args.font = GetFont();
@@ -263,7 +263,7 @@ bool ChangeThemeWnd::Create(MainWindow* mainWin) {
         model = new ListBoxModelStrings();
         // This is a mode, not another color theme, so keep its user-facing
         // name distinct from the persisted Theme = System value.
-        model->strings.Append(_TRA("Follow Windows"));
+        model->strings.Append(Tr("Follow Windows"));
         for (int i = 0; i < nThemes; i++) {
             model->strings.Append(ThemeGetNameAt(i));
         }
@@ -279,7 +279,7 @@ bool ChangeThemeWnd::Create(MainWindow* mainWin) {
         vbox->AddChild(c);
 
         auto* label = NewVirtText({
-            .s = _TRA("Document colors follow theme"),
+            .s = Tr("Document colors follow theme"),
             .font = font,
             .isRtl = isRtl,
             .padding = DpiScaledInsets(8, 0, 0, 0),
@@ -311,12 +311,12 @@ bool ChangeThemeWnd::Create(MainWindow* mainWin) {
         hbox->gap = font->averageCharWidth;
         auto pad = Insets{4, 0, 4, 0};
 
-        btnCancel = NewThemedButton(hwnd, _TRA("Cancel"), font, false);
+        btnCancel = NewThemedButton(hwnd, Tr("Cancel"), font, false);
         btnCancel->onClick = MkMethod1<ChangeThemeWnd, VirtMouseEvent*, &ChangeThemeWnd::OnCancel>(this);
         hbox->AddChild(new Padding(btnCancel, pad));
         // Enter runs this one (WindowBase::ActivateOnEnter), so draw it
         // as the default button to say so
-        btnChange = NewThemedButton(hwnd, _TRA("Change"), font, true);
+        btnChange = NewThemedButton(hwnd, Tr("Change"), font, true);
         btnChange->onClick = MkMethod1<ChangeThemeWnd, VirtMouseEvent*, &ChangeThemeWnd::OnChange>(this);
         hbox->AddChild(new Padding(btnChange, pad));
         vbox->AddChild(hbox);

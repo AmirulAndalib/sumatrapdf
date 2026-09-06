@@ -1454,12 +1454,12 @@ TempStr ScrollToLinkResultTemp(int minViewportDelta, int* exitCodeOut) {
     return ToStrTemp(out);
 }
 
-// Verifies _TRA resolves error-path strings through the translation table.
+// Verifies Tr resolves error-path strings through the translation table.
 TempStr I18nErrorStringResultTemp(int* exitCodeOut) {
     str::Builder out;
-    Str err = _TRA("Error");
-    Str crash = _TRA("SumatraPDF crashed");
-    Str printers = _TRA("SumatraPDF - Show Printers");
+    Str err = Tr("Error");
+    Str crash = Tr("SumatraPDF crashed");
+    Str printers = Tr("SumatraPDF - Show Printers");
     bool ok = len(err) > 0 && len(crash) > 0 && len(printers) > 0 &&
               str::Eq(err, trans::GetTranslation(StrL("Error"))) &&
               str::Eq(crash, trans::GetTranslation(StrL("SumatraPDF crashed"))) &&
